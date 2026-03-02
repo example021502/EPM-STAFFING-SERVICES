@@ -13,7 +13,8 @@ function CandidateMiddleInformation({ icons, candidate }) {
   const { companyAccounts } = useContext(Company_context) || {};
 
   // Safe access to job data with fallback values
-  const jobData = jobs?.[candidate["job id"]];
+  const jobIds = Array.isArray(candidate["job id"]) ? candidate["job id"] : [];
+  const jobData = jobIds.length > 0 ? jobs?.[jobIds[0]] : null;
   const job_name = jobData ? jobData["job title"] : "Job not found";
   const company_name = companyAccounts?.[candidate["company id"]]
     ? companyAccounts[candidate["company id"]].name

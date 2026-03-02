@@ -18,7 +18,8 @@ function ManageProfile({
   deleteCandidate,
 }) {
   const { jobs } = useContext(Jobs_context) || {};
-  const jobData = candidate ? jobs?.[candidate["job id"]] || {} : {};
+  const jobIds = Array.isArray(candidate["job id"]) ? candidate["job id"] : [];
+  const jobData = jobIds.length > 0 ? jobs?.[jobIds[0]] || {} : {};
   const [localForm, setLocalForm] = useState({
     name: "",
     email: "",

@@ -110,7 +110,7 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
       const candidateToAdd = {
         ...candidate_form,
         skills,
-        "job id": job_id,
+        "job id": [job_id],
         "company id": company_id,
         resume: resume ? resume : "",
         "cover letter": cover_letter ? cover_letter : "",

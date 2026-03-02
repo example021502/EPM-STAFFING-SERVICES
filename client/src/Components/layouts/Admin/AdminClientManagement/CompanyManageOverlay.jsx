@@ -84,19 +84,15 @@ function CompanyManageOverlay({ company, setClosing }) {
             setSaveUpdates(false);
             setTimeout(() => {
               setError({ type: "", text: "" });
-              setTimeout(() => {
-                setClosing(false);
-              }, [500]);
-            }, [2000]);
+              setClosing(false);
+            }, [1000]);
           } else {
             setError({ type: "success", text: "No Changes were made" });
             setSaveUpdates(false);
             setTimeout(() => {
               setError({ type: "", text: "" });
-              setTimeout(() => {
-                setClosing(false);
-              }, [500]);
-            }, [2000]);
+              setClosing(false);
+            }, [1000]);
           }
         } catch (err) {
           setError({ type: "error", text: "Failed to save changes" + err });
@@ -112,13 +108,13 @@ function CompanyManageOverlay({ company, setClosing }) {
         setTimeout(() => {
           setError({ type: "", text: "" });
           deleteCompany(comp_id);
-        }, 1500);
+        }, 1000);
       } catch (e) {
         console.log(`Error: ${e}`);
         setError({ type: "error", text: "Error, Delete action failed" });
         setTimeout(() => {
           setError({ type: "", text: "" });
-        }, 1500);
+        }, 1000);
       }
     }, 2000);
   };

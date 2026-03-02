@@ -19,7 +19,7 @@ import {
 
 function CompanyViewOverlay({ company, setClosing }) {
   const [job, setJob] = useState({});
-  const [manage, setManage] = useState(false);
+  const [submit, setSubmit] = useState(false);
   const [view, setViewMore] = useState(false);
 
   const { jobs } = useContext(Jobs_context);
@@ -34,13 +34,13 @@ function CompanyViewOverlay({ company, setClosing }) {
     "font-semibold text-[clamp(1em,1vw,1.2em)] pb-1 mb-2 border-b w-full border-lighter";
 
   const handleClosing = () => setClosing(false);
-  const handleCloseManage = () => setManage(false);
+  const handleCloseManage = () => setSubmit(false);
   const handleOpening_CompanyOverlay = () => setClosing(true);
 
   const handleClicking = (name, jobData) => {
     setJob(jobData);
     if (name === "View") setViewMore(true);
-    else if (name === "Submit") setManage(true);
+    else if (name === "Submit") setSubmit(true);
   };
 
   return (
@@ -55,10 +55,10 @@ function CompanyViewOverlay({ company, setClosing }) {
           animate={{
             opacity: 1,
             x: 0,
-            scale: view || manage ? 0.6 : 1,
+            scale: view || submit ? 0.6 : 1,
           }}
           transition={{ duration: 0.2, type: "tween", ease: "easeInOut" }}
-          className="w-[40%] h-full bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
+          className="w-[40%] max-h-full bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
         >
           <Header
             heading={company.name}
@@ -100,10 +100,10 @@ function CompanyViewOverlay({ company, setClosing }) {
             />
           </div>
         )}
-        {manage && (
+        {submit && (
           <div
             onClick={() => {
-              setManage(false);
+              setSubmit(false);
               setClosing(true);
             }}
             className="w-full h-full absolute p-4 top-0 bg-light_black left-0 flex items-center justify-center z-202"

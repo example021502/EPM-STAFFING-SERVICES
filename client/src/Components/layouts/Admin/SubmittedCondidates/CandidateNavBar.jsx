@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import Icon from "../../../common/Icon";
 import Input from "../../../common/Input";
-import { motion } from "framer-motion";
 import Label from "../../../common/Label";
 import { Jobs_context } from "../../../../context/JobsContext";
 
@@ -18,7 +17,6 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
     setClickedBtn(name);
 
     setSearch_key(name);
-    // Reset to first page when filter changes
     setF_number(1);
   };
 
@@ -50,16 +48,21 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
             typeof candidate?.status === "string"
               ? candidate.status.toLocaleLowerCase()
               : "";
-          const jobTitle =
-            jobs?.[candidate?.["job id"]]?.["job title"] &&
-            typeof jobs[candidate["job id"]]["job title"] === "string"
-              ? jobs[candidate["job id"]]["job title"].toLocaleLowerCase()
-              : "";
+          const jobTitles = Array.isArray(candidate["job id"])
+            ? candidate["job id"]
+                .map((job_id) => {
+                  const job = jobs?.[job_id];
+                  return job && typeof job["job title"] === "string"
+                    ? job["job title"].toLocaleLowerCase()
+                    : "";
+                })
+                .filter(Boolean)
+            : [];
 
           if (
             name.includes(s_key) ||
             status.includes(s_key) ||
-            jobTitle.includes(s_key)
+            jobTitles.some((title) => title.includes(s_key))
           ) {
             acc[key] = candidate;
           }

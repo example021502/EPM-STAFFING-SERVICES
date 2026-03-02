@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Label from "../../../common/Label";
-import Icon from "../../../common/Icon";
 import LabelInput from "../../../common/LabelInput";
 import UrgentJob from "./UrgentJob";
 import Button from "../../../common/Button";
@@ -99,75 +98,73 @@ function EditCardDetails({ onclick, Card_index }) {
       onClick={() => onclick(false)}
       className="flex items-center justify-center p-4 absolute top-0 left-0 w-full h-full bg-light_black z-50"
     >
-      <AnimatePresence>
-        <div
-          onClick={(e) => e.stopPropagation()}
-          ref={targetRef}
-          className="h-full w-[40%] overflow-hidden rounded-small shadow-xl flex flex-col bg-white"
-        >
-          <Header
-            heading={selected_job["job title"]}
-            candidate_name={"Edit Job Post"}
-            handleClosingModal={() => onclick(false)}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        ref={targetRef}
+        className="h-full w-[40%] overflow-hidden rounded-small shadow-xl flex flex-col bg-white"
+      >
+        <Header
+          heading={selected_job["job title"]}
+          candidate_name={"Edit Job Post"}
+          handleClosingModal={() => onclick(false)}
+        />
+        <div className="flex overflow-y-auto no-scrollbar overflow-x-hidden gap-4 p-4 flex-col items-start justify-between w-full flex-1">
+          <JobStatus
+            selected_job={selected_job}
+            handle_update_form={handle_update_form}
+            heading={selected_job.status}
+            label={display_text}
           />
-          <div className="flex overflow-y-auto no-scrollbar overflow-x-hidden gap-4 p-4 flex-col items-start justify-between w-full flex-1">
-            <JobStatus
-              selected_job={selected_job}
-              handle_update_form={handle_update_form}
-              heading={selected_job.status}
-              label={display_text}
-            />
 
-            <LabelInput
-              onchange={handle_update_form}
-              id="job title"
-              text="Job Title"
-              default_value={selected_job["job title"]}
-              label_class_name={label_class_name}
-              input_class_name={input_class_name}
-              type="text"
-            />
+          <LabelInput
+            onchange={handle_update_form}
+            id="job title"
+            text="Job Title"
+            default_value={selected_job["job title"]}
+            label_class_name={label_class_name}
+            input_class_name={input_class_name}
+            type="text"
+          />
 
-            <UrgentJob
-              heading="Mark as Urgent"
-              label="This will assign a priority badge to your listing"
-              priority={selected_job.priority}
-              handle_update_form={handle_update_form}
-            />
+          <UrgentJob
+            heading="Mark as Urgent"
+            label="This will assign a priority badge to your listing"
+            priority={selected_job.priority}
+            handle_update_form={handle_update_form}
+          />
 
-            <EditComponentAnchor
-              selected_job={selected_job}
-              handleInputChange={handle_update_form}
-            />
+          <EditComponentAnchor
+            selected_job={selected_job}
+            handleInputChange={handle_update_form}
+          />
 
-            {sections.map((section) => (
-              <div
-                key={section.id}
-                className="gap-1 w-full flex flex-col items-start justify-start"
-              >
-                <Label text={section.label} class_name={label_class_name} />
-                <RequirementsEditComponent
-                  id={section.id}
-                  icon_class={icon_class}
-                  data_prop={newForm_data[section.id] || []}
-                  button={section.button}
-                  updateReq_Res_Ben={updateReq_Res_Ben}
-                  deletingReq_Res_Ben={deletingReq_Res_Ben}
-                  addingReq_Res_Ben={() => addingReq_Res_Ben(section.id)}
-                />
-              </div>
-            ))}
+          {sections.map((section) => (
+            <div
+              key={section.id}
+              className="gap-1 w-full flex flex-col items-start justify-start"
+            >
+              <Label text={section.label} class_name={label_class_name} />
+              <RequirementsEditComponent
+                id={section.id}
+                icon_class={icon_class}
+                data_prop={newForm_data[section.id] || []}
+                button={section.button}
+                updateReq_Res_Ben={updateReq_Res_Ben}
+                deletingReq_Res_Ben={deletingReq_Res_Ben}
+                addingReq_Res_Ben={() => addingReq_Res_Ben(section.id)}
+              />
+            </div>
+          ))}
 
-            <Button
-              text={isSaving ? "Saving..." : "Save Changes"}
-              onclick={handleSaveChanges}
-              bg={true}
-              class_name="py-2 w-full text-center rounded-small bg-g_btn text-text_white"
-              type="submit"
-            />
-          </div>
+          <Button
+            text={isSaving ? "Saving..." : "Save Changes"}
+            onclick={handleSaveChanges}
+            bg={true}
+            class_name="py-2 w-full text-center rounded-small bg-g_btn text-text_white"
+            type="submit"
+          />
         </div>
-      </AnimatePresence>
+      </div>
     </div>
   );
 }
