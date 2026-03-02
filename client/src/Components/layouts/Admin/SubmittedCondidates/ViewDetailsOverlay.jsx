@@ -10,7 +10,8 @@ import ManageElements from "./ManageElements";
 function ViewDetailsOverlay({ candidate, setClosing }) {
   const { jobs } = useContext(Jobs_context) || {};
   const { companyAccounts } = useContext(Company_context) || {};
-  const job = jobs?.[candidate["job id"]];
+  const jobIds = Array.isArray(candidate["job id"]) ? candidate["job id"] : [];
+  const job = jobIds.length > 0 ? jobs?.[jobIds[0]] : null;
   const job_name = job?.["job title"];
   const company = companyAccounts?.[candidate["company id"]];
   const comp_name = company?.name;
@@ -18,14 +19,14 @@ function ViewDetailsOverlay({ candidate, setClosing }) {
   return (
     <div
       onClick={() => setClosing(false)}
-      className="w-full z-20 h-full absolute top-0 left-0 bg-light_black flex items-center justify-center"
+      className="w-full z-20 h-full absolute top-0 left-0 bg-light_black flex items-center p-4 justify-center"
     >
       <motion.div
         onClick={(e) => e.stopPropagation()}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2, type: "tween", ease: "easeInOut" }}
-        className="w-[40%] h-[80%] bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
+        className="w-[40%] max-h-full bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
       >
         <header className="w-full font-lighter text-[clamp(1em,2vw,1.2em)] flex flex-row items-center justify-between py-2 px-4 bg-g_btn text-text_white">
           <div className="flex flex-row items-center justify-start gap-2">

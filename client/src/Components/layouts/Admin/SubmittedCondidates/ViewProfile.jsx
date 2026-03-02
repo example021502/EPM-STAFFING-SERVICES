@@ -1,11 +1,8 @@
 import React, { useContext } from "react";
-import NameInitials from "../../../common/NameInitials";
 import Label from "../../../common/Label";
 import { Jobs_context } from "../../../../context/JobsContext";
 import { Company_context } from "../../../../context/AccountsContext";
 import Icon from "../../../common/Icon";
-import { motion, AnimatePresence } from "framer-motion";
-import { getSalaryRange } from "../common/GetSalaryRange";
 import ManageOverlayHeader from "./ManageOverlay/ManageOverlayHeader";
 import PersonalInfo from "./ManageOverlay/PersonalInfo";
 import ContactInfo from "./ManageOverlay/ContactInfo";
@@ -18,7 +15,8 @@ function ViewProfile({ candidate, setClosing }) {
   const { jobs } = useContext(Jobs_context) || {};
   const { companyAccounts } = useContext(Company_context) || {};
   const company = companyAccounts?.[candidate["company id"]] || {};
-  const job = jobs?.[candidate["job id"]] || {};
+  const jobIds = Array.isArray(candidate["job id"]) ? candidate["job id"] : [];
+  const job = jobIds.length > 0 ? jobs?.[jobIds[0]] || {} : {};
   const job_name = job["job title"] || "-";
   const exp = candidate.experience || "-";
   const cand_status = candidate["offer status"] || "-";
