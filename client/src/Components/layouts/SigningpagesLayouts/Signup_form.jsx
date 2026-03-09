@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import display_data from "../../InputElements.json";
 import Terms_Conditions from "./Terms_Conditions";
@@ -45,23 +45,25 @@ function Signup_form() {
 
     setLoading(true);
 
-    try {
-      const path = "/api/auth/signup";
-      const response = await axios.post(path, form);
-      toast(response?.data?.message);
-      if (response.status === 200) {
-        toast.success("Account Created!");
-        navigate("/api/auth/signin");
-        return;
-      }
-      return toast.warning(response);
-    } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Registration failed. Try again.",
+    const path = ".../api/auth/signup";
+    await axios
+      .post(path, form)
+      .then((response) => {
+        toast(response?.data?.message);
+
+        if (response.status === 200) {
+          toast.success("Account Created!");
+          setTimeout(() => {
+            navigate("/api/auth/signin");
+          }, 2000);
+          return;
+        }
+      })
+      .catch((err) =>
+        toast.error(
+          err.response?.data?.message || "Registration failed. Try again.",
+        ),
       );
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleChange = (value, id) => {
@@ -87,8 +89,6 @@ function Signup_form() {
           class_name="text-sm font-medium text-gray-600 text-center"
         />
       </header>
-
-      <ToastContainer position="top-right" autoClose={2000} />
 
       <div className="flex flex-col items-center justify-start gap-4 w-full max-h-64 overflow-y-auto custom-scrollbar p-2">
         {keys.map((key) => (

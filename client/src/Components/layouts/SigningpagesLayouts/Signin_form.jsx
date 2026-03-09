@@ -3,14 +3,15 @@ import Signin_input from "./Signin_input";
 import display_data from "../../InputElements.json";
 import Label from "../../common/Label";
 import Button from "../../common/Button";
-import { signing_in_context } from "../../../context/SigningInDataContext";
-import { Company_context } from "../../../context/AccountsContext";
-import { LoggedCompanyContext } from "../../../context/LoggedCompanyContext";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import axios from "axios";
+import { Company_context } from "../../../context/AccountsContext";
+import { admin_accounts } from "../../../context/AdminAccountsContext";
 
 function Signin_form() {
+  const { save_company_accounts } = useContext(Company_context);
+  const { save_admin_accounts } = useContext(admin_accounts);
   // Form styling classes for professional appearance
   const head_styles = "text-2xl font-bold w-full text-center text-gray-900";
   const sub_head_style = "text-sm font-medium text-center w-full text-gray-600";
@@ -20,18 +21,39 @@ function Signin_form() {
   // --- Hooks and Contexts ---
   const navigate = useNavigate();
 
-  // signin_form contains the current live values of email/password from the inputs
-
-  // companyAccounts contains the dummy object of all registered companies
-
-  // LoggedCompany context for session storage
-  const { setLoggedCompanyEmail } = useContext(LoggedCompanyContext);
-
   // Local state for handling login error messages
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  const loadData = async (user_type) => {
+    if (user_type === "admin") {
+      axios
+        .get(".../api/get/admin_data")
+        .then((response) => {
+          if (response.data.length > 0) {
+            const newMap = new Map(Object.values(response.data));
+            save_admin_accounts(newMap);
+          }
+        })
+        .catch((error) => {
+          toast.error("Error, ", error);
+        });
+    } else {
+      axios
+        .get(".../api/get/company_data")
+        .then((response) => {
+          if (response.data.length > 0) {
+            const newMap = new Map(Object.values(response.data));
+            save_company_accounts(newMap);
+          }
+        })
+        .catch((error) => {
+          toast.error("Error, ", error);
+        });
+    }
+  };
 
   // --- Authentication Handler ---
   const handle_form_submission = async (e) => {
@@ -45,24 +67,27 @@ function Signin_form() {
     axios
       .post(".../api/auth/signin", userData)
       .then((response) => {
+        const admin = response.data.user_type === "admin";
         setTimeout(() => {
           toast.success(response.data.message);
         }, 500);
-        return toast.success("Welcome");
+        sessionStorage.setItem("logged_user_type", response.data.user_type);
+        sessionStorage.setItem("logged_user_id", response.data.id);
+        loadData(response.data.user_type);
       })
       .catch((error) => {
-        toast.error("Error sending data:", error);
+        return toast.error("Error sending data:", error);
       });
   };
 
   // --- Auxiliary Button Handler ---
   const handleClicking = (name) => {
     if (name === "Sign up") {
-      const path = "/api/auth/signup";
+      const path = "signing/signup";
       navigate(path);
     } else if (name === "Forgot password?") {
       // Logic for password recovery
-      alert("Not yet implemented");
+      toast.warning("Not yet implemented");
     }
   };
 
@@ -87,9 +112,6 @@ function Signin_form() {
           class_name={sub_head_style}
         />
       </header>
-
-      {/* Conditional Rendering for Error Messages */}
-      <ToastContainer position="top-right" autoClose={2000} />
 
       <div className="flex flex-col items-center justify-center gap-4 w-full">
         <fieldset className="w-full border-none p-0 m-0 flex flex-col gap-4">

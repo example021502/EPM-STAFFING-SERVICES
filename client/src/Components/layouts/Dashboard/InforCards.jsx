@@ -5,7 +5,7 @@ import { Candidates_context } from "../../../context/CandidatesContext";
 
 function InforCards() {
   const { candidates } = useContext(Candidates_context);
-  const { selected_job_id } = useContext(selected_job_id_context);
+  const selected_job_id = sessionStorage.getItem("selected_job_id") || null;
 
   const potential_candidates = Object.values(candidates)?.filter(
     (candidate) =>
@@ -15,18 +15,22 @@ function InforCards() {
 
   useEffect(() => {}, [selected_job_id, candidates]);
 
-  const interviewed = Object.values(potential_candidates).filter(
-    (item) => item["offer status"] === "Interviewed",
-  ).length;
-  const offered = Object.values(potential_candidates).filter(
-    (item) => item["offer status"] === "Accepted",
-  ).length;
-  const inReview = Object.values(potential_candidates).filter(
-    (item) => item["offer status"] === "inReview",
-  ).length;
-  const Rejected = Object.values(potential_candidates).filter(
-    (item) => item["offer status"] === "Rejected",
-  ).length;
+  const interviewed =
+    Object.values(potential_candidates).filter(
+      (item) => item["offer status"] === "Interviewed",
+    ).length || "N/A";
+  const offered =
+    Object.values(potential_candidates).filter(
+      (item) => item["offer status"] === "Accepted",
+    ).length || "N/A";
+  const inReview =
+    Object.values(potential_candidates).filter(
+      (item) => item["offer status"] === "inReview",
+    ).length || "N/A";
+  const Rejected =
+    Object.values(potential_candidates).filter(
+      (item) => item["offer status"] === "Rejected",
+    ).length || "N/A";
 
   const info_cards = [
     {
