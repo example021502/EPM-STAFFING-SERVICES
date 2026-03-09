@@ -17,56 +17,43 @@ import Header from "./Candidate/Common/Header";
 import { AnimatePresence, motion } from "framer-motion";
 
 function Job_Card({ Card_index, card }) {
-  const { setSelected_job_id } = useContext(selected_job_id_context);
+  const setSelected_job_id = sessionStorage.getItem("selected_job_id");
 
   const { deleteJob } = useContext(Jobs_context);
   const navigate = useNavigate();
   const [moreDetails, setMoreDetails] = useState(false);
   const [edit_details, setEdit_details] = useState(false);
   const [deleteOverlay, setDeleteOverlay] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleBtnClick = (name) => {
-    switch (name) {
-      case "Edit Job Post":
-        setEdit_details(true);
-        setMoreDetails(false);
-        break;
-      case "View Applications":
-        setMessage({ type: "info", text: "Loading applications..." });
-        setTimeout(() => {
-          setMessage({
-            type: "success",
-            text: "Redirecting to applications...",
-          });
-          setTimeout(() => {
-            setMessage({ type: "", text: "" });
-            navigate("JobApplienceOverview");
-          }, 1000);
-        }, 1000);
-        setMoreDetails(false);
+    if (name === "Edit Job Post") {
+      setEdit_details(true);
+      setMoreDetails(false);
+      return;
+    }
+    if (name === "View Applications") {
+      toast("Redirecting to applications...");
+      setTimeout(() => {
+        navigate("JobApplienceOverview");
+      }, 1000);
+      return;
     }
   };
 
   const handleConfirming = async (name) => {
     if (name === "Confirm") {
-      setMessage({ type: "info", text: "Deleting job..." });
+      toast("Deleting job...");
       try {
         // Simulate API call delay
         await new Promise((resolve) => setTimeout(resolve, 1000));
         deleteJob(Card_index);
-        setMessage({ type: "success", text: "Job deleted successfully!" });
+        toast.success("Job deleted successfully!");
 
-        // Clear success message and close overlay after 2 seconds
         setTimeout(() => {
-          setMessage({ type: "", text: "" });
           setDeleteOverlay(false);
-        }, 2000);
+        }, 1000);
       } catch (error) {
-        setMessage({
-          type: "error",
-          text: "Failed to delete job. Please try again.",
-        });
+        toast.error("Failed to delete job. Please try again.");
         setDeleteOverlay(false);
       }
     } else {
@@ -76,26 +63,19 @@ function Job_Card({ Card_index, card }) {
 
   const handleViewCandidates = () => {
     setSelected_job_id(Card_index);
+    sessionStorage.setItem("selected_job_id", Card_index);
     navigate("JobApplienceOverview");
+  };
+
+  const handle_card_action = (name) => {
+    if (name === "View Details") setMoreDetails(true);
+    if (name === "Edit") setEdit_details(true);
+    if (name === "Delete") setDeleteOverlay(true);
+    return sessionStorage.setItem("selected_job_id", Card_index);
   };
 
   return (
     <>
-      {/* Feedback Message */}
-      {message.text && (
-        <div
-          className={`mb-4 p-3 rounded-lg border ${
-            message.type === "success"
-              ? "bg-green-50 border-green-200 text-green-800"
-              : message.type === "error"
-                ? "bg-red-50 border-red-200 text-red-800"
-                : "bg-blue-50 border-blue-200 text-blue-800"
-          }`}
-        >
-          <span className="text-sm font-medium">{message.text}</span>
-        </div>
-      )}
-
       <section
         onClick={handleViewCandidates}
         className="w-full p-5 rounded-standard cursor-pointer hover:scale-[1.02] border shadow-xl border-lighter transition-all duration-300 gap-4 flex flex-col items-start justify-center bg-white"
@@ -124,27 +104,18 @@ function Job_Card({ Card_index, card }) {
             aria-label="Job actions"
           >
             <ButtonPlain
-              onclick={() => (
-                setMoreDetails(true),
-                setSelected_job_id(Card_index)
-              )}
-              text="View cardetails"
+              onclick={handle_card_action}
+              text="View Details"
               class_name="px-2 py-1 cursor-pointer font-primary-1 tracking-wider border border-light hover:bg-lighter transition-all duration-120 ease-in-out rounded-lg"
             />
             <ButtonColor
               text="Edit"
-              onSelect={(e) => (
-                setSelected_job_id(Card_index),
-                setEdit_details(true)
-              )}
+              onSelect={handle_card_action}
               class_name="px-4 py-1 text-white cursor-pointer rounded-lg tracking-wider bg-g_btn"
             />
             <ButtonColor
               text="Delete"
-              onSelect={() => (
-                setSelected_job_id(Card_index),
-                setDeleteOverlay(true)
-              )}
+              onSelect={handle_card_action}
               class_name="px-4 py-1 text-white cursor-pointer rounded-lg tracking-wider bg-g_btn"
             />
           </nav>

@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { selected_job_id_context } from "../../../../context/SelectedJobContext";
 import { Candidates_context } from "../../../../context/CandidatesContext";
-import Icon from "../../../common/Icon";
 import CompanyRequirements from "./CompanyRequirements.jsx";
 import { Jobs_context } from "../../../../context/JobsContext.jsx";
 import ManageProfile from "../SubmittedCondidates/ManageProfile.jsx";
@@ -15,12 +13,12 @@ import DeleteComponent from "../common/DeleteComponent.jsx";
 function AdminCompanyOverview() {
   const { candidates, deleteCandidate, updateCandidate } =
     useContext(Candidates_context) || {};
-  const { selected_job_id } = useContext(selected_job_id_context) || {};
   const { jobs } = useContext(Jobs_context) || {};
   const [viewProfile, setViewProfile] = useState(false);
   const [del_candidate, setDel_candidate] = useState(false);
   const [manageProfile, setManageProfile] = useState(false);
 
+  const selected_job_id = sessionStorage.getItem("current_job_id");
   const job = jobs[selected_job_id];
 
   const [candidate, setCandidate] = useState({});

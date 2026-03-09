@@ -6,12 +6,11 @@ import InforCards from "../layouts/Dashboard/InforCards";
 import CardJobDetails from "../layouts/Dashboard/CardJobDetails";
 import OverviewCards from "../layouts/Dashboard/OverviewCards";
 import Input from "../common/Input";
-import { selected_job_id_context } from "../../context/SelectedJobContext";
 import { Jobs_context } from "../../context/JobsContext";
 
 function JobApplienceOverview() {
+  const selected_job_id = sessionStorage.getItem("selected_job_id") || null;
   const { jobs } = useContext(Jobs_context);
-  const { selected_job_id } = useContext(selected_job_id_context);
   const { candidates } = useContext(Candidates_context) || {};
   const containerRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,7 +18,7 @@ function JobApplienceOverview() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 6;
 
-  const job = jobs[selected_job_id];
+  const job = selected_job_id !== "" ? jobs[selected_job_id] : {};
 
   useEffect(() => {
     const container = containerRef.current;
@@ -53,7 +52,7 @@ function JobApplienceOverview() {
 
   const handleSearching = (value, id) => {
     setSearchQuery(value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   };
 
   // Calculate pagination
@@ -82,20 +81,14 @@ function JobApplienceOverview() {
       >
         <div className="flex flex-1 flex-col items-start justify-center">
           <Label
-            as="h1"
             text={job["job title"] || "Job Details"}
             class_name="text-xl font-semibold text-text_b"
           />
-          <Label
-            as="p"
-            text="Candidate Pipeline"
-            class_name="text-sm text-text_b_l"
-          />
+          <Label text="Candidate Pipeline" class_name="text-sm text-text_b_l" />
         </div>
       </header>
 
       <div className="flex flex-col gap-10">
-        {/* FIX 1: One single motion wrapper inside AnimatePresence */}
         <div className="flex flex-col gap-10">
           <InforCards />
 

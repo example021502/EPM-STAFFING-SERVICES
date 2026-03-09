@@ -5,10 +5,6 @@ import Label from "../Components/common/Label";
 import TopHeader from "../Components/layouts/SigningpagesLayouts/TopHeader";
 import Signin_form from "../Components/layouts/SigningpagesLayouts/Signin_form";
 
-/**
- * Signin Page Component
- * Renders authentication interface with professional gradient background and responsive layout
- */
 function Signin() {
   return (
     <main className="h-dvh bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-2 ">
