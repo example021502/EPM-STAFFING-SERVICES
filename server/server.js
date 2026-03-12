@@ -1,8 +1,10 @@
 import express from "express";
 import userRouter from "./src/routes/userRoutes.js";
 import userAuthRouter from "./src/routes/userAuthRoutes.js";
+import apiRoutes from "./src/routes/apiRoutes.js";
 
 import { sendMailController } from "./src/controller/user.auth.controller.js";
+
 import "./src/util/otpCleanup.job.js";
 import cookieParser from "cookie-parser";
 import { sessionService } from "./src/config/session.js";
@@ -19,7 +21,7 @@ app.use(cookieParser());
 
 app.use(sessionService());
 
-app.use("/api", userRouter);
+app.use("/api", apiRoutes);
 app.use("/auth", userAuthRouter);
 
 // this routes is only for test perpose
