@@ -85,7 +85,7 @@ function JobForm({ setClosing }) {
   }, []);
 
   // Validation check before submission
-  const handleFormSubmission = () => {
+  const handleFormSubmission = async () => {
     // Basic validation
     const requiredFields = [
       "job title",
@@ -161,6 +161,32 @@ function JobForm({ setClosing }) {
 
       // Show success message for 3 seconds then navigate
       showSuccess("Job posted successfully!");
+
+      // TODO: POST: creating new job -> passing form data to backend
+      const apiRoutes = import.meta.env.VITE_API_URL;
+
+      // Filter out for ready to post
+      const readyPost = {
+        active: true,
+        urgent: newJob.priority,
+        job_name: newJob["job title"],
+        job_type: newJob["contract type"].toLowerCase(),
+        salary_min: 200, // FIX: Change it will real data
+        salary_max: 300, // FIX: Change it will real data
+        experience_years: newJob["experience required"],
+        max_applications: newJob["max applications"],
+        deadline: newJob["application deadline"],
+        description: newJob["job description"],
+        user_id: "f687e1c9-d06e-431d-9350-c2e5f5d3a448", // FIX: Change it will real data
+      };
+
+      await fetch(`${apiRoutes}/api/jobs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(readyPost),
+      });
 
       // Wait 3 seconds before closing and navigating
       setTimeout(() => {
@@ -391,7 +417,7 @@ function JobForm({ setClosing }) {
             <Button
               onclick={handleFormSubmission}
               class_name="py-1 w-full text-center rounded-small bg-g_btn text-text_white transition-all ease-in-out duration-120 w-full"
-              text="Post Job Opening"
+              text="Post Job"
             />
           </div>
         </div>

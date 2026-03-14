@@ -5,6 +5,8 @@ export const createJobContoller = async (req, res) => {
   try {
     const data = req.body;
 
+    console.log(data);
+
     const result = await createJob(data);
 
     // console.log(res);

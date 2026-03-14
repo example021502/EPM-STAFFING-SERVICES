@@ -63,7 +63,7 @@ function JobForm_Anchor_Component({ icon_class, handleInputChange }) {
     },
     {
       id1: "expected ctc",
-      label1: "Expected CTC",
+      label1: "Offer CTC",
       placeholder1: "e.g. ₹12L - ₹18L per annum",
       type1: "text",
       id2: "experience required",
@@ -196,6 +196,7 @@ function JobForm_Anchor_Component({ icon_class, handleInputChange }) {
           </div>
         );
       })}
+
       <LabelTextArea
         id={"job description"}
         text={"Job Description"}
