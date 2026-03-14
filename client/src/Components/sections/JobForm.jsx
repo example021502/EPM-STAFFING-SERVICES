@@ -6,6 +6,7 @@ import Button from "../common/Button";
 import Header from "../layouts/Dashboard/Candidate/Common/Header";
 import { motion } from "framer-motion";
 import { showSuccess, showError } from "../../utils/toastUtils";
+import { getJobs } from "../../services/user.services";
 
 function JobForm({ setClosing }) {
   const [job_form, setJob_form] = useState({
@@ -58,6 +59,7 @@ function JobForm({ setClosing }) {
     });
   }, []);
 
+  // Form submit
   const handleFormSubmission = async () => {
     const requiredFields = [
       "job_title",
@@ -113,11 +115,6 @@ function JobForm({ setClosing }) {
 
       addJob(newJob);
 
-      console.log(newJob);
-
-      // API
-      const apiRoutes = import.meta.env.VITE_API_URL;
-
       const readyPost = {
         active: true,
         urgent: job_form.priority,
@@ -132,18 +129,18 @@ function JobForm({ setClosing }) {
         deadline: job_form.application_deadline,
         description: job_form.job_description,
 
-        user_id: "f687e1c9-d06e-431d-9350-c2e5f5d3a448", // FIX ME:
+        user_id: "f687e1c9-d06e-431d-9350-c2e5f5d3a448a", // FIX ME:
       };
 
-      await fetch(`${apiRoutes}/api/jobs`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(readyPost),
-      });
+      // POST to job api
+      const res = await getJobs(readyPost);
+      const status = res.ok;
 
-      showSuccess("Job posted successfully!");
+      if (status) {
+        showSuccess("Job posted successfully!");
+      } else {
+        showError("Failed to post job");
+      }
 
       setTimeout(() => {
         setClosing(false);
