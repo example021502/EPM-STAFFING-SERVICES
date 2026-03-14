@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { showWarning } from "./toastUtils";
+import { log_state } from "../context/LogState";
 
 function AdminRoutes() {
-  const user_type = sessionStorage.getItem("user_type");
-  const isAdmin = user_type === "admin";
+  const { log } = useContext(log_state);
+  const user_type = sessionStorage.getItem("logged_user_type");
+  const isAdmin = user_type === "admin" && log;
   return isAdmin ? <Outlet /> : <Navigate to={"/signing"} />;
 }
 

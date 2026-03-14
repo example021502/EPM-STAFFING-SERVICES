@@ -168,10 +168,7 @@ function App() {
                               path="admin/management"
                               element={<Admin_Client_Management />}
                             >
-                              <Route
-                                path="client_management"
-                                element={<ContentAppsView />}
-                              />
+                              <Route index element={<ContentAppsView />} />
                               <Route
                                 path="submitted_candidates"
                                 element={<SubmittedCandidates />}
