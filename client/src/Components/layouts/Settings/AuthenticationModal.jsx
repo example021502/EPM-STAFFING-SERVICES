@@ -12,7 +12,6 @@ function AuthenticationModal({
   isOpen,
   onClose,
   onAuthenticate,
-  authError,
   onPasswordChange,
   showPassword,
   onTogglePassword,
@@ -32,9 +31,7 @@ function AuthenticationModal({
         className="bg-b_white overflow-hidden rounded-small shadow-xl h-auto w-[30%] flex flex-col gap-4 items-start justify-between"
       >
         <Header heading={"Verify Authenticity"} handleClosingModal={onClose} />
-        {authError !== "" && (
-          <p className="text-red text-md font-lighter">{authError}</p>
-        )}
+
         <div className="w-full flex-1 flex flex-col items-center justify-center gap-4 p-4">
           <div className="w-full flex flex-col items-start justify-start">
             <Label

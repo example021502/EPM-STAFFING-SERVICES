@@ -1,47 +1,38 @@
-import React, { useContext } from "react";
+import React from "react";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
-import ButtonIcon from "../../../common/ButtonIcon";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { admin_navbar_context } from "../../../../context/AdminNavContext";
 
 const navBarButtons = [
   {
     name: "Client Management",
     icon: "ri-suitcase-line",
-    id: "nav",
+    id: "client_management",
   },
   {
     name: "Submitted Candidates",
     icon: "ri-group-line",
-    id: "nav",
+    id: "submitted_candidates",
   },
   {
     name: "Settings",
     icon: "ri-settings-5-line",
-    id: "nav",
+    id: "admin_settings",
   },
 ];
 
 function AdminNavBar() {
   const navigate = useNavigate();
-  const { section, setSection } = useContext(admin_navbar_context);
+  const current_navbutton =
+    sessionStorage.getItem("current_navbutton") || "client_management";
 
   const handleNavigating = (name) => {
-    setSection(name);
-
     // Navigate to appropriate route
-    let path = "/admin/management";
-    switch (name) {
-      case "Submitted Candidates":
-        path = "/admin/management/submittedCandidates";
-        break;
-      case "Settings":
-        path = "/admin/management/AdminSettings";
-        break;
-    }
-    navigate(path);
+
+    if (name === "client_management") navigate("/admin/management");
+    else navigate(name);
+    sessionStorage.setItem("current_navbutton", name);
   };
 
   return (
@@ -74,26 +65,20 @@ function AdminNavBar() {
         <ul className="w-full h-full list-none p-0 m-0 flex flex-col gap-2">
           <AnimatePresence>
             {navBarButtons.map((button, index) => {
-              const isCurrent = button.name === section;
+              const isCurrent = button.id === current_navbutton;
               return (
                 <motion.li
+                  onClick={() => handleNavigating(button.id)}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   key={button.name}
-                  className={`w-full ${
+                  className={`w-full flex flex-row items-center justify-start space-x-2 py-1.5 px-4 rounded-small cursor-pointer transition-all ease-in-out duration-150 ${
                     button.name === "Settings" ? "mt-auto" : ""
-                  }`}
+                  } ${isCurrent ? "bg-g_btn text-text_white rounded" : "border border-lighter hover:bg-lighter "}`}
                 >
-                  <ButtonIcon
-                    text={button.name}
-                    icon={button.icon}
-                    id={button.id}
-                    onSelect={handleNavigating}
-                    clicked={isCurrent}
-                    aria-current={isCurrent ? "page" : undefined}
-                    class_name="w-full justify-start whitespace-nowrap transition-all duration-200"
-                  />
+                  <Icon icon={button.icon} class_name="" />
+                  <Label text={button.name} />
                 </motion.li>
               );
             })}

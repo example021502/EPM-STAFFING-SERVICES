@@ -5,7 +5,7 @@ import Button from "../../../common/Button";
 import CandidateCardCommon from "./CandidateCardCommon";
 import Candidates_Information from "../../../dummy_data_structures/Candidate_information.json";
 import { formatValue } from "../../../common/formatText";
-import { toast } from "react-toastify";
+import { showWarning } from "../../../../utils/toastUtils";
 
 function CandidateCard({ candidate, id }) {
   const getSalary = (salary) => {
@@ -35,12 +35,14 @@ function CandidateCard({ candidate, id }) {
   ];
 
   const handleViewOffer = () =>
-    toast.warning(`${candidate.name} nt yet implemented`);
+    showWarning(`${candidate.name} not yet implemented`);
   const handleFollowup = () =>
-    toast.warning(`${candidate.name} not implemented!`);
-  const cand_id = Object.keys(Candidates_Information).find(
-    (key) => Candidates_Information[key] === candidate,
-  );
+    showWarning(`${candidate.name} not implemented!`);
+  const cand_id = candidate?.name
+    ? Object.keys(Candidates_Information).find(
+        (key) => Candidates_Information[key]?.name === candidate.name,
+      )
+    : null;
   return (
     <div className="w-full flex flex-row items-start justify-center gap-6 p-6 rounded-small border border-light/60 bg-white hover:border-nevy_blue/40 hover:shadow-xl transition-all duration-300 group">
       {/* Avatar Section */}
@@ -69,7 +71,7 @@ function CandidateCard({ candidate, id }) {
               />
             </div>
             <Label
-              text={`Candidate ID: ${cand_id}`}
+              text={`Candidate ID: ${cand_id || "N/A"}`}
               class_name="text-xs font-medium text-text_l_b opacity-60"
             />
           </div>

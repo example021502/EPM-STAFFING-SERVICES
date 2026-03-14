@@ -8,6 +8,7 @@ import JobDescriptionField from "./JobDescriptionField";
 import ActionButtons from "./ActionButtons";
 import ConfirmationModal from "./ConfirmationModal";
 import Header from "../../Dashboard/Candidate/Common/Header";
+import { showError, showSuccess } from "../../../../utils/toastUtils";
 
 function ManageProfile({
   cand_index,
@@ -33,7 +34,6 @@ function ManageProfile({
     "notice date": "",
     skills: [],
   });
-  const [error, setError] = useState({ type: "", message: "" });
   const [confirm, setConfirm] = useState({
     open: false,
     action: null,
@@ -97,13 +97,13 @@ function ManageProfile({
 
   const DeleteCandidate = () => {
     if (!deleteCandidate) return;
-    setError({ type: "success", message: "Candidate deleted successfully" });
+    showSuccess("Candidate deleted successfully");
     setTimeout(() => {
       try {
         deleteCandidate(cand_index);
         setClosing(false);
       } catch (e) {
-        setError({ type: "error", text: `Error: ${e}` });
+        showError(`Error: ${e}`);
       }
     }, 1000);
   };
@@ -111,7 +111,7 @@ function ManageProfile({
   const handleCandidateChanges = () => {
     if (!updateCandidate) return;
     updateCandidate(cand_index, { ...localForm });
-    setError({ type: "success", message: "Changes saved" });
+    showSuccess("Changes saved");
     setTimeout(() => setClosing(false), 1000);
   };
 

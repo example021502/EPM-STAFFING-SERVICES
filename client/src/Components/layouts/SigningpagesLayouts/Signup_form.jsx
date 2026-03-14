@@ -1,130 +1,195 @@
-import React, { useContext, useState } from "react";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import display_data from "../../InputElements.json";
-import Terms_Conditions from "./Terms_Conditions";
-import Already_have_account from "./Already_have_account";
+import { useEffect, useContext, useState, useRef } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import Label from "../../common/Label";
-import Signup_input from "./Signup_input";
-import axios from "axios";
+import { signup_stage_context } from "../../../context/SignupFormContext";
 
 function Signup_form() {
-  const navigate = useNavigate();
-  const [form, setForm] = useState({
-    company_name: "",
-    cin: "",
-    location: "",
-    email: "",
-    phone: "",
-    description: "",
-    password: "",
-    confirm_password: "",
-    terms_checkbox: false,
-  });
-  const [loading, setLoading] = useState(false);
+  const { pathname } = useLocation();
+  const { stage, setStage } = useContext(signup_stage_context);
+  const name = pathname.split("/").at(-1);
 
-  const elements = display_data["signup"];
-  const keys = Object.keys(elements);
+  // Loading state management
+  const [isLoading, setIsLoading] = useState(false);
+  const [direction, setDirection] = useState("forward");
+  const prevPathnameRef = useRef(pathname);
+  const timeoutRef = useRef(null);
 
-  const handleSigningup = async (e) => {
-    e.preventDefault();
+  // Determine navigation direction
+  useEffect(() => {
+    const prevPathname = prevPathnameRef.current;
+    const currentPath = pathname;
 
-    const hasEmptyFields = Object.keys(form).filter(
-      (key) =>
-        key !== "description" && (form[key] === "" || form[key] === false),
-    );
+    // Determine if navigating forward or backward
+    const sections = [
+      "signup_form",
+      "contact_information",
+      "address_information",
+      "account_credentials",
+    ];
+    const prevIndex = sections.indexOf(prevPathname.split("/").pop());
+    const currentIndex = sections.indexOf(currentPath.split("/").pop());
 
-    if (hasEmptyFields.length > 0)
-      return toast.error("Fill all the required fields");
+    if (prevIndex < currentIndex) {
+      setDirection("forward");
+    } else if (prevIndex > currentIndex) {
+      setDirection("backward");
+    } else {
+      setDirection("forward"); // Default to forward for same level navigation
+    }
 
-    if (form.password !== form.confirm_password)
-      return toast.error("Passwords don't match");
+    prevPathnameRef.current = currentPath;
+  }, [pathname]);
 
-    if (form.checkbox === false)
-      return toast.warning("Read and Accept terms and conditions");
+  // Handle loading state with smooth transitions
+  useEffect(() => {
+    // Set loading state when pathname changes
+    setIsLoading(true);
 
-    setLoading(true);
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-    const path = ".../api/auth/signup";
-    await axios
-      .post(path, form)
-      .then((response) => {
-        toast(response?.data?.message);
+    // Update stage after a brief delay to allow loading animation
+    timeoutRef.current = setTimeout(() => {
+      const sections = [
+        "signup_form",
+        "contact_information",
+        "address_information",
+        "account_credentials",
+      ];
+      const currentIndex = sections.indexOf(name);
+      const currentStageIndex = stage.indexOf(name);
 
-        if (response.status === 200) {
-          toast.success("Account Created!");
-          setTimeout(() => {
-            navigate("/signing");
-          }, 2000);
-          return;
-        }
-      })
-      .catch((err) =>
-        toast.error(
-          err.response?.data?.message || "Registration failed. Try again.",
-        ),
-      );
-  };
+      let newArr;
+      if (currentStageIndex === -1) {
+        // Forward navigation - add new stage
+        newArr = [...stage, name];
+      } else if (currentStageIndex < stage.length - 1) {
+        // Backward navigation - truncate to current stage
+        newArr = stage.slice(0, currentStageIndex + 1);
+      } else {
+        // Already at this stage
+        newArr = stage;
+      }
 
-  const handleChange = (value, id) => {
-    setForm((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-  };
+      setStage(newArr);
+
+      // End loading after stage update
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100); // Small delay for smooth transition
+    }, 200); // Loading duration
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [name, stage, setStage]);
+
+  const section_visuals = [
+    { label: 1, info: "Company Info", id: "signup_form" },
+    { label: 2, info: "Contact Info", id: "contact_information" },
+    { label: 3, info: "Address", id: "address_information" },
+    { label: 4, info: "Setting Password", id: "account_credentials" },
+  ];
+
+  const form_style =
+    "w-full max-w-[40%] bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-4 relative overflow-hidden";
 
   return (
-    <form
-      onSubmit={(e) => handleSigningup(e)}
-      className="w-fit bg-white mx-auto rounded-xl shadow-sm border border-gray-100 p-4 space-y-4"
-    >
-      <header className="w-full flex flex-col gap-2">
-        <Label
-          text="Create Account"
-          class_name="text-2xl font-bold text-gray-900 text-center"
-        />
-        <Label
-          as="p"
-          text="Create your account and start your career journey"
-          class_name="text-sm font-medium text-gray-600 text-center"
-        />
-      </header>
+    <div className={`overflow-y-auto no-scrollbar ${form_style}`}>
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div
+          className={`absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300 ${
+            direction === "forward" ? "animate-slide-up" : "animate-slide-down"
+          }`}
+        >
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative">
+              <div className="w-12 h-12 border-4 border-nevy_blue/20 border-t-nevy_blue rounded-full animate-spin"></div>
+              <div
+                className="absolute inset-0 w-12 h-12 border-4 border-nevy_blue/20 border-b-nevy_blue rounded-full animate-spin"
+                style={{
+                  animationDirection: "reverse",
+                  animationDuration: "1.5s",
+                }}
+              ></div>
+            </div>
+            <Label
+              text="Loading next step..."
+              class_name="text-sm text-gray-600 font-medium"
+            />
+          </div>
+        </div>
+      )}
 
-      <div className="flex flex-col items-center justify-start gap-4 w-full max-h-64 overflow-y-auto custom-scrollbar p-2">
-        {keys.map((key) => (
-          <Signup_input
-            key={key}
-            id={key}
-            element={elements[key]}
-            display_data={display_data}
-            handleChange={handleChange}
-          />
-        ))}
+      {/* Progress Header */}
+      <div className="w-full bg-b_white sticky z-200 top-0 text-xs flex flex-row items-center justify-between transition-all duration-300">
+        {section_visuals.map((visual, i) => {
+          const isActive = stage.includes(visual.id);
+          const isCompleted =
+            i < section_visuals.findIndex((v) => v.id === name) || isActive;
+
+          return (
+            <div
+              key={visual.label}
+              className={`flex border-b-6 gap-1 pb-3 w-full flex-col items-center justify-center transition-all duration-300 ${
+                isActive || isCompleted
+                  ? "border-red text-red"
+                  : "border-light/60 text-gray-400"
+              }`}
+            >
+              <div
+                className={`relative flex items-center justify-center h-10 w-10 rounded-full transition-all duration-300 ${
+                  isActive || isCompleted
+                    ? "bg-red text-text_white shadow-lg shadow-red/20"
+                    : "bg-light/60 text-gray-400"
+                }`}
+              >
+                {isCompleted && !isActive ? (
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  visual.label
+                )}
+              </div>
+              <Label
+                text={visual.info}
+                class_name={`transition-all duration-300 ${
+                  isActive || isCompleted ? "font-semibold" : "font-normal"
+                }`}
+              />
+            </div>
+          );
+        })}
       </div>
 
-      <Terms_Conditions onchange={handleChange} />
-
-      <button
-        type="submit"
-        disabled={loading}
-        className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
-          loading
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-linear-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+      {/* Form Content with Transition */}
+      <div
+        className={`transition-all duration-400 ${
+          isLoading ? "opacity-0 scale-95" : "opacity-100 scale-100"
         }`}
       >
-        {loading ? (
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Processing...
-          </div>
-        ) : (
-          "Register Now"
-        )}
-      </button>
+        <Outlet />
+      </div>
 
-      <Already_have_account />
-    </form>
+      {/* Navigation Direction Indicators (Optional subtle hints) */}
+    </div>
   );
 }
 

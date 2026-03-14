@@ -10,7 +10,7 @@ function CandidatesContainer({
   deleteCandidate,
 }) {
   const { jobs } = useContext(Jobs_context);
-  const { companyAccounts } = useContext(Company_context);
+  const { company_accounts } = useContext(Company_context);
 
   const icons = {
     location: "ri-map-pin-line",
@@ -33,7 +33,7 @@ function CandidatesContainer({
   };
 
   return (
-    <section className="w-full grid grid-cols-2 items-center justify-center gap-6 p-8 bg-lighter rounded-small">
+    <section className="w-full grid grid-cols-2 items-center justify-start gap-6 p-8 bg-lighter rounded-small">
       {cand_keys.map((key) => (
         <CandidateCard
           key={key}
@@ -41,7 +41,7 @@ function CandidatesContainer({
           candKey={key}
           candidate={filterdCandidates[key]}
           jobs={jobs}
-          companyAccounts={companyAccounts}
+          company_accounts={company_accounts}
           icons={icons}
           updateCandidate={updateCandidate}
           deleteCandidate={deleteCandidate}

@@ -2,13 +2,13 @@ import React, { useContext } from "react";
 import Icon from "../../../common/Icon";
 import Input from "../../../common/Input";
 import { motion } from "framer-motion";
-import { listGridViewContext } from "../../../../context/ListGridViewContext";
+import { grid_list_context } from "../../../../context/GridListViewContext";
 
 function Common_Client_Management_Searching_And_View({
   scrolled,
   onSearchChange,
 }) {
-  const { view, changeView } = useContext(listGridViewContext);
+  const { view, setView } = useContext(grid_list_context);
 
   const handleView = () => {
     const nextView = {
@@ -16,7 +16,7 @@ function Common_Client_Management_Searching_And_View({
       grid: "list",
       list: "apps",
     };
-    changeView(nextView[view] || "apps");
+    setView(nextView[view]);
   };
 
   const viewIcons = {
@@ -59,7 +59,7 @@ function Common_Client_Management_Searching_And_View({
 
       <button
         type="button"
-        onClick={handleView}
+        onClick={() => handleView()}
         aria-label={viewIcons[view]?.label}
         className="flex items-center justify-center w-10 h-10 shrink-0 rounded-small border border-lighter bg-white hover:bg-hover-light hover:text-primary transition-all active:scale-95 focus:ring-2 focus:ring-blue/20 focus:outline-none"
       >
