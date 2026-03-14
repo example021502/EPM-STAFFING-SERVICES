@@ -2,9 +2,9 @@ import React, { useRef, useState, useEffect, useContext } from "react";
 import SearchInput from "../common/SearchInput";
 import Job_Card from "../layouts/Dashboard/Job_Card";
 import Label from "../common/Label";
-import ButtonIcon from "../common/ButtonIcon";
 import { Jobs_context } from "../../context/JobsContext";
 import JobForm from "../sections/JobForm";
+import Icon from "../common/Icon";
 
 // Search function to filter jobs
 const filterJobs = (jobs, searchTerm) => {
@@ -99,7 +99,7 @@ function Jobs() {
             ? "1px solid #f1f5f9"
             : "1px solid transparent",
         }}
-        className="sticky top-0 z-20 w-full gap-4 flex flex-col p-4 rounded-small bg-b_white/60 backdrop-blur-sm "
+        className="sticky top-0 z-20 w-full gap-4 flex flex-col p-4 bg-b_white/60 backdrop-blur-sm "
       >
         <div className="w-full flex flex-row items-center justify-between">
           <div className="flex flex-col items-start leading-tight justify-center">
@@ -112,16 +112,9 @@ function Jobs() {
               text="Recruitment Management Dashboard"
             />
           </div>
-          <div className="min-w-35">
-            <ButtonIcon
-              text="Post New Job"
-              icon="ri-add-line"
-              id="nav"
-              onSelect={handlePostNewJob}
-              clicked
-              set_gradient={true}
-              shadow={true}
-            />
+          <div className="min-w-35 bg-g_btn text-text_white flex flex-row items-center justify-center border-lighter border cursor-pointer py-1.5 px-4 rounded-small space-x-1 ">
+            <Icon icon={"ri-add-line"} class_name={""} />
+            <Label text={"Post New Job"} class_name={""} />
           </div>
         </div>
         <SearchInput onSearchChange={handleSearching} />

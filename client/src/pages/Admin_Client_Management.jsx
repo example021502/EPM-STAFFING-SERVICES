@@ -1,59 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
 import AdminNavBar from "../Components/layouts/Admin/AdminClientManagement/AdminNavBar";
 import Label from "../Components/common/Label";
-import { useLocation, Outlet } from "react-router-dom";
-import { admin_navbar_context } from "../context/AdminNavContext";
+import { Outlet } from "react-router-dom";
 import OverviewHeading from "../Components/layouts/Admin/common/OverviewHeading";
 
 function Admin_Client_Management() {
-  const { setSection } = useContext(admin_navbar_context);
-  const location = useLocation();
-  const [overview, setOverview] = useState(false);
-
-  useEffect(() => {
-    // Extract the last part of the pathname from the location object
-    const nav_button = location.pathname.split("/").at(-1) || "";
-    const navKey = nav_button.toLocaleLowerCase();
-
-    // Map pathname to section name for admin navigation
-    let sectionName = "Client Management"; // Default
-
-    switch (navKey) {
-      case "management":
-        setOverview(false);
-        sectionName = "Client Management";
-        break;
-      case "submittedcandidates":
-        setOverview(false);
-        sectionName = "Submitted Candidates";
-        break;
-      case "adminsettings":
-        setOverview(false);
-        sectionName = "Settings";
-        break;
-      case "admincompanyoverview":
-        setOverview(true);
-        break;
-      default:
-        // For the root path or unknown paths, default to Client Management
-        sectionName = "Client Management";
-    }
-
-    // Update the section in context (this will also save to sessionStorage)
-    setSection(sectionName);
-  }, [location, setSection]);
-
-  // Get the current section to determine what to render
-
-  // Render different components based on the section
-
+  const current_navbutton = sessionStorage.getItem("current_navbutton");
+  const management = current_navbutton === "management";
   return (
     <div className="w-full h-dvh flex flex-row overflow-hidden items-start justify-start ">
       <AdminNavBar />
 
       <div className="flex flex-col w-full h-full overflow-hidden">
-        {overview && <OverviewHeading />}
-        {!overview && (
+        {management && <OverviewHeading />}
+        {!management && (
           <header className="flex flex-col items-start justify-center py-4 px-6 w-full border-b border-lighter">
             <Label
               text="Client Management"

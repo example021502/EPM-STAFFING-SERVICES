@@ -15,7 +15,7 @@ function CandidateMiddleInformation({
 
   const job_name = currentJob["job title"] || "Job not found";
   const company_name = company?.name || "N/A";
-  const contract_type = currentJob["contract type"] || "N/A";
+  const contract_type = currentJob?.["contract type"] || "N/A";
 
   return (
     <AnimatePresence>
@@ -43,11 +43,12 @@ function CandidateMiddleInformation({
           </span>
         </div>
 
-        <Button
-          onclick={() => handleViewDetails(company, currentJob)}
-          text={"View Details"}
-          class_name="text-xs py-1 border border-light px-2 whitespace-nowrap hover:bg-lighter cursor-pointer transition-all duration-200 ease-in-out rounded-small"
-        />
+        <button
+          onClick={() => handleViewDetails(company, currentJob)}
+          className="text-xs py-1 border border-light px-2 whitespace-nowrap hover:bg-lighter cursor-pointer transition-all duration-200 ease-in-out rounded-small"
+        >
+          View Details
+        </button>
       </motion.div>
     </AnimatePresence>
   );

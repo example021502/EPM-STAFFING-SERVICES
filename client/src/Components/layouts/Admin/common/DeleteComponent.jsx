@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Label from "../../../common/Label";
 import Button from "../../../common/Button";
 
-function DeleteComponent({ Close, item, setError, handleConfirm }) {
+function DeleteComponent({ Close, item, handleConfirm }) {
   return (
     <div
       onClick={() => Close(false)}
@@ -26,22 +26,10 @@ function DeleteComponent({ Close, item, setError, handleConfirm }) {
           <div className="flex flex-row items-center justify-center gap-2">
             {["Confirm", "Cancel"].map((btn) => {
               const handleBtnClick = (name) => {
-                switch (name) {
-                  case "Confirm":
-                    handleConfirm();
-                    Close(false);
-                    break;
-                  case "Cancel":
-                    setError({
-                      type: "success",
-                      text: "Canceled deletion",
-                    });
-                    Close(false);
-                    break;
-                }
-                setTimeout(() => {
-                  setError({ type: "", text: "" });
-                }, [2000]);
+                if (name === "Confirm") {
+                  handleConfirm();
+                } else showInfo("Deletion action canceled");
+                Close(false);
               };
               const isConfirm = btn === "Confirm";
               return (

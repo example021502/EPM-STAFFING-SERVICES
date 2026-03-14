@@ -106,8 +106,6 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
     const startIndex = (f_number - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     const paginatedKeys = totalCandidates.slice(startIndex, endIndex);
-
-    // Create paginated candidate object
     const paginatedCandidates = paginatedKeys.reduce((acc, key) => {
       acc[key] = filteredCandidates[key];
       return acc;

@@ -25,7 +25,7 @@ function Input({
 
   const isfocus = id === "email" || id === "company_name";
   const isphone_number = type === "tel";
-  const onChange = (e) => {
+  const onChangingValue = (e) => {
     if (ischeckbox) {
       onchange(e.target.checked, id);
     } else if (isphone_number) {
@@ -41,8 +41,9 @@ function Input({
       <PhoneInput
         country={"in"}
         require={require || false}
-        value={phone_number}
-        onChange={(e) => onChange(e)}
+        // value={phone_number}
+        defaultValue={default_value}
+        onChange={(e) => onChangingValue(e)}
         containerStyle={{ zIndex: 5 }}
         containerClass="text-sm w-full rounded-small"
         dropdownStyle={{
@@ -85,14 +86,13 @@ function Input({
       <input
         readOnly={read_only}
         autoFocus={isfocus}
-        onChange={(e) => onChange(e)}
+        onChange={(e) => onChangingValue(e)}
         type={input_type}
-        autoComplete={isPassword ? "new-password" : autoComplete}
+        autoComplete={isPassword ? "current-password" : autoComplete}
         placeholder={placeholder}
         className={`${class_name} ${isPassword ? "pr-8" : ""}`}
         required={require || false}
-        value={value}
-        defaultValue={default_value}
+        value={value !== undefined ? value : default_value}
         id={input_target}
       />
       {isPassword && (

@@ -9,21 +9,22 @@ import SubmissionDetails from "./ManageOverlay/SubmissionDetails";
 import Compensation from "./ManageOverlay/Compensation";
 import Skills from "./ManageOverlay/Skills";
 import { Jobs_context } from "../../../../context/JobsContext";
+import { showInfo } from "../../../../utils/toastUtils";
 
 function ViewProfile({ candidate, setClosing }) {
-  if (!candidate) return null;
+  if (!candidate) return showInfo("Something went wrong!");
   const { jobs } = useContext(Jobs_context);
 
-  const { companyAccounts } = useContext(Company_context) || {};
+  const { company_accounts } = useContext(Company_context) || {};
   const job = jobs?.[candidate["job id"][0]];
-  const company = companyAccounts?.[job["company id"]] || {};
+  const company = company_accounts?.[job["company id"]] || {};
   const jobs_keys = candidate?.["job id"] || [];
 
   const job_company_ids = new Set(
     jobs_keys.map((j_key) => jobs[j_key]["company id"]),
   );
 
-  const company_keys = Object.keys(companyAccounts).filter((key) =>
+  const company_keys = Object.keys(company_accounts).filter((key) =>
     job_company_ids.has(key),
   );
   const job_name = `${job["job title"]} + ${jobs_keys.length} more` || "-";
