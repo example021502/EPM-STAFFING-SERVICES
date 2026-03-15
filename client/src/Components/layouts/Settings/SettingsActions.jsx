@@ -8,16 +8,8 @@ import Label from "../../common/Label";
 function SettingsActions({ onSave, onCancel }) {
   const buttons = ["Cancel", "Save All Changes"];
   const handleBtnClick = (name) => {
-    switch (name) {
-      case "Cancel":
-        onCancel();
-        break;
-      case "Save All Changes":
-        onSave();
-        break;
-      default:
-        alert("Error");
-    }
+    if (name === "Cancel") return onCancel();
+    return onSave();
   };
   return (
     <div className="sticky bottom-0 ml-auto flex items-center justify-center gap-4 flex-row bg-b_white/50 p-2 rounded-small">

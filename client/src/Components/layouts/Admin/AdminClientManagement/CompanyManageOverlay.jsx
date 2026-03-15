@@ -7,6 +7,7 @@ import Button from "../../../common/Button";
 import LabelTextArea from "../../../common/LabelTextArea";
 import { Company_context } from "../../../../context/AccountsContext";
 import DeleteComponent from "../common/DeleteComponent";
+import { showError, showSuccess, showInfo } from "../../../../utils/toastUtils";
 
 function CompanyManageOverlay({ company, setClosing }) {
   if (!company)
@@ -18,10 +19,10 @@ function CompanyManageOverlay({ company, setClosing }) {
       </div>
     );
 
-  const { updateWholeCompany, deleteCompany, companyAccounts } =
+  const { updateWholeCompany, deleteCompany, company_accounts } =
     useContext(Company_context);
-  const comp_id = Object.keys(companyAccounts || {}).find(
-    (key) => (companyAccounts?.[key] || {}) === company,
+  const comp_id = Object.keys(company_accounts || {}).find(
+    (key) => (company_accounts?.[key] || {}) === company,
   );
   const elements = [
     { label: "Email", value: company?.email, id: "email" },
@@ -65,62 +66,40 @@ function CompanyManageOverlay({ company, setClosing }) {
   const label_class = "text-sm font-semibold";
 
   const [deleteOverlay, setDeleteOverlay] = useState(false);
-  const [saveUpdates, setSaveUpdates] = useState(false);
-  const [error, setError] = useState({ type: "", text: "" });
-  const clearError = () => {
-    setTimeout(() => {
-      setError({ type: "", text: "" });
-    }, 2000);
-  };
+  const [clicked, setClicked] = useState(false);
 
   const handleClicking = (name) => {
-    switch (name) {
-      case "Delete Client":
-        setDeleteOverlay(true);
-        break;
-      case "Save Updates":
-        setSaveUpdates(true);
-        const changed_fields_keys = Object.keys(company_form).filter(
-          (key) => company_form[key] !== company[key],
-        );
-        try {
-          if (changed_fields_keys.length > 0) {
-            updateWholeCompany(comp_id, company_form);
-            setError({ type: "success", text: "Changes saved successfully" });
-            setSaveUpdates(false);
-            setTimeout(() => {
-              setError({ type: "", text: "" });
-              setClosing(false);
-            }, [2000]);
-          } else {
-            setError({ type: "success", text: "No Changes were made" });
-            setSaveUpdates(false);
-            setTimeout(() => {
-              setError({ type: "", text: "" });
-              setClosing(false);
-            }, [2000]);
-          }
-        } catch (err) {
-          setError({ type: "error", text: "Failed to save changes" + err });
+    setClicked(true);
+    if (name === "Delete Client") {
+      setDeleteOverlay(true);
+    } else if (name === "Save Updates") {
+      const changed_fields_keys = Object.keys(company_form).filter(
+        (key) => company_form[key] !== company[key],
+      );
+      try {
+        if (changed_fields_keys.length > 0) {
+          updateWholeCompany(comp_id, company_form);
+          showSuccess("Changes saved successfully");
+          setClicked(false);
+          setClosing(false);
+        } else {
+          showInfo("No Changes were made");
+          setClicked(false);
+          setClosing(false);
         }
+      } catch (err) {
+        showError("Failed to save changes" + err);
+      }
     }
   };
 
   const handleConfirm = () => {
-    setError({ type: "success", text: "Deleting..." });
     try {
-      setTimeout(() => {
-        setError({ type: "success", text: "Company deleted successfully" });
-        setTimeout(() => {
-          deleteCompany(comp_id);
-        }, 2000);
-      }, 1000);
+      deleteCompany(comp_id);
+      showSuccess("Company deleted successfully");
+      setClosing(false);
     } catch (e) {
-      console.log(`Error: ${e}`);
-      setError({ type: "error", text: "Error, Delete action failed" });
-      setTimeout(() => {
-        setError({ type: "", text: "" });
-      }, 1000);
+      showError("Error: Delete action failed!");
     }
   };
 
@@ -160,13 +139,6 @@ function CompanyManageOverlay({ company, setClosing }) {
           </header>
 
           <div className="w-full p-4 overflow-y-auto no-scrollbar flex flex-col gap-4 relative">
-            {error.text !== "" && (
-              <div
-                className={`w-[80%] mx-auto flex flex-col items-center font-semibold text-sm rounded-small p-2 justify-center ${error.type === "error" ? "text-red-dark bg-red-light " : "text-text_green bg-light_green "}`}
-              >
-                <span>{error.text}</span>
-              </div>
-            )}
             <LabelInput
               onchange={handleInputChange}
               default_value={company.name}
@@ -207,12 +179,10 @@ function CompanyManageOverlay({ company, setClosing }) {
                 return (
                   <Button
                     onclick={handleClicking}
-                    text={
-                      isSave ? (saveUpdates ? "Saving Updates..." : btn) : btn
-                    }
+                    text={btn}
                     type="button"
                     key={`btn-${i}`}
-                    class_name={`w-full flex items-center justify-center text-center bg-g_btn text-text_white p-2 rounded-small tracking-wide`}
+                    class_name={`w-full flex items-center justify-center text-center bg-g_btn text-text_white p-2 rounded-small tracking-wide ${clicked ? "cursor-none" : ""}`}
                   />
                 );
               })}
@@ -221,7 +191,6 @@ function CompanyManageOverlay({ company, setClosing }) {
               <DeleteComponent
                 Close={setDeleteOverlay}
                 item={company.name}
-                setError={setError}
                 handleConfirm={handleConfirm}
               />
             )}

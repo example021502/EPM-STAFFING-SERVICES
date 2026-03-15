@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import Label from "../../common/Label";
 import Button from "../../common/Button";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 function Already_have_account() {
   const navigate = useNavigate();
   const handleClicking = (name) => {
-    if (name === "Log in") return navigate("/signing");
+    if (name === "Log in") return navigate("/Signin");
   };
   return (
     <div className="flex flex-row items-center justify-center gap-2 w-full">

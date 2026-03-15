@@ -1,24 +1,28 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Signin_input from "./Signin_input";
 import display_data from "../../InputElements.json";
 import Label from "../../common/Label";
 import Button from "../../common/Button";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-// import axios from "axios";
 import { Company_context } from "../../../context/AccountsContext";
 import { admin_accounts_context } from "../../../context/AdminAccountsContext";
 import Accounts from "../../dummy_data_structures/Accounts.json";
 import AdminAccounts from "../../dummy_data_structures/AdminAccounts.json";
+import { log_state } from "../../../context/LogState";
+import { showError, showInfo, showSuccess } from "../../../utils/toastUtils";
+import { signup_form_context } from "../../../context/SignupFormContext";
+import Icon from "../../common/Icon";
 
 function Signin_form() {
+  const { setLog } = useContext(log_state);
   const { save_company_accounts } = useContext(Company_context);
   const { save_admin_accounts } = useContext(admin_accounts_context);
+  const { clearForm } = useContext(signup_form_context);
   // Form styling classes for professional appearance
   const head_styles = "text-2xl font-bold w-full text-center text-gray-900";
   const sub_head_style = "text-sm font-medium text-center w-full text-gray-600";
   const form_styles =
-    "w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-8 space-y-6";
+    "bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6";
 
   // --- Hooks and Contexts ---
   const navigate = useNavigate();
@@ -45,7 +49,7 @@ function Signin_form() {
     e.preventDefault(); // Stop page refresh
 
     if (!form.email || !form.password) {
-      toast.error("Enter both email and password to continue...");
+      showError("Enter both email and password to continue...");
       return;
     }
 
@@ -58,7 +62,9 @@ function Signin_form() {
     );
 
     if (adminUser) {
-      toast.success("Admin login successful!");
+      showSuccess("Welcome!");
+      setLog(true);
+      sessionStorage.setItem("current_navbutton", "client_management");
       sessionStorage.setItem("logged_user_type", "admin");
       sessionStorage.setItem(
         "logged_user_id",
@@ -66,6 +72,8 @@ function Signin_form() {
           (key) => AdminAccounts[key] === adminUser,
         ),
       );
+      // Clear any leftover signup form data when logging in
+      clearForm();
       loadData("admin");
       navigate("/admin/management");
       return;
@@ -77,30 +85,29 @@ function Signin_form() {
     );
 
     if (companyUser) {
-      toast.success("Company login successful!");
+      showSuccess("Welcome!");
+      setLog(true);
+      sessionStorage.setItem("current_navbutton", "jobs");
       sessionStorage.setItem("logged_user_type", "company");
       sessionStorage.setItem(
         "logged_user_id",
         Object.keys(Accounts).find((key) => Accounts[key] === companyUser),
       );
+      // Clear any leftover signup form data when logging in
+      clearForm();
       loadData("company");
       navigate("/client/dashboard");
       return;
     }
 
     // Authentication failed
-    toast.error("Invalid email or password");
+    showError("Invalid email or password");
   };
 
   // --- Auxiliary Button Handler ---
   const handleClicking = (name) => {
-    if (name === "Sign up") {
-      const path = "signup";
-      navigate(path);
-    } else if (name === "Forgot password?") {
-      // Logic for password recovery
-      toast.warning("Not yet implemented");
-    }
+    if (name === "Sign up") return navigate("signup_form");
+    return showInfo("Not yet implemented");
   };
 
   // Form filling
@@ -112,7 +119,7 @@ function Signin_form() {
   };
 
   // Pulling structure for input fields from the JSON config
-  const elements = display_data["signin"];
+  const elements = display_data["Signin"];
   const keys = Object.keys(elements);
 
   return (
@@ -126,8 +133,7 @@ function Signin_form() {
       </header>
 
       <div className="flex flex-col items-center justify-center gap-4 w-full">
-        <fieldset className="w-full border-none p-0 m-0 flex flex-col gap-4">
-          <legend className="sr-only">Login Credentials</legend>
+        <div className="w-full flex flex-col gap-4">
           {/* Mapping through keys to render Email and Password inputs */}
           {keys.map((key) => (
             <Signin_input
@@ -137,7 +143,7 @@ function Signin_form() {
               handleInputChange={handleInputChange}
             />
           ))}
-        </fieldset>
+        </div>
 
         {/* Forgot Password Link styled as a Button */}
         <Button
@@ -150,17 +156,21 @@ function Signin_form() {
       </div>
 
       {/* Main Submit Action */}
-      <div className="w-full text-text_white flex flex-row items-center relative justify-center rounded-small bg-nevy_blue overflow-hidden">
-        <button className="w-full flex" type="submit">
+      <div className="w-full transition-all ease-in-out duration-150 hover:scale-[1.02] text-text_white flex flex-row items-center relative justify-center rounded-small bg-g_btn overflow-hidden">
+        <button
+          className="w-full flex items-center justify-center"
+          type="submit"
+        >
           <Label
             text="Login"
-            class_name="cursor-pointer text-center w-full py-3 text-lg font-semibold"
+            class_name="cursor-pointer text-center p-2 text-lg font-semibold"
           />
+          <Icon icon={"ri-arrow-right-line"} />
         </button>
       </div>
 
-      {/* Footer: Redirection to Signup */}
-      <div className="flex flex-row items-center justify-center gap-2 w-full pt-2">
+      {/* Footer: Redirection to Signup and Clear Form */}
+      <div className="flex flex-row items-center justify-center gap-4 w-full pt-2">
         <Label text="Don't have an account yet?" class_name="text-sm" />
         <Button
           type={"button"}

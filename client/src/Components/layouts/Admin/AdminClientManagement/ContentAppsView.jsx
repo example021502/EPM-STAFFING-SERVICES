@@ -4,7 +4,7 @@ import Common_Client_Management_Searching_And_View from "./Common_Client_Managem
 import { Company_context } from "../../../../context/AccountsContext";
 
 function ContentAppsView() {
-  const { companyAccounts } = useContext(Company_context) || {};
+  const { company_accounts } = useContext(Company_context) || {};
   const containerRef = useRef(null);
   const [scrolled, setScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,8 +56,8 @@ function ContentAppsView() {
 
   // Filtered clients based on search term
   const filteredClients = useMemo(() => {
-    return filterClients(companyAccounts || {}, searchTerm);
-  }, [searchTerm, companyAccounts]);
+    return filterClients(company_accounts || {}, searchTerm);
+  }, [searchTerm, company_accounts]);
 
   const handleSearchChange = (value, id) => {
     setSearchTerm(value);

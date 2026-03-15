@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 function GetStarted() {
   const navigate = useNavigate();
-  const handleClicking = () => navigate("signing/signup");
+  const handleClicking = () => navigate("signing/signup_form");
   return (
     <section
       className="w-full max-w-4xl mx-auto px-4"
