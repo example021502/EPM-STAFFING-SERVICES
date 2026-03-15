@@ -1,11 +1,17 @@
 import express from "express";
-import { createJobContoller } from "../controller/jobs.controller.js";
+import {
+  createJobContoller,
+  getJobsByUserIdController,
+} from "../controller/jobs.controller.js";
 
 const router = express.Router();
 
-// Routes /api
+// Routes /api/jobs
 
-// POST -> post job
+// POST -> create job
 router.post("", createJobContoller);
+
+// GET ->
+router.get("/:user_id", getJobsByUserIdController);
 
 export default router;

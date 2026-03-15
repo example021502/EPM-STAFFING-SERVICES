@@ -1,5 +1,6 @@
 import db from "../../config/db.js";
 
+// CREATE Job
 export const createJob = async (jobData) => {
   const data = jobData;
 
@@ -10,6 +11,18 @@ export const createJob = async (jobData) => {
     return result[0];
   } catch (err) {
     console.log(err);
+    throw err;
+  }
+};
+
+// GET jobs by user_id
+
+export const getJobsByUserId = async (user_id) => {
+  try {
+    const res = await db`SELECT * FROM jobs WHERE user_id = ${user_id}`;
+
+    return res;
+  } catch (err) {
     throw err;
   }
 };
