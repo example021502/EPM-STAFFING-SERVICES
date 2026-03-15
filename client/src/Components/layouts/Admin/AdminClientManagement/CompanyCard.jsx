@@ -1,13 +1,12 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Active_Pending_jobs from "./Active_Pending_jobs";
 import CompanyCardTopPart from "./CompanyCardTopPart";
 import CompanyCardBottomPart from "./CompanyCardBottomPart";
 import CompanyViewOverlay from "./CompanyViewOverlay";
 import CompanyManageOverlay from "./CompanyManageOverlay";
-import { listGridViewContext } from "../../../../context/ListGridViewContext";
 
 const CompanyCard = ({ companyId, company, handleFollowChange }) => {
-  const { view } = useContext(listGridViewContext);
+  const view = sessionStorage.getItem("view_type");
   const name_prefix = useMemo(() => {
     const splitted_name = company.name.trim().split(/\s+/);
     const letter1 = splitted_name[0] ? splitted_name[0].charAt(0) : "";
@@ -18,14 +17,8 @@ const CompanyCard = ({ companyId, company, handleFollowChange }) => {
   const [showManage, setShowManage] = useState(false);
 
   const handleBtnClick = (name) => {
-    switch (name) {
-      case "Manage":
-        setShowManage(true);
-        break;
-      case "View Details":
-        setShowView(true);
-        break;
-    }
+    if (name === "Manage") return setShowManage(true);
+    else setShowView(true);
   };
 
   const isGrid = view === "grid";

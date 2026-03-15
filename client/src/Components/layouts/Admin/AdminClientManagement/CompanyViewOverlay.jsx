@@ -16,6 +16,7 @@ import {
   CONTACT_ELEMENTS,
   BUSINESS_DETAILS,
 } from "../../../../utils/companyOverlayHelpers";
+import { showInfo } from "../../../../utils/toastUtils";
 
 function CompanyViewOverlay({ company, setClosing }) {
   const [job, setJob] = useState({});
@@ -23,25 +24,23 @@ function CompanyViewOverlay({ company, setClosing }) {
   const [viewJob, setViewJob] = useState(false);
 
   const { jobs } = useContext(Jobs_context);
-  const { companyAccounts } = useContext(Company_context);
+  const { company_accounts } = useContext(Company_context);
   const { candidates } = useContext(Candidates_context);
 
-  if (!company || !companyAccounts) return null;
+  if (!company || !company_accounts) return showInfo("Something went wrong!");
 
-  const comp_key = getCompanyKey(companyAccounts, company);
+  const comp_key = getCompanyKey(company_accounts, company);
   const related_job_keys = getRelatedJobs(jobs, comp_key);
   const heading_class =
     "font-semibold text-[clamp(1em,1vw,1.2em)] pb-1 mb-2 border-b w-full border-lighter";
 
   const handleClicking = (name, jobData) => {
+    const job_id = Object.keys(jobs).find((key) => jobs[key] === jobData);
     setJob(jobData);
-    if (name === "View") setViewJob(true);
-    else if (name === "Submit") setSubmitCandidate(true);
-  };
-
-  const handleCloseView = () => {
-    setViewJob(false);
-    setJob({});
+    if (name === "View") {
+      setViewJob(true);
+      sessionStorage.setItem("selected_job_id", job_id);
+    } else if (name === "Submit") setSubmitCandidate(true);
   };
 
   return (

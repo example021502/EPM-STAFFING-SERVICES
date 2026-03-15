@@ -1,17 +1,16 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useState, useMemo, useEffect } from "react";
 import ListView from "./ListView";
 import CompanyCard from "./CompanyCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { listGridViewContext } from "../../../../context/ListGridViewContext";
 import { Company_context } from "../../../../context/AccountsContext";
+import { grid_list_context } from "../../../../context/GridListViewContext";
 
 function ClientManagementCards({ clients = {} }) {
-  const { view } = useContext(listGridViewContext);
-
+  const { view } = useContext(grid_list_context);
   const clientEntries = useMemo(() => Object.entries(clients), [clients]);
   const { toggleFollowStatus } = useContext(Company_context) || {};
   const gridStyles = {
-    apps: "grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10",
+    apps: "grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 ",
     grid: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6",
     list: "flex flex-col gap-6 w-full",
   };

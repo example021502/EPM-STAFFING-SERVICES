@@ -16,21 +16,20 @@ import {
   FORM_ELEMENTS,
   getRequiredFieldIds,
 } from "../../../../utils/candidateFormHelpers";
-import Label from "../../../common/Label";
 import ContractType_input from "../../../../utils/ContractType_input";
+import { showError, showInfo, showSuccess } from "../../../../utils/toastUtils";
 
 function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
-  const [error, setError] = useState({ type: "", text: "" });
   const [submitting, setSubmitting] = useState(false);
   const input_class =
     "py-2.2 bg-light/10 p-2 w-full focus:ring-1 ring-nevy_blue focus:outline-none border text-xs border-light/40 rounded-small";
   const label_class = "font-semibold text-sm";
   const { jobs } = useContext(Jobs_context);
-  const { companyAccounts } = useContext(Company_context);
+  const { company_accounts } = useContext(Company_context);
   const { addCandidate } = useContext(Candidates_context);
   const job_id = Object.keys(jobs).find((key) => jobs[key] === job);
-  const company_id = Object.keys(companyAccounts).find(
-    (key) => companyAccounts[key] === company,
+  const company_id = Object.keys(company_accounts).find(
+    (key) => company_accounts[key] === company,
   );
 
   const [skills, setSkills] = useState([""]);
@@ -68,52 +67,21 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
     setSkills(updatedSkills);
   };
 
-  const clearError = () =>
-    setTimeout(() => {
-      setError({ type: "", text: "" });
-    }, 3000);
-  const ScrollingToError = () => {
-    const target = document.getElementById("error");
-    if (target) target.scrollIntoView({ block: "start", behavior: "smooth" });
-  };
-
   const handleSubmit = (e) => {
     if (submitting) return;
     setSubmitting(true);
     if (e && e.preventDefault) e.preventDefault();
     try {
       const missing = validateRequiredFields(candidate_form, requiredFieldIds);
-      if (missing.length > 0) {
-        setError({
-          type: "error",
-          text: `Please fill required fields: ${missing.join(", ")}`,
-        });
-        ScrollingToError();
-        clearError();
-        return;
-      }
-      if (resume === "") {
-        setError({ type: "error", text: "Resume required" });
-        ScrollingToError();
-        clearError();
-        return;
-      }
-      if (skills.length === 0) {
-        setError({ type: "error", text: "Atleast '1' skill required" });
-        ScrollingToError();
-        clearError();
-        return;
-      }
+      if (missing.length > 0)
+        return showError(`Please fill required fields: ${missing.join(", ")}`);
+      if (resume === "") return showInfo("Resume required");
+      if (skills.length === 0) return showInfo("Atleast '1' skill required");
 
-      if (skills.some((skill) => skill === "")) {
-        setError({
-          type: "error",
-          text: "Any initialized skill field must be filled or removed!!",
-        });
-        ScrollingToError();
-        clearError();
-        return;
-      }
+      if (skills.some((skill) => skill === ""))
+        return showInfo(
+          "Any initialized skill field must be filled or removed!!",
+        );
 
       const candidateToAdd = {
         ...candidate_form,
@@ -125,18 +93,16 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
       };
 
       const newId = addCandidate(candidateToAdd);
-      setError({ type: "success", text: "Candidate Submitted Successfully" });
-      ScrollingToError();
+      showSuccess("Candidate Submitted Successfully");
 
       setTimeout(() => {
         setClosing(false);
-      }, 3000);
+      }, 1000);
 
       return newId;
     } catch (err) {
       console.error("Error submitting candidate:", err);
-      setError({ type: "error", text: "An unexpected error occurred" });
-      clearError();
+      showError("An unexpected error occurred");
     } finally {
       setSubmitting(false);
     }
@@ -156,15 +122,6 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
         handleClosingModal={() => setClosing(false)}
       />
       <div className="w-full relative flex flex-col items-center justify-start gap-6 p-4 overflow-y-auto no-scrollbar">
-        <p id="error" className="absolute" />
-        {error.text !== "" && (
-          <div className="w-full flex p-4 items-center justify-center">
-            <Label
-              text={error.text}
-              class_name={`w-full p-2 rounded-small text-[clamp(0.8em,2vw,1em)] text-sm font-lighter ${error.type === "error" ? "text-red-dark bg-red-light" : "text-text_green bg-green_light"}`}
-            />
-          </div>
-        )}
         <LabelInput
           onchange={handleInputChange}
           id={"name"}

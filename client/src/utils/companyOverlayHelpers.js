@@ -32,7 +32,7 @@ export const getRelatedJobs = (jobs, compKey) => {
 export const CONTACT_ELEMENTS = [
   { label: "Email", icon: "ri-mail-line", key: "email" },
   { label: "Phone", icon: "ri-phone-line", key: "phone number" },
-  { label: "Location", icon: "ri-map-pin-line", key: "location" },
+  { label: "Location", icon: "ri-map-pin-line", key: "address" },
   { label: "Website", icon: "ri-global-line", key: "website" },
 ];
 

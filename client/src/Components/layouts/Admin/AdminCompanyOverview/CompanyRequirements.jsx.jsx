@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
 import { getSalaryRange } from "../common/GetSalaryRange";
+import { showInfo } from "../../../../utils/toastUtils";
 
 function CompanyRequirements({ job }) {
+  useEffect(() => {
+    if (!job) return showInfo("Something went wrong!");
+  }, [job]);
   const icons = [
     {
       icon: "₹",

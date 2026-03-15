@@ -2,10 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import OTPOverlay from "./OTPOverlay";
 import AccountActions from "./AccountActions";
 import { Company_context } from "../../../context/AccountsContext";
-import { toast } from "react-toastify";
 import { showError, showInfo, showSuccess } from "../../../utils/toastUtils";
 import { getOTP } from "../../../utils/getOTP";
-import { admin_accounts_context } from "../../../context/AdminAccountsContext";
 
 function MainTop() {
   const [OTPOverlayOpen, setOTPOverlayOpen] = useState(false);
@@ -13,12 +11,7 @@ function MainTop() {
   const [isVerifying, setIsVerifying] = useState(false);
   const { company_accounts } = useContext(Company_context);
   const logged_user_id = sessionStorage.getItem("logged_user_id");
-  const user_type = sessionStorage.getItem("logged_user_type");
-  const { adminAccounts } = useContext(admin_accounts_context);
-  const logged_user_data =
-    user_type === "admin"
-      ? adminAccounts[logged_user_id]
-      : company_accounts[logged_user_id];
+  const logged_user_data = company_accounts[logged_user_id];
 
   // State to manage email input value
   const [emailValue, setEmailValue] = useState("");
@@ -36,10 +29,7 @@ function MainTop() {
 
   // Handle OTP verification
   const handleVerifyOTP = (otp) => {
-    if (otp.length !== 6) {
-      showInfo("Please enter all 6 digits");
-      return;
-    }
+    if (otp.length !== 6) return showInfo("Please enter 6 digits");
 
     setIsVerifying(true);
 
@@ -57,6 +47,8 @@ function MainTop() {
       }
     }, 1000);
   };
+
+  if (!logged_user_data) return showInfo("Something went wrong!");
 
   // Handle resend OTP
   const handleResendOTP = () => {

@@ -7,18 +7,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import TextArea from "../../../common/TextArea";
 import Button from "../../../common/Button";
 import { Candidates_context } from "../../../../context/CandidatesContext";
+import { showError, showInfo } from "../../../../utils/toastUtils";
 
 function RejectCandidate({ handleClosing, candidate }) {
   const { candidates, updateCandidate } = useContext(Candidates_context);
   const selected_job_id = sessionStorage.getItem("selected_job_id");
-  const [error, setError] = useState({
-    type: "",
-    text: "",
-  });
 
-  const cand_key = Object.keys(candidates).find(
-    (key) => candidates[key] === candidate,
-  );
+  const cand_key = candidate?.name
+    ? Object.keys(candidates).find(
+        (key) => candidates[key]?.name === candidate.name,
+      )
+    : null;
 
   const [reason, setReason] = useState("");
   const [rejectionForm, setRejectionForm] = useState({
@@ -33,25 +32,18 @@ function RejectCandidate({ handleClosing, candidate }) {
   };
   const [expand, setExpand] = useState(false);
 
-  const clearError = () => {
-    setTimeout(() => {
-      setError({ type: "", text: "" });
-    }, 2000);
-  };
   const handleBtnClick = (name) => {
     if (name.toLocaleLowerCase() === "cancel") {
       handleClosing();
       setRejectionForm({ reason: "", note: "", message: "", confirm: false });
     } else if (name.toLocaleLowerCase() === "reject") {
       if (rejectionForm.confirm === false || rejectionForm.reason === "") {
-        setError({
-          type: "error",
-          text: `⚠ Rejection Reason and confirming details are mandatory fields!!`,
-        });
-        clearError();
+        showError(
+          `⚠ Rejection Reason and confirming details are mandatory fields!!`,
+        );
         return;
       }
-      setError({ type: "success", text: "Removing Candidate..." });
+      showInfo("Removing Candidate...");
       const job_keys = Array.isArray(candidate["job id"])
         ? candidate["job id"]
         : [];
@@ -60,7 +52,6 @@ function RejectCandidate({ handleClosing, candidate }) {
       );
       const newCandidate = { ...candidate, "job id": updated_jobs_ids };
       updateCandidate(cand_key, newCandidate);
-      clearError();
       setTimeout(() => {
         handleClosing();
       }, 2000);
@@ -98,16 +89,6 @@ function RejectCandidate({ handleClosing, candidate }) {
           handleClosingModal={handleClosing}
         />
         <div className="w-full p-4 gap-4 flex-1 flex flex-col items-center justify-start">
-          {error.text !== "" && (
-            <motion.div
-              initial={{ opacity: 0, h: 0, w: 0 }}
-              animate={{ opacity: 1, h: "auto", w: "100%" }}
-              transition={{ duration: 0.2, type: "tween", ease: "easeInOut" }}
-              className={`rounded-small p-2 w-full flex items-center justify-center ${error.type === "error" ? "text-red-700 bg-red-100" : "bg-gree-100 text-text_green"}`}
-            >
-              <Label text={error.text} class_name={""} />
-            </motion.div>
-          )}
           {elements.map((el) => {
             return (
               <div

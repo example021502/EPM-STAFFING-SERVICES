@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { selected_job_id_context } from "../../../../context/SelectedJobContext";
 import { Company_context } from "../../../../context/AccountsContext";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
@@ -12,7 +11,7 @@ function OverviewHeading() {
   const { candidates } = useContext(Candidates_context);
 
   // Defensive checks: ensure job_id exists
-  const { selected_job_id } = useContext(selected_job_id_context);
+  const selected_job_id = sessionStorage.getItem("selected_job_id");
   if (!selected_job_id || !jobs[selected_job_id]) {
     return (
       <div className="w-full flex border-b border-lighter flex-row items-center p-4 justify-between text-[clamp(1em,1.2vw,1.2em)] font-semibold">

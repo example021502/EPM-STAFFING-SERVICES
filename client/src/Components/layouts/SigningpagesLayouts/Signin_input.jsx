@@ -25,7 +25,7 @@ function Signin_input({ element, display_data, handleInputChange }) {
           onchange={handleInputChange}
           require={true}
           id={element.type}
-          autoComplete={`${element.type === "email"}`}
+          autoComplete={element.type === "email" ? "email" : "current-password"}
           placeholder={element.placeholder}
           type={element.type}
           class_name={`${display_data.input_element_styles} pl-10 w-full focus:ring-2 focus:ring-nevy_blue outline-none transition-all`}
