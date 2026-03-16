@@ -26,3 +26,38 @@ export const getJobsByUserId = async (user_id) => {
     throw err;
   }
 };
+
+// UPDATE: update jobs by user id
+export const updateByJobId = async (job_id, data) => {
+  try {
+    const res = await db`UPDATE jobs 
+    SET
+      active = ${data.active},
+      urgent = ${data.urgent},
+      job_name = ${data.job_name},
+      job_type = ${data.job_type},
+      salary_min = ${data.salary_min},
+      salary_max = ${data.salary_max},
+      experience_years = ${data.experience_years},
+      max_applications = ${data.max_applications},
+      description = ${data.description},
+      updated_at = NOW()
+
+    WHERE id = ${job_id} RETURNING *`;
+
+    return res[0];
+  } catch (err) {
+    throw err;
+  }
+};
+
+// DELETE : delete the job
+export const deleteByJobId = async (job_id) => {
+  try {
+    const res = await db`DELETE FROM jobs WHERE id = ${job_id} RETURNING *`;
+
+    return res[0];
+  } catch (err) {
+    throw err;
+  }
+};
