@@ -6,7 +6,7 @@ import Button from "../common/Button";
 import Header from "../layouts/Dashboard/Candidate/Common/Header";
 import { motion } from "framer-motion";
 import { showSuccess, showError } from "../../utils/toastUtils";
-import { getJobs } from "../../services/jobs.services";
+import { getJobsByUserID } from "../../services/jobs.services";
 
 function JobForm({ setClosing }) {
   const [job_form, setJob_form] = useState({
