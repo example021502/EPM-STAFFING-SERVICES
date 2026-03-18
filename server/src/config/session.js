@@ -1,13 +1,7 @@
-/**
- * Session configuration module
- *
- * Configures Express session middleware for user authentication and state management.
- * This module sets up session options including security settings, cookie configuration,
- * and session storage parameters.
- */
+import dotenv from "dotenv";
+import session from "express-session";
 
-import dotevn from "dotenv";
-dotevn.config();
+dotenv.config();
 
 /**
  * Session service configuration function
@@ -15,14 +9,14 @@ dotevn.config();
  * @returns {Object} Express session configuration object
  */
 export const sessionService = () => {
-  session({
+  return session({
     name: "session_id",
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
 
     cookie: {
-      httOnly: true,
+      httpOnly: true,
       secure: false,
       maxAge: 2000 * 60 * 60,
     },

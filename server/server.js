@@ -10,8 +10,10 @@
 import express from "express";
 import userRouter from "./src/routes/userRoutes.js";
 import userAuthRouter from "./src/routes/userAuthRoutes.js";
+import apiRoutes from "./src/routes/apiRoutes.js";
 
 import { sendMailController } from "./src/controller/user.auth.controller.js";
+
 import "./src/util/otpCleanup.job.js";
 import cookieParser from "cookie-parser";
 import { sessionService } from "./src/config/session.js";
@@ -35,15 +37,9 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(session(sessionService));
+app.use(sessionService());
 
-/**
- * Route configuration
- *
- * - /api: Main API routes for user operations
- * - /auth: Authentication-related routes (login, signup, etc.)
- */
-app.use("/api", userRouter);
+app.use("/api", apiRoutes);
 app.use("/auth", userAuthRouter);
 
 // this routes is only for test perpose
