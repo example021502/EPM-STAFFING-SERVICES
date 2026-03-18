@@ -1,12 +1,3 @@
-/**
- * Main server file for the Employee Staffing Services backend
- *
- * This file sets up the Express.js server with all necessary middleware,
- * routes, and configurations for the job portal application. It initializes
- * the application, configures middleware, sets up routes, and starts the
- * server on port 4000.
- */
-
 import express from "express";
 import userRouter from "./src/routes/userRoutes.js";
 import userAuthRouter from "./src/routes/userAuthRoutes.js";
@@ -23,9 +14,6 @@ import session from "express-session";
 // test
 // import { testController } from "./src/test/testController.js";
 
-/**
- * Initialize the Express application
- */
 const app = express();
 
 // middlerwares
@@ -42,11 +30,6 @@ app.use("/auth", userAuthRouter);
 // this routes is only for test perpose
 // app.use("/test", testController);
 
-/**
- * Start the server on port 4000
- *
- * The server will listen for incoming HTTP requests on localhost:4000
- */
 app.listen(4000, () => {
   console.log("PORT : 4000");
 });

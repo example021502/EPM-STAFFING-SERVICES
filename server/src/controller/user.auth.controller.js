@@ -1,28 +1,13 @@
-/**
- * User authentication controller module
- *
- * Handles OTP (One-Time Password) based authentication operations including
- * sending OTP emails, verifying OTP codes, and resending OTPs. This controller
- * manages the email verification flow for user registration and authentication.
- */
-
 import bcrypt from "bcrypt";
 import { sendEmail } from "../services/sendEmail.js";
 import { generateOTP } from "../util/generateOTP.js";
 import { emailTemplate } from "../util/emailTemplate.js";
-import {
-  storeOTP,
-  getOtpVerification,
-  deleteOTP,
-} from "../services/db/verifyOTP.db.js";
+// import {
+//   storeOTP,
+//   getOtpVerification,
+//   deleteOTP,
+// } from "../services/db/verifyOTP.db.js";
 
-/**
- * Reusable service function to send OTP to user's email
- * @param {Object} params - Object containing user_id and email
- * @param {string} params.user_id - The user's ID
- * @param {string} params.email - The user's email address
- * @returns {Promise<void>} Promise that resolves when OTP is sent
- */
 const sendOTPService = async ({ user_id, email }) => {
   const OTP_code = generateOTP().toString();
 
@@ -43,12 +28,6 @@ const sendOTPService = async ({ user_id, email }) => {
   });
 };
 
-/**
- * Send OTP to user's email for verification
- * @param {Object} req - Express request object containing user_id and email in body
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with success/failure status
- */
 export const sendMailController = async (req, res) => {
   try {
     const { user_id, email } = req.body;
@@ -75,12 +54,6 @@ export const sendMailController = async (req, res) => {
   }
 };
 
-/**
- * Verify OTP code provided by user
- * @param {Object} req - Express request object containing user_id and otp_code in body
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with verification result
- */
 export const verifiedOTPContoller = async (req, res) => {
   try {
     const { user_id, otp_code } = req.body;
@@ -118,12 +91,6 @@ export const verifiedOTPContoller = async (req, res) => {
   }
 };
 
-/**
- * Resend OTP to user's email
- * @param {Object} req - Express request object containing user_id and email in body
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with resend result
- */
 export const resendOTPController = async (req, res) => {
   try {
     const { user_id, email } = req.body;
