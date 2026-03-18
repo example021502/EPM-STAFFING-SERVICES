@@ -10,15 +10,18 @@ export const singleInsert = async (table_name, column_name, value, id) => {
   }
 };
 
-export const multipleInsert = async (table_name, column_names, values, id) => {
-  const rows = values.map((value) => ({
-    [column_name]: value,
-    id: id,
-  }));
-
+// INSERT multiple Column
+export const multipleColumnInsert = async (
+  table_name,
+  column_names,
+  values,
+) => {
   try {
-    const res =
-      await db`INSERT INTO ${db(table_name)} ${db(column_names)} VALUES ${db(rows)}`;
+    const res = await db`INSERT INTO ${db(table_name)} ${db(column_names)}
+               VALUES (${db(values)})
+               RETURNING *`;
+
+    return res[0];
   } catch (err) {
     throw err;
   }
