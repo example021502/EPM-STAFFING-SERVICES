@@ -1,3 +1,5 @@
+import db from "../config/db.js";
+
 // INSERT SINGLE data
 export const singleInsert = async (table_name, column_name, value, id) => {
   try {
@@ -39,10 +41,10 @@ export const getData = async (id, table_name) => {
 };
 
 // UPDATE single data
-export const updateData = async (id, table_name, column_name, value) => {
+export const updateData = async (id, table_name, data) => {
   try {
     const res =
-      await db`UPDATE ${db(table_name)} SET ${db(column_name)} = ${value} WHERE id = ${id} RETURNING *`;
+      await db`UPDATE ${db(table_name)} SET ${db(data)} WHERE id = ${id} RETURNING *`;
 
     return res[0];
   } catch (err) {
