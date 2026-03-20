@@ -14,7 +14,11 @@ import {
   updateUser,
   deleteUser,
 } from "../controller/user.controller.js";
-import companyRoutes from "../routes/user/companyRoutes.js";
+import {
+  createController,
+  getByUserIdController,
+  updateByIdController,
+} from "../util/controller.js";
 
 /**
  * Create Express router instance for user-related routes
@@ -39,7 +43,11 @@ router.patch("/:user_id", updateUser);
 // DELETE
 router.delete("/:user_id", deleteUser);
 
-// Company Routes
-router.use("/company", companyRoutes);
+// ================================================
+//                Others Routes
+// ================================================
+router.post("/:table", createController);
+router.patch("/:table/:id", updateByIdController);
+router.get("/:table/:user_id", getByUserIdController);
 
 export default router;

@@ -1,6 +1,7 @@
 import express from "express";
 import jobRoutes from "./jobsRoutes.js";
 import usersRoutes from "./userRoutes.js";
+import { createController } from "../util/controller.js";
 
 const router = express.Router();
 
