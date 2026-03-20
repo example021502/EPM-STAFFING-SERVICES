@@ -12,36 +12,24 @@ import {
   getAllUsers,
   getUserById,
   createUserDb,
+  updateUserService,
 } from "../services/db/user.service.db.js";
+import { deleteData } from "../util/dbCrud.js";
 
-/**
- * Validates if a given string is a valid UUID format
- * @param {string} id - The ID string to validate
- * @returns {boolean} True if the ID is a valid UUID format, false otherwise
- */
+// Checking UUID is valid or not
 const isValidUUID = (id) => {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
     id,
   );
 };
 
-/**
- * Retrieve all users data from the database
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with all users data
- */
+// Fetching all user
 export const getUsers = async (req, res) => {
   const users = await getAllUsers();
   return res.json(users);
 };
 
-/**
- * Retrieve a single user's data by ID
- * @param {Object} req - Express request object containing user ID in params
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with user data or error message
- */
+// Fetching single user by id
 export const getById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -63,27 +51,14 @@ export const getById = async (req, res) => {
   }
 };
 
-/**
- * Create a new user account
- * @param {Object} req - Express request object containing user data in body
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with success message and user data or error
- */
+// Create an account
 export const createUser = async (req, res) => {
   try {
-    const { email, password, role, active, description } = req.body;
+    const { email, password, role, active } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    console.log(email, hashedPassword, role, active, description);
-
-    const user = await createUserDb(
-      email,
-      hashedPassword,
-      role,
-      active,
-      description,
-    );
+    const user = await createUserDb(email, hashedPassword, role, active);
 
     // Set session user ID for authentication
     req.session.userId = user.id;
@@ -97,6 +72,40 @@ export const createUser = async (req, res) => {
           email: user.email,
         },
       });
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// update user data
+export const updateUser = async (req, res) => {
+  const user_id = req.params.user_id;
+  const data = req.body;
+
+  try {
+    const result = await updateUserService(user_id, data);
+
+    res.json({
+      message: "User updated successfully",
+      user: result,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// DELETE: user account
+export const deleteUser = async (req, res) => {
+  const user_id = req.params.user_id;
+
+  try {
+    const result = await deleteData(user_id, "users");
+
+    res.status(200).json({
+      success: true,
+      message: "User Account deleted successfully",
+      data: result,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

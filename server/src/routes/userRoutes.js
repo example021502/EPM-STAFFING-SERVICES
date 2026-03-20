@@ -11,7 +11,14 @@ import {
   getUsers,
   getById,
   createUser,
+  updateUser,
+  deleteUser,
 } from "../controller/user.controller.js";
+import {
+  createController,
+  getByUserIdController,
+  updateByIdController,
+} from "../util/controller.js";
 
 /**
  * Create Express router instance for user-related routes
@@ -20,17 +27,27 @@ const router = express.Router();
 
 /**
  * User API endpoints
- * Base path: /api
+ * Base path: /api/users
  */
 
 // GET the user data
-router.get("/users", getUsers); // retrieve all the users data
-router.get("/users/:id", getById); // retrieve single user data
+router.get("", getUsers); // retrieve all the users data
+router.get("/:id", getById); // retrieve single user data
 
 // POST
-router.post("/users", createUser); // Create a new users
+router.post("", createUser); // Create a new users
 
-// // PATCH
-// router.patch("/api/user/:id"); // update partial user
+// PUT: update user data
+router.patch("/:user_id", updateUser);
+
+// DELETE
+router.delete("/:user_id", deleteUser);
+
+// ================================================
+//                Others Routes
+// ================================================
+router.post("/:table", createController);
+router.patch("/:table/:id", updateByIdController);
+router.get("/:table/:user_id", getByUserIdController);
 
 export default router;
