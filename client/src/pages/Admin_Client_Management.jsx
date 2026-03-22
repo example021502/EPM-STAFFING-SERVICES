@@ -20,8 +20,8 @@ function Admin_Client_Management() {
         {management ? (
           <OverviewHeading />
         ) : isListedJobs ? (
-          <div className="w-full flex px-6 border-b border-lighter flex-row items-center justify-between">
-            <header className="flex flex-col items-start justify-center py-4 px-6 w-full">
+          <div className="w-full flex border-b border-lighter flex-row items-center justify-between">
+            <header className="flex flex-col items-start justify-center py-4 px-4 w-full">
               <Label
                 text="Listed Jobs"
                 class_name="text-[clamp(1.2em,2vw,1.4em)] font-semibold text-text_b"

@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const navBarButtons = [
   {
@@ -34,16 +34,26 @@ const navBarButtons = [
 
 function AdminNavBar() {
   const navigate = useNavigate();
-  const current_navbutton =
-    sessionStorage.getItem("current_navbutton") || "client_management";
-
+  const { pathname } = useLocation();
+  const [current_navbutton, setCurrent_navbutton] =
+    useState("client_management");
   const handleNavigating = (name) => {
     // Navigate to appropriate route
 
     if (name === "client_management") navigate("/admin/management");
     else navigate(name);
-    sessionStorage.setItem("current_navbutton", name);
   };
+
+  useEffect(() => {
+    const nav_btn = pathname.split("/").at(-1);
+    if (nav_btn === "management") {
+      sessionStorage.setItem("current_navbutton", "client_management");
+      setCurrent_navbutton("client_management");
+      return;
+    }
+    setCurrent_navbutton(nav_btn);
+    sessionStorage.setItem("current_navbutton", nav_btn);
+  }, [pathname]);
 
   return (
     <div className="flex flex-col border-r border-lighter items-center justify-start w-90 h-full overflow-y-auto z-1">

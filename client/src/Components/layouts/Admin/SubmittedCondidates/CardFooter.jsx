@@ -3,20 +3,40 @@ import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
 import ViewProfile from "./ViewProfile";
 import ManageProfile from "./ManageProfile";
+
+/**
+ * CardFooter component - Displays actions and additional information for candidate/job cards
+ * @param {Object} props - Component props
+ * @param {Object} props.icons - Icon definitions
+ * @param {string} props.cand_index - Unique identifier for the data
+ * @param {Object} props.data - Candidate or job data
+ * @param {Function} props.updateCandidate - Function to update candidate data
+ * @param {Function} props.deleteCandidate - Function to delete candidate data
+ * @param {boolean} props.isListed_jobs - Flag indicating if we're in listed_jobs view
+ * @returns {JSX.Element} Rendered card footer component
+ */
 function CardFooter({
   icons,
   cand_index,
-  candidate,
+  data,
   updateCandidate,
   deleteCandidate,
+  isListed_jobs = false,
 }) {
+  // State for profile view toggle
   const [profile, setProfile] = useState(false);
+  // State for manage view toggle
   const [manage, setManage] = useState(false);
 
-  if (!candidate) {
-    return <div className="text-red-500">Error: Candidate data not found</div>;
+  // Check if data exists
+  if (!data) {
+    return <div className="text-red-500">Error: Data not found</div>;
   }
 
+  /**
+   * Handle button click actions
+   * @param {string} text - Button text to determine action
+   */
   const handleButtonClick = (text) => {
     if (text === "View Profile") {
       setProfile(true);
@@ -24,13 +44,26 @@ function CardFooter({
       setManage(true);
     }
   };
+
+  /**
+   * Display message when no skills are listed
+   * @returns {JSX.Element} No skills message
+   */
   const NoSkills = () => {
     return <p className="text-xs text-gray-500">No skills listed</p>;
   };
-  const skills = candidate["skills"] || [];
-  const interViewType = candidate["interview type"] || "Not Scheduled";
+
+  // Get skills from data (candidate view) or job requirements (job view)
+  const skills = isListed_jobs
+    ? data["requirements"] || []
+    : data["skills"] || [];
+
+  // Get interview type from data
+  const interViewType = data["interview type"] || "Not Scheduled";
+
   return (
     <div className="w-full text-[clamp(0.8rem,1vw,1rem)] flex flex-col items-start justify-between gap-4">
+      {/* Interview information section */}
       <div className="text-text_l_b flex justify-between bg-red-light flex-row w-full items-center gap-1 py-1 rounded-small px-2">
         <Label text={"Interview | " + interViewType} class_name={""} />
         <span className="flex flex-row items-center">
@@ -41,6 +74,8 @@ function CardFooter({
           <Label text={"12/05/2023"} class_name={""} />
         </span>
       </div>
+
+      {/* Skills/requirements section */}
       <div className="flex flex-row items-center justify-start gap-2">
         {skills.length > 0
           ? skills.map((skill, i) => {
@@ -54,7 +89,9 @@ function CardFooter({
             })
           : NoSkills()}
       </div>
-      <div className="flex flex-row  w-full items-center justify-start gap-4">
+
+      {/* Action buttons section */}
+      <div className="flex flex-row w-full items-center justify-start gap-4">
         {["View Profile", "Manage"].map((btn_text, i) => {
           const icn =
             btn_text === "View Profile"
@@ -74,16 +111,18 @@ function CardFooter({
           );
         })}
       </div>
+
+      {/* Modal components */}
       {manage && (
         <ManageProfile
           cand_index={cand_index}
           setClosing={setManage}
-          candidate={candidate}
+          candidate={data}
           updateCandidate={updateCandidate}
           deleteCandidate={deleteCandidate}
         />
       )}
-      {profile && <ViewProfile candidate={candidate} setClosing={setProfile} />}
+      {profile && <ViewProfile candidate={data} setClosing={setProfile} />}
     </div>
   );
 }

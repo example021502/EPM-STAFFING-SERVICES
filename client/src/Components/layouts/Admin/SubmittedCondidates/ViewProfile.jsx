@@ -11,29 +11,51 @@ import Skills from "./ManageOverlay/Skills";
 import { Jobs_context } from "../../../../context/JobsContext";
 import { showInfo } from "../../../../utils/toastUtils";
 
+/**
+ * ViewProfile component - Modal overlay for viewing detailed candidate profile information
+ * @param {Object} props - Component props
+ * @param {Object} props.candidate - Candidate data to display
+ * @param {Function} props.setClosing - Function to close the overlay
+ * @returns {JSX.Element} Rendered view profile component
+ */
 function ViewProfile({ candidate, setClosing }) {
+  // Validate candidate data
   if (!candidate) return showInfo("Something went wrong!");
+
+  // Get jobs context for accessing job data
   const { jobs } = useContext(Jobs_context);
 
+  // Get company context for accessing company data
   const { company_accounts } = useContext(Company_context) || {};
+  // Get current job data
   const job = jobs?.[candidate["job id"][0]];
+  // Get company data for the job
   const company = company_accounts?.[job["company id"]] || {};
+  // Get job keys from candidate data
   const jobs_keys = candidate?.["job id"] || [];
 
+  // Get unique company IDs from job keys
   const job_company_ids = new Set(
     jobs_keys.map((j_key) => jobs[j_key]["company id"]),
   );
 
+  // Get company keys that match the job company IDs
   const company_keys = Object.keys(company_accounts).filter((key) =>
     job_company_ids.has(key),
   );
-  const job_name = `${job["job title"]} + ${jobs_keys.length} more` || "-";
+  // Format job name with count
+  const job_name = `${job["job title"]} + ${jobs_keys.length - 1} more` || "-";
+  // Get candidate experience
   const exp = candidate.experience || "-";
+  // Get candidate status
   const cand_status = candidate["offer status"] || "-";
+  // Heading class for consistent styling
   const heading_class =
     "font-semibold mb-2 border-b border-lighter pb-2 w-full";
 
+  // Notes section content
   const notes = "Awaiting client feed back on portfolio";
+  // Submission details for display
   const submission_details = [
     {
       label: "Client Company",
@@ -43,6 +65,7 @@ function ViewProfile({ candidate, setClosing }) {
     { label: "Current Stage", val: candidate["hiring stage"] || "-" },
     { label: "Job Type", val: job["contract type"] || "-" },
   ];
+  // Contact information for the candidate
   const contact_info = [
     {
       label: "Email",
@@ -65,7 +88,9 @@ function ViewProfile({ candidate, setClosing }) {
       value: candidate.location || candidate.address || "Not provided",
     },
   ];
+  // Candidate skills array
   const skills = Array.isArray(candidate.skills) ? candidate.skills : [];
+  // Personal information for the candidate
   const personal_info = [
     {
       label: "Gender",
@@ -93,6 +118,7 @@ function ViewProfile({ candidate, setClosing }) {
       value: candidate["cover letter"] || "Not provided",
     },
   ];
+
   return (
     <div
       onClick={() => setClosing(false)}
@@ -102,6 +128,7 @@ function ViewProfile({ candidate, setClosing }) {
         onClick={(e) => e.stopPropagation()}
         className="w-[40%] overflow-hidden h-[80%] rounded-small bg-b_white flex flex-col justify-start gap-4"
       >
+        {/* Header section with candidate and job information */}
         <ManageOverlayHeader
           candidate={candidate}
           job_name={job_name}
@@ -109,6 +136,7 @@ function ViewProfile({ candidate, setClosing }) {
           cand_status={cand_status}
           setClosing={setClosing}
         />
+        {/* Main content section with all candidate details */}
         <div className="w-full p-4 gap-6 flex flex-col items-start justify-start text-sm overflow-y-auto no-scrollbar">
           <PersonalInfo
             personal_info={personal_info}
@@ -129,6 +157,7 @@ function ViewProfile({ candidate, setClosing }) {
             job={job}
             candidate={candidate}
           />
+          {/* Notes section */}
           <div className="w-full flex flex-col items-start justify-start gap-2">
             <Label text={"Notes"} class_name={heading_class} />
             <div className="p-2 rounded-small w-full bg-b_light_blue flex flex-row items-center justify-start">

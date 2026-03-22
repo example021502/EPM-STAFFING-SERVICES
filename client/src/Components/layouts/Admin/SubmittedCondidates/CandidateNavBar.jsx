@@ -2,33 +2,65 @@ import React, { useState, useEffect, useContext } from "react";
 import Icon from "../../../common/Icon";
 import Input from "../../../common/Input";
 import Label from "../../../common/Label";
-import { Jobs_context } from "../../../../context/JobsContext";
+import { useLocation } from "react-router-dom";
+import { filterJobs } from "../../../../utils/filterJobs";
 
-function CandidateNavBar({ setFilterdCandidates, candidates }) {
-  const { jobs } = useContext(Jobs_context) || {};
+/**
+ * CandidateNavBar component - Navigation bar for filtering candidates or jobs
+ * @param {Object} props - Component props
+ * @param {Function} props.setFilteredData - Function to set filtered data
+ * @param {Object} props.candidates - Candidates data
+ * @param {Object} props.jobs - Jobs data
+ * @param {boolean} props.isListed_jobs - Flag indicating if we're in listed_jobs view
+ * @returns {JSX.Element} Rendered navigation bar component
+ */
+function CandidateNavBar({
+  setFilteredData,
+  candidates,
+  jobs,
+  isListed_jobs = false,
+}) {
+  // Get current route path to determine view mode
+  const { pathname } = useLocation();
+  const section = pathname.split("/").at(-1);
+  // State for clicked button filter
   const [clickedBtn, setClickedBtn] = useState("All");
+  // State for search key
   const [search_key, setSearch_key] = useState("All");
+  // State for pagination frame number
   const [f_number, setF_number] = useState(1);
-  const [filteredCandidates, setFilteredCandidates] = useState(
-    candidates || {},
+  // State for filtered list
+  const [filtered_list, setFiltered_list] = useState(
+    section === "listed_jobs" ? jobs : candidates || {},
   );
+
+  // Filter buttons options
   const buttons = ["All", "Pending", "Interviewed", "Accepted", "Rejected"];
+
+  /**
+   * Handle button click for status filtering
+   * @param {string} name - Status name to filter by
+   */
   const handleBtnClick = (name) => {
     setClickedBtn(name);
-
     setSearch_key(name);
     setF_number(1);
   };
 
+  // Filter data based on search key and view mode
   useEffect(() => {
-    let filtered = candidates || {};
+    const s_key = (search_key || "").toLocaleLowerCase().trim();
+    let filtered = section === "listed_jobs" ? jobs : candidates || {};
+    const isJobLIst = section === "listed_jobs";
     const isNavButton =
       search_key === "Pending" ||
       search_key === "Interviewed" ||
       search_key === "Accepted" ||
       search_key === "Rejected";
+
     if (search_key !== "All") {
       if (isNavButton) {
+        // Filter by status for candidates
         filtered = Object.keys(candidates || {}).reduce((acc, key) => {
           const candidate = candidates[key];
           if (
@@ -40,8 +72,11 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
           }
           return acc;
         }, {});
+      } else if (isJobLIst) {
+        // Filter jobs using filterJobs utility
+        return filterJobs(jobs, s_key);
       } else {
-        const s_key = (search_key || "").toLocaleLowerCase().trim();
+        // Filter candidates by name, status, or job title
         filtered = Object.keys(candidates || {}).reduce((acc, key) => {
           const candidate = candidates[key];
           const name =
@@ -75,22 +110,36 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
       }
     }
 
-    setFilteredCandidates(filtered);
+    setFiltered_list(filtered);
     setF_number(1); // Reset to first page
-  }, [search_key, candidates]);
+  }, [search_key, candidates, jobs]);
 
+  /**
+   * Handle typing in search input
+   * @param {string} value - Search input value
+   * @param {string} id - Input field ID
+   */
   const handleTypingSearchKey = (value, id) => {
     setSearch_key(value);
   };
 
+  /**
+   * Calculate total number of pagination frames
+   * @returns {number} Total number of frames
+   */
   const get_frames = () => {
-    const total = Object.keys(filteredCandidates).length;
+    const total = Object.keys(filtered_list).length;
     const frames = Math.ceil(total / 6); // Changed from 5 to 6 candidates per frame
     return frames;
   };
 
+  // Total frames count
   const t_frame = get_frames();
 
+  /**
+   * Handle pagination navigation
+   * @param {string} direction - Navigation direction ("prev" or "next")
+   */
   const handleFrames = (direction) => {
     if (direction === "prev") {
       setF_number((prev) => (prev > 1 ? prev - 1 : prev));
@@ -99,25 +148,27 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
     }
   };
 
-  // Apply pagination to the filtered candidates
+  // Apply pagination to the filtered data
   useEffect(() => {
-    const totalCandidates = Object.keys(filteredCandidates);
+    const total_data_items = Object.keys(filtered_list);
     const pageSize = 6;
     const startIndex = (f_number - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const paginatedKeys = totalCandidates.slice(startIndex, endIndex);
-    const paginatedCandidates = paginatedKeys.reduce((acc, key) => {
-      acc[key] = filteredCandidates[key];
+    const paginatedKeys = total_data_items.slice(startIndex, endIndex);
+    const paginated_data_items = paginatedKeys.reduce((acc, key) => {
+      acc[key] = filtered_list[key];
       return acc;
     }, {});
 
-    setFilterdCandidates(paginatedCandidates);
-  }, [filteredCandidates, f_number]);
+    setFilteredData(paginated_data_items);
+  }, [filtered_list, f_number]);
 
+  // Navigation arrows styling
   const navArrows = `font-semibold py-3  w-20 border border-light flex transition-all duration-200 ease-in-out cursor-pointer items-center justify-center rounded-small text-[clamp(1.2em,2vw,1.4em)] text-text_white ${t_frame > 1 ? "bg-blue/80 hover:bg-blue" : "bg-blue/20 cursor-not-allowed"}`;
 
   return (
     <div className="w-full sticky top-0 bg-b_white z-20 py-4 flex flex-col gap-4 items-end">
+      {/* Search and filter section */}
       <div className="w-full flex flex-row gap-4 items-center text-[clamp(1em,1vw,1.2em)] justify-between">
         <div className="relative rounded-small flex-1">
           <Icon
@@ -126,7 +177,11 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
           />
           <Input
             onchange={handleTypingSearchKey}
-            placeholder={"Search Candidates by name, job title, status..."}
+            placeholder={
+              isListed_jobs
+                ? "Search Jobs by title, status..."
+                : "Search Candidates by name, job title, status..."
+            }
             class_name={
               "w-full px-10 py-1.5 rounded-small border border-inputBorder focus:ring ring-highLightBorder focus:outline-none focus:border-none"
             }
@@ -147,6 +202,8 @@ function CandidateNavBar({ setFilterdCandidates, candidates }) {
           })}
         </div>
       </div>
+
+      {/* Pagination section */}
       <div className="w-full text-[clamp(0.6em,1vw,0.8em)] flex flex-row items-center justify-between gap-4">
         <span onClick={() => handleFrames("prev")} className={navArrows}>
           <Icon icon={"ri-arrow-left-line"} class_name={"w-4 h-4"} />
