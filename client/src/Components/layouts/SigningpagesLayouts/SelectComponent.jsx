@@ -1,9 +1,6 @@
 import React, { useContext } from "react";
-import { signup_form_context } from "../../../context/SignupFormContext";
 
 function SelectComponent({ toggleExpand, handleSelecting }) {
-  const { setForm } = useContext(signup_form_context);
-
   const values = [
     "Banking",
     "IT Services",

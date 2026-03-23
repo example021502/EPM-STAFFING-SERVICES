@@ -6,7 +6,7 @@ import Icon from "../../common/Icon";
 import Already_have_account from "./Already_have_account";
 import { showError } from "../../../utils/toastUtils";
 import TextArea from "../../common/TextArea";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Signup_Company_information() {
   const [form, setForm] = useState({
@@ -79,6 +79,11 @@ function Signup_Company_information() {
   const label_style = "text-sm font-medium text-gray-600 text-center";
   const input_style =
     "w-full p-2 rounded-small border focus:border-none focus:outline-none focus:ring ring-nevy_blue border-light";
+  // navigation buttons
+  const buttons = [
+    { label: "Back", icon: "ri-arrow-left-line" },
+    { label: "Continue", icon: "ri-arrow-right-line" },
+  ];
 
   return (
     <>

@@ -43,7 +43,6 @@ function Signup_Account_credentials() {
 
   const [verifying, setVerifying] = useState(false);
 
-  // TODO: complete this section
   const handleGenerateOtp = async () => {
     try {
       const result = await sendOTP(form.email);
