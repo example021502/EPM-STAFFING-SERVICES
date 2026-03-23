@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import NameInitials from "../../../common/NameInitials";
 import Label from "../../../common/Label";
 import Icon from "../../../common/Icon";
@@ -8,9 +8,8 @@ import CardFooter from "./CardFooter";
 import Arrow from "./Arrow";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
-import { Candidates_context } from "../../../../context/CandidatesContext";
 import Button from "../../../common/Button";
-import { Jobs_context } from "../../../../context/JobsContext";
+import { Company_context } from "../../../../context/AccountsContext";
 
 /**
  * CandidateCard component - Displays candidate or job information based on route
@@ -29,16 +28,13 @@ function CandidateCard({
   data,
   data_key,
   jobs,
-  company_accounts,
   icons,
   updateCandidate,
   deleteCandidate,
   handleViewDetails,
 }) {
   // Get candidates context for accessing candidate data
-  const { candidates } = useContext(Candidates_context);
-  // Get jobs context for accessing job data
-  const { jobs: jobsContext } = useContext(Jobs_context);
+  const { company_accounts } = useContext(Company_context);
   // Get current route path to determine view mode
   const { pathname } = useLocation();
   // Determine if we're in listed_jobs route
@@ -47,41 +43,21 @@ function CandidateCard({
 
   // State for job navigation index
   const [job_index, set_job_index] = useState(1);
-  // State for candidate navigation index
-  const [candidate_index, set_candidate_index] = useState(1);
   // State for total job count
   const [t_jobs, setT_jobs] = useState(0);
   // State for total candidate count
   const [t_candidates, setT_candidates] = useState(0);
   // Get related job keys from data
-  const related_jobs_keys = data["job id"] || [];
-
-  // Filter candidates related to current job (for listed_jobs view)
-  const related_candidates_keys = Object.keys(candidates).filter((key) =>
-    candidates[key]?.["job id"]?.includes(data_key),
-  );
+  const related_job_keys = data["job id"];
 
   // Update counts and indices when data changes
   useEffect(() => {
     // Set count based on view mode
-    if (isListed_jobs) {
-      setT_candidates(related_candidates_keys?.length);
-    } else {
-      setT_jobs(related_jobs_keys?.length);
+    if (!isListed_jobs) {
+      setT_jobs(related_job_keys?.length || 0);
     }
     // Initialize indices to 1 when data is available
-    if (related_jobs_keys.length > 0) {
-      set_job_index(1);
-    }
-    if (related_candidates_keys.length > 0) {
-      set_candidate_index(1);
-    }
-  }, [
-    data,
-    related_jobs_keys?.length,
-    related_candidates_keys?.length,
-    isListed_jobs,
-  ]);
+  }, [related_job_keys?.length, isListed_jobs]);
 
   /**
    * Handle navigation between related items (jobs or candidates)
@@ -118,21 +94,6 @@ function CandidateCard({
   if (isAccepted) bg = "bg-light_green text-green-dark";
   if (isRejected) bg = "bg-red-light text-red-dark";
 
-  // Get current job data for candidate view
-  const job_key = related_jobs_keys[job_index - 1];
-  const currentJob = jobs[job_key];
-  const companyId = currentJob ? currentJob["company id"] : null;
-  const company = companyId ? company_accounts?.[companyId] : null;
-
-  // Get current candidate data for job view
-  const candidate_key = related_candidates_keys[candidate_index - 1];
-  const currentCandidate = candidates[candidate_key];
-
-  // Determine which data item to display based on view mode
-  const data_item = isListed_jobs
-    ? related_candidates_keys?.[candidate_index - 1]
-    : related_jobs_keys?.[job_index - 1];
-
   return (
     <div className="w-full flex flex-col items-center justify-start gap-4 p-4 rounded-small bg-white">
       {/* Top section: Display job info for listed_jobs, candidate info for candidates view */}
@@ -151,64 +112,69 @@ function CandidateCard({
           {/* Display location - job location for listed_jobs, candidate location for candidates view */}
           <span className="text-xs text-gray-500 flex flex-row items-center justify-start">
             <Icon icon={icons.location} class_name={""} />
-            <Label text={isListed_jobs ? data.location : data.location} />
+            <Label text={data.location} />
           </span>
         </div>
         {/* Display remove button for listed_jobs, status for candidates view */}
         {isListed_jobs ? (
           <Button
             text="Remove"
-            class_name="py-1 px-2 rounded-sm border-lighter border shadow-sm shadow-lighter"
+            class_name="py-1 text-xs bg-g_btn text-text_white font-semibold tracking-wide ml-auto px-2 rounded-sm border-lighter border shadow-sm shadow-lighter"
           />
         ) : (
           <Label
             text={data["offer status"]}
-            class_name={`font-lighter text-xs py-1 px-2 rounded-full ml-auto ${bg}`}
+            class_name={`font-lighter ml-auto text-xs py-1 px-2 rounded-full ml-auto ${bg}`}
           />
         )}
       </div>
 
-      {/* Middle section: Display candidate info for listed_jobs, company info for candidates view */}
+      {/* Middle section: Display company info for listed_jobs, job/company slideshow for candidates view */}
       <div className="w-full relative h-fit">
-        <div className="flex absolute top-2 right-2 flex-row items-center justify-center bg-lighter rounded-small z-10">
-          <Arrow
-            icon={"ri-arrow-left-s-line"}
-            id={"left"}
-            onArrowClick={handleNavCompany}
-          />
-          {/* Display count based on view mode */}
-          <span className="text-[8px] px-1">
-            {isListed_jobs
-              ? `${candidate_index} / ${t_candidates}`
-              : `${job_index} / ${t_jobs}`}
-          </span>
-          <Arrow
-            icon={"ri-arrow-right-s-line"}
-            id={"right"}
-            onArrowClick={handleNavCompany}
-          />
-        </div>
-        <div className="w-full overflow-x-auto no-scrollbar h-20 flex flex-row items-center justify-start gap-2 scroll-smooth">
+        {/* Show navigation arrows and count for candidates view (slideshow functionality) */}
+        {!isListed_jobs && (
+          <div className="flex absolute top-2 right-2 flex-row items-center justify-center bg-lighter rounded-small z-10">
+            <Arrow
+              icon={"ri-arrow-left-s-line"}
+              id={"left"}
+              onArrowClick={handleNavCompany}
+            />
+            {/* Display slide count for candidates view */}
+            <span className="text-[8px] px-1 font-medium">
+              {`${job_index} / ${t_jobs}`}
+            </span>
+            <Arrow
+              icon={"ri-arrow-right-s-line"}
+              id={"right"}
+              onArrowClick={handleNavCompany}
+            />
+          </div>
+        )}
+        <div
+          className={`w-full overflow-x-auto no-scrollbar flex flex-row items-center justify-start gap-2 scroll-smooth ${isListed_jobs ? "h-fit" : "h-20"}`}
+        >
           <AnimatePresence mode="wait">
-            {data_item && (
-              <motion.div
-                initial={{ x: "100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ duration: 0.2, ease: "easeInOut", type: "tween" }}
-                key={isListed_jobs ? candidate_key : job_key}
-                className="translate w-full h-full flex shrink-0"
-              >
-                <CandidateMiddleInformation
-                  icons={icons}
-                  handleViewDetails={handleViewDetails}
-                  company={isListed_jobs ? company : company}
-                  handleNavCompany={handleNavCompany}
-                  currentJob={isListed_jobs ? null : currentJob}
-                  currentCandidate={isListed_jobs ? currentCandidate : null}
-                />
-              </motion.div>
-            )}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut", type: "tween" }}
+              key={isListed_jobs ? "listed_jobs" : `${job_index}`}
+              className="translate w-full h-full flex shrink-0"
+            >
+              <CandidateMiddleInformation
+                icons={icons}
+                currentJob={
+                  !isListed_jobs ? jobs[related_job_keys[job_index - 1]] : null
+                }
+                handleViewDetails={handleViewDetails}
+                handleNavCompany={handleNavCompany}
+                relatedCompany={
+                  isListed_jobs ? company_accounts[data["company id"]] : null
+                }
+                isListed_jobs={isListed_jobs}
+              />
+            </motion.div>
           </AnimatePresence>
         </div>
       </div>

@@ -53,9 +53,9 @@ function CandidatesContainer({
    * @param {Object} company - Selected company data
    * @param {Object} currentJob - Selected job data
    */
-  const handleViewDetails = (company, currentJob) => {
+  const handleViewDetails = (currentJob) => {
     setViewDetails((prev) => !prev);
-    set_l_company(company);
+    set_l_company(company_accounts[currentJob["compnay_id"]]);
     set_l_currentJob(currentJob);
   };
 

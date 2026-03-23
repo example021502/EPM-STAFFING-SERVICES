@@ -27,24 +27,28 @@ function ViewProfile({ candidate, setClosing }) {
 
   // Get company context for accessing company data
   const { company_accounts } = useContext(Company_context) || {};
-  // Get current job data
-  const job = jobs?.[candidate["job id"][0]];
-  // Get company data for the job
-  const company = company_accounts?.[job["company id"]] || {};
-  // Get job keys from candidate data
+  // Get job keys from candidate data with safe access
   const jobs_keys = candidate?.["job id"] || [];
+  // Get current job data safely
+  const job = jobs_keys.length > 0 ? jobs?.[jobs_keys[0]] : null;
+  // Get company data for the job safely
+  const company = job ? company_accounts?.[job["company id"]] || {} : {};
 
-  // Get unique company IDs from job keys
+  // Get unique company IDs from job keys safely
   const job_company_ids = new Set(
-    jobs_keys.map((j_key) => jobs[j_key]["company id"]),
+    jobs_keys.map((j_key) => jobs?.[j_key]?.["company id"]).filter(Boolean),
   );
 
   // Get company keys that match the job company IDs
-  const company_keys = Object.keys(company_accounts).filter((key) =>
+  const company_keys = Object.keys(company_accounts || {}).filter((key) =>
     job_company_ids.has(key),
   );
-  // Format job name with count
-  const job_name = `${job["job title"]} + ${jobs_keys.length - 1} more` || "-";
+  // Format job name with count safely
+  const job_name = job
+    ? `${job["job title"]} + ${jobs_keys.length - 1} more`
+    : jobs_keys.length > 0
+      ? `${jobs_keys.length} job(s)`
+      : "-";
   // Get candidate experience
   const exp = candidate.experience || "-";
   // Get candidate status
@@ -63,7 +67,7 @@ function ViewProfile({ candidate, setClosing }) {
       val2: candidate["date applied"] || "-",
     },
     { label: "Current Stage", val: candidate["hiring stage"] || "-" },
-    { label: "Job Type", val: job["contract type"] || "-" },
+    { label: "Job Type", val: job?.["contract type"] || "-" },
   ];
   // Contact information for the candidate
   const contact_info = [

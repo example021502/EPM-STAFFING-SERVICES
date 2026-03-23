@@ -11,11 +11,13 @@ function Compensation({ heading_class, job, candidate }) {
         {[
           {
             label: "Current Salary",
-            val: getSalaryRange(candidate["current ctc"]),
+            val: candidate
+              ? getSalaryRange(candidate["current ctc"])
+              : "Not specified",
           },
           {
             label: "Expected Salary",
-            val: getSalaryRange(job["expected ctc"]),
+            val: job ? getSalaryRange(job["expected ctc"]) : "Not specified",
           },
         ].map((item, i) => {
           return (

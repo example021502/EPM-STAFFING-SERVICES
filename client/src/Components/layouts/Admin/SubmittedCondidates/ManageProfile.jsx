@@ -75,7 +75,7 @@ function ManageProfile({
         skills: candidate.skills || [],
       });
     }
-  }, [candidate, jobData]);
+  }, [candidate, jobIds, jobs]);
 
   /**
    * Convert date format from DD/MM/YYYY to YYYY-MM-DD
