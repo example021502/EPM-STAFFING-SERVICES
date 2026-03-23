@@ -206,7 +206,7 @@ function Signup_form() {
 
         {/* Form Content with Transition */}
         <div
-          className={`transition-all duration-400 h-100 no-scrollbar overflow-y-auto px-2 ${
+          className={`transition-all duration-400 h-100 no-scrollbar overflow-y-auto px-2 space-y-2 ${
             isLoading ? "opacity-0 scale-95" : "opacity-100 scale-100"
           }`}
         >

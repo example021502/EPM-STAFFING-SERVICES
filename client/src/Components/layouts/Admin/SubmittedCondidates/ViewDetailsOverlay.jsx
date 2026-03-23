@@ -5,8 +5,18 @@ import NameInitials from "../../../common/NameInitials";
 import Icon from "../../../common/Icon";
 import ManageElements from "./ManageElements";
 
+/**
+ * ViewDetailsOverlay component - Modal overlay for displaying detailed job or company information
+ * @param {Object} props - Component props
+ * @param {Function} props.setClosing - Function to close the overlay
+ * @param {Object} props.currentJob - Current job data
+ * @param {Object} props.company - Company data
+ * @returns {JSX.Element} Rendered view details overlay component
+ */
 function ViewDetailsOverlay({ setClosing, currentJob, company }) {
+  // Get job title from current job data
   const job_name = currentJob?.["job title"];
+  // Get company name with fallback
   const comp_name = company?.name || "N/A";
 
   return (
@@ -21,6 +31,7 @@ function ViewDetailsOverlay({ setClosing, currentJob, company }) {
         transition={{ duration: 0.2, type: "tween", ease: "easeInOut" }}
         className="w-[40%] max-h-full bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
       >
+        {/* Header section with company and job information */}
         <header className="w-full font-lighter text-[clamp(1em,2vw,1.2em)] flex flex-row items-center justify-between py-2 px-4 bg-g_btn text-text_white">
           <div className="flex flex-row items-center justify-start gap-2">
             <NameInitials name={comp_name} class_name="w-10 h-10" />
@@ -29,6 +40,7 @@ function ViewDetailsOverlay({ setClosing, currentJob, company }) {
               <Label text={job_name} class_name={"text-xs"} />
             </div>
           </div>
+          {/* Close button */}
           <span
             onClick={() => setClosing(false)}
             className="flex p-1 items-center justify-center hover:bg-lighter transition-all duration-200 ease-in-out hover:text-red-dark cursor-pointer rounded-full"
@@ -39,6 +51,7 @@ function ViewDetailsOverlay({ setClosing, currentJob, company }) {
             />
           </span>
         </header>
+        {/* Content section with job status and manage elements */}
         <div className="w-full p-4 flex flex-col items-start justify-start gap-4 no-scrollbar overflow-y-auto">
           <Label
             text={currentJob.status}

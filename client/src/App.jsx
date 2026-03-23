@@ -208,7 +208,7 @@ function App() {
                               />
                               <Route
                                 path="listed_jobs"
-                                element={<ListedJobs />}
+                                element={<SubmittedCandidates />}
                               />
                               <Route
                                 path="admin_settings"

@@ -23,8 +23,8 @@ function OverviewHeading() {
     );
   }
 
-  const comp_id = jobs[selected_job_id]["company id"];
-  const company = companyAccounts[comp_id];
+  const comp_id = jobs?.[selected_job_id]?.["company id"];
+  const company = companyAccounts > [comp_id];
 
   if (!company) {
     return (

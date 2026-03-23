@@ -10,6 +10,16 @@ import ConfirmationModal from "./ConfirmationModal";
 import Header from "../../Dashboard/Candidate/Common/Header";
 import { showError, showSuccess } from "../../../../utils/toastUtils";
 
+/**
+ * ManageProfile component - Modal overlay for managing candidate profile information
+ * @param {Object} props - Component props
+ * @param {string} props.cand_index - Candidate index/ID
+ * @param {Function} props.setClosing - Function to close the overlay
+ * @param {Object} props.candidate - Candidate data to manage
+ * @param {Function} props.updateCandidate - Function to update candidate data
+ * @param {Function} props.deleteCandidate - Function to delete candidate data
+ * @returns {JSX.Element} Rendered manage profile component
+ */
 function ManageProfile({
   cand_index,
   setClosing,
@@ -17,9 +27,14 @@ function ManageProfile({
   updateCandidate,
   deleteCandidate,
 }) {
+  // Get jobs context for accessing job data
   const { jobs } = useContext(Jobs_context) || {};
+  // Get job IDs from candidate data
   const jobIds = Array.isArray(candidate["job id"]) ? candidate["job id"] : [];
+  // Get job data for the first job ID
   const jobData = jobIds.length > 0 ? jobs?.[jobIds[0]] || {} : {};
+
+  // State for local form data
   const [localForm, setLocalForm] = useState({
     name: "",
     email: "",
@@ -34,6 +49,7 @@ function ManageProfile({
     "notice date": "",
     skills: [],
   });
+  // State for confirmation modal
   const [confirm, setConfirm] = useState({
     open: false,
     action: null,
@@ -41,6 +57,7 @@ function ManageProfile({
     message: "",
   });
 
+  // Initialize form data when candidate or job data changes
   useEffect(() => {
     if (candidate) {
       setLocalForm({
@@ -60,6 +77,11 @@ function ManageProfile({
     }
   }, [candidate, jobData]);
 
+  /**
+   * Convert date format from DD/MM/YYYY to YYYY-MM-DD
+   * @param {string} date - Date string in DD/MM/YYYY format
+   * @returns {string} Date string in YYYY-MM-DD format
+   */
   const getDateValue = (date) => {
     if (!date || typeof date !== "string") return "";
     const parts = date.split("/");
@@ -69,14 +91,27 @@ function ManageProfile({
     return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   };
 
+  /**
+   * Handle input field changes
+   * @param {string} value - New input value
+   * @param {string} id - Input field ID
+   */
   const handleInputChange = (value, id) => {
     setLocalForm((prev) => ({ ...prev, [id]: value }));
   };
 
+  /**
+   * Add a new skill to the skills array
+   */
   const addMoreSkills = () => {
     setLocalForm((prev) => ({ ...prev, skills: [...prev.skills, ""] }));
   };
 
+  /**
+   * Update a specific skill in the skills array
+   * @param {number} index - Index of the skill to update
+   * @param {string} value - New skill value
+   */
   const updateSkill = (index, value) => {
     setLocalForm((prev) => ({
       ...prev,
@@ -88,6 +123,10 @@ function ManageProfile({
     }));
   };
 
+  /**
+   * Delete a specific skill from the skills array
+   * @param {number} index - Index of the skill to delete
+   */
   const deleteSkill = (index) => {
     setLocalForm((prev) => ({
       ...prev,
@@ -95,6 +134,9 @@ function ManageProfile({
     }));
   };
 
+  /**
+   * Delete the candidate
+   */
   const DeleteCandidate = () => {
     if (!deleteCandidate) return;
     showSuccess("Candidate deleted successfully");
@@ -108,6 +150,9 @@ function ManageProfile({
     }, 1000);
   };
 
+  /**
+   * Save changes to the candidate data
+   */
   const handleCandidateChanges = () => {
     if (!updateCandidate) return;
     updateCandidate(cand_index, { ...localForm });
@@ -115,6 +160,10 @@ function ManageProfile({
     setTimeout(() => setClosing(false), 1000);
   };
 
+  /**
+   * Handle button clicks for actions
+   * @param {string} text - Button text to determine action
+   */
   const handleBtnClick = (text) => {
     const confirmMap = {
       "Delete Candidate": {
@@ -134,6 +183,9 @@ function ManageProfile({
     }
   };
 
+  /**
+   * Execute the confirmed action (delete or save)
+   */
   const executeConfirmedAction = () => {
     if (confirm.action === "delete") {
       DeleteCandidate();
@@ -143,6 +195,7 @@ function ManageProfile({
     setConfirm({ open: false, action: null, title: "", message: "" });
   };
 
+  // Downloads section configuration
   const downloads = [
     {
       label: "Attach Resume*(PDF)",
@@ -161,6 +214,7 @@ function ManageProfile({
     },
   ];
 
+  // Form elements configuration
   const elements = [
     { label: "Name", value: localForm.name, id: "name" },
     { label: "Email", value: localForm.email, id: "email" },
@@ -191,6 +245,7 @@ function ManageProfile({
     },
   ];
 
+  // Input field styling class
   const input_class =
     "text-[clamp(0.8em,1vw,1em)] w-full py-1.5 px-2 bg-lighter/70 rounded-small border border-light focus:border-none focus:ring-2 ring-highLight transition-all duration-200 ease-in-out";
 
@@ -207,11 +262,13 @@ function ManageProfile({
           transition={{ duration: 0.2, type: "tween" }}
           className="w-[40%] h-[80%] bg-b_white rounded-small flex flex-col items-center justify-start shadow-xl overflow-hidden"
         >
+          {/* Header section with candidate name and close button */}
           <Header
             handleClosingModal={() => setClosing(false)}
             heading={candidate.name}
             candidate_name={"Profile Details"}
           />
+          {/* Main content area with form sections */}
           <div className="w-full flex-1 overflow-y-auto no-scrollbar p-4 gap-4 flex flex-col items-start justify-start">
             <ProfileForm
               elements={elements}

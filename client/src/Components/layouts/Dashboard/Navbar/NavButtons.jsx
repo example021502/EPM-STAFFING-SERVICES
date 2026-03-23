@@ -2,11 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
+import { useLocation } from "react-router-dom";
 
 function NavButtons() {
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const [nav_btn, setNav_btn] = useState("");
   // Sync navigation bar with current URL and browser navigation
+
+  useEffect(() => {
+    const nav_btn = pathname.split("/").at(-1);
+    // to be finaliezed later
+  }, [pathname]);
 
   const current_navButton =
     sessionStorage.getItem("current_navbutton") || "jobs";

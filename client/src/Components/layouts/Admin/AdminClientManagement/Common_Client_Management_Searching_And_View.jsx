@@ -1,15 +1,16 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Icon from "../../../common/Icon";
 import Input from "../../../common/Input";
 import { motion } from "framer-motion";
 import { grid_list_context } from "../../../../context/GridListViewContext";
+import { useLocation } from "react-router-dom";
 
 function Common_Client_Management_Searching_And_View({
   scrolled,
   onSearchChange,
 }) {
   const { view, setView } = useContext(grid_list_context);
-
+  const { pathname } = useLocation();
   const handleView = () => {
     const nextView = {
       apps: "grid",
@@ -18,6 +19,10 @@ function Common_Client_Management_Searching_And_View({
     };
     setView(nextView[view]);
   };
+
+  useEffect(() => {
+    setView("apps");
+  }, [pathname]);
 
   const viewIcons = {
     apps: { icon: "ri-grid-fill", label: "Switch to Grid View" },
