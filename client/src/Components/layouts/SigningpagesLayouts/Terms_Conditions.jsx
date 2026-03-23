@@ -6,7 +6,7 @@ function Terms_Conditions({ onchange }) {
     <div className="flex flex-row items-center text-xs gap-2 justify-start w-full">
       <div className="flex items-center h-5">
         <Input
-          id="terms_checkbox"
+          id="terms"
           type="checkbox"
           aria-required="true"
           class_name="w-4 h-4 rounded border-border1 text-nevy_blue focus:ring-nevy_blue cursor-pointer"

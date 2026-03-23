@@ -4,6 +4,7 @@ import Input from "../../common/Input";
 import Icon from "../../common/Icon";
 import { showError } from "../../../utils/toastUtils";
 import { useNavigate } from "react-router-dom";
+import Terms_Conditions from "../SigningpagesLayouts/Terms_Conditions";
 import Already_have_account from "./Already_have_account";
 
 function Signup_Address_information() {
@@ -12,6 +13,7 @@ function Signup_Address_information() {
     city: "",
     state: "",
     pin_code: "",
+    terms: false,
   });
 
   const navigate = useNavigate();
@@ -54,8 +56,13 @@ function Signup_Address_information() {
   const handleNavigation = (dir) => {
     if (dir === "Back")
       return navigate("/auth/signup_form/contact_information");
-    const isEmpty = Object.keys(form).filter((key) => form[key] === "");
+    const isEmpty = Object.keys(form).filter(
+      (key) => form[key] === "" && key !== "terms",
+    );
     if (isEmpty.length > 0) return showError(`Fill in ${isEmpty.join(", ")}`);
+
+    if (form.terms === false)
+      return showError("Read and Accept our terms and conditions to continue!");
 
     // implementation of the backend posting here...
     navigate("/auth/signin");
@@ -108,14 +115,14 @@ function Signup_Address_information() {
                 className={`flex flex-row items-center py-1 cursor-pointer hover:scale-[1.02] transition-all duration-150 ease-in-out rounded-small ${isBack ? "bg-white text-nevy_blue border border-nevy_blue" : "bg-g_btn flex-row-reverse text-text_white"} justify-center space-x-1 w-full`}
               >
                 <Icon icon={button.icon} class_name="" />
-                <Label text={button.label} class_name={""} />
+                <Label text={button.label} class_name={"whitespace-nowrap"} />
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* <Terms_Conditions onchange={handleInputChange} /> */}
+      <Terms_Conditions onchange={handleInputChange} />
 
       <Already_have_account />
     </>

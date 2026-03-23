@@ -1,18 +1,29 @@
 import React, { useState } from "react";
 import Label from "../../../common/Label";
 
+/**
+ * ReqResBen component - Displays job requirements, responsibilities, and benefits
+ * @param {Object} props - Component props
+ * @param {Object} props.currentJob - Current job data with requirements, responsibilities, and benefits
+ * @returns {JSX.Element} Rendered requirements, responsibilities, and benefits component
+ */
 function ReqResBen({ currentJob = {} }) {
+  // Get job requirements with fallback to empty array
   const requirements = Array.isArray(currentJob.requirements)
     ? [...currentJob.requirements]
     : [];
+  // Get job responsibilities with fallback to empty array
   const responsibilities = Array.isArray(currentJob.responsibilities)
     ? [...currentJob.responsibilities]
     : [];
+  // State for job benefits with fallback to empty array
   const [benefits, setBenefits] = useState(
     Array.isArray(currentJob.benefits) ? [...currentJob.benefits] : [],
   );
+
   return (
     <div className="w-full gap-8 flex flex-col justify-start text-sm">
+      {/* Requirements section */}
       <div className="w-full flex flex-col gap-2 justify-center">
         <Label
           text={"Requirements"}
@@ -29,6 +40,8 @@ function ReqResBen({ currentJob = {} }) {
           );
         })}
       </div>
+
+      {/* Responsibilities section */}
       <div className="w-full flex flex-col gap-2 justify-center">
         <Label
           text={"Responsibilities"}
@@ -45,6 +58,8 @@ function ReqResBen({ currentJob = {} }) {
           );
         })}
       </div>
+
+      {/* Benefits section */}
       <div className="w-full flex flex-col gap-2 justify-center">
         <Label
           text={"Benefits & Perks"}

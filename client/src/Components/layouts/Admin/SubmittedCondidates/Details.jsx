@@ -3,23 +3,37 @@ import Label from "../../../common/Label";
 import { Jobs_context } from "../../../../context/JobsContext";
 import { getSalaryRange } from "../common/GetSalaryRange";
 
-function Details({ candidate }) {
+/**
+ * Details component - Displays job or candidate details based on view mode
+ * @param {Object} props - Component props
+ * @param {Object} props.data - Job or candidate data
+ * @param {boolean} props.isListed_jobs - Flag indicating if we're in listed_jobs view
+ * @returns {JSX.Element} Rendered details component
+ */
+function Details({ data, isListed_jobs = false }) {
+  // Get jobs context for accessing job data
   const { jobs } = useContext(Jobs_context) || {};
 
-  const jobIds = Array.isArray(candidate["job id"]) ? candidate["job id"] : [];
+  // Get job data for candidate view
+  const jobIds = Array.isArray(data["job id"]) ? data["job id"] : [];
   const jobData = jobIds.length > 0 ? jobs?.[jobIds[0]] : null;
   const salary = jobData?.["expected ctc"] || "N/A - N/A";
 
-  const label_elements = [
-    { label: "Experience", value: candidate.experience },
-    {
-      label: "Expected",
-      value: getSalaryRange(salary),
-    },
-    { label: "Submitted", value: candidate["date applied"] },
-  ];
-
-  // Check if candidate data exists
+  // Define label elements based on view mode
+  const label_elements = isListed_jobs
+    ? [
+        { label: "Job Name", value: data["job title"] || "N/A" },
+        { label: "Location", value: data.location || "N/A" },
+        { label: "Experience", value: data.experience || "N/A" },
+      ]
+    : [
+        { label: "Experience", value: data.experience || "N/A" },
+        {
+          label: "Expected",
+          value: getSalaryRange(salary),
+        },
+        { label: "Submitted", value: data["date applied"] || "N/A" },
+      ];
 
   return (
     <div className="w-full flex flex-row items-start justify-between gap-4">

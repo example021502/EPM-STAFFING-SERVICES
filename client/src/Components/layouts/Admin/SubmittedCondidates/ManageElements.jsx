@@ -5,7 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import Label from "../../../common/Label";
 import ReqResBen from "./ReqResBen";
 
+/**
+ * ManageElements component - Displays detailed job information and requirements
+ * @param {Object} props - Component props
+ * @param {Object} props.company - Company data
+ * @param {Object} props.currentJob - Current job data
+ * @returns {JSX.Element} Rendered manage elements component
+ */
 function ManageElements({ company, currentJob }) {
+  // Job information elements to display
   const elements = [
     {
       label: "Location",
@@ -41,6 +49,7 @@ function ManageElements({ company, currentJob }) {
 
   return (
     <div className="w-full flex flex-col gap-6">
+      {/* Job information grid */}
       <div className="w-full gap-4 grid grid-cols-2 items-start justify-start">
         {elements.map((el, i) => {
           return (
@@ -57,6 +66,8 @@ function ManageElements({ company, currentJob }) {
           );
         })}
       </div>
+
+      {/* Job description section */}
       <div className="w-full flex flex-col bg-blue-50 p-2 rounded-small border border-lighter gap-1">
         <div className="w-full border-b border-lighter font-semibold flex flex-row items-center">
           <Icon icon={"ri-file-text-line"} class_name="" />
@@ -65,6 +76,7 @@ function ManageElements({ company, currentJob }) {
         <Label text={currentJob["currentJob description"]} class_name={""} />
       </div>
 
+      {/* Requirements, responsibilities, and benefits section */}
       {((Array.isArray(currentJob?.requirements) &&
         currentJob.requirements.length > 0) ||
         (Array.isArray(currentJob?.responsibilities) &&

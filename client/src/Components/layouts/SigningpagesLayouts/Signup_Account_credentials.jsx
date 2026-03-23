@@ -15,7 +15,6 @@ function Signup_Account_credentials() {
     confirm_password: "",
   });
   const [otp_overlay, setOtp_overlay] = useState(false);
-  const [user_id, setUser_id] = useState(null);
   const [verify_id, setVerify_id] = useState("");
 
   const navigate = useNavigate();
@@ -59,6 +58,7 @@ function Signup_Account_credentials() {
 
       showSuccess("OTP sent successfully!");
     } catch (err) {
+      console.log(err);
       showError("Something went wrong!");
     }
   };
@@ -129,7 +129,7 @@ function Signup_Account_credentials() {
           >
             <Label text={el.label} class_name={label_style} />
             <Input
-              autoComplete="new-password"
+              autoComplete="off"
               onchange={handleInputChange}
               type={el.type}
               id={el.id}
