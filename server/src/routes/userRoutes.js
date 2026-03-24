@@ -51,7 +51,11 @@ router.delete("/:user_id", deleteUser);
 // ================================================
 //                Others Routes
 // ================================================
-router.post("/:table", createController);
+/**
+ * User API endpoints
+ * Base path: /api/users
+ */
+router.post("/create/:table", createController);
 router.patch("/:table/:id", updateByIdController);
 router.get("/:table/:user_id", getByUserIdController);
 

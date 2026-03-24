@@ -9,6 +9,8 @@ import TextArea from "../../common/TextArea";
 import { useNavigate, Link } from "react-router-dom";
 import { checkSession } from "../../../services/user.service";
 
+import { createCompanyInfo } from "../../../services/user.service";
+
 function Signup_Company_information() {
   const [form, setForm] = useState({
     company_name: "",
@@ -20,9 +22,6 @@ function Signup_Company_information() {
   const target_containerRef = useRef();
   const navigate = useNavigate();
   useEffect(() => {
-    const user = checkSession();
-    console.log(user);
-
     const target_ref = target_containerRef.current;
     if (!target_ref) return;
     const updateClicking = (e) => {
@@ -68,13 +67,33 @@ function Signup_Company_information() {
 
   const handleClicking = () => setExpand((prev) => !prev);
 
-  const handleNextForm = () => {
+  const handleNextForm = async () => {
     const isEmpty = Object.keys(form).filter(
       (key) => key !== "description" && form[key] === "",
     );
     if (isEmpty.length > 0) {
       return showError(`Fill ${isEmpty.join(", ")} to continue!`);
     }
+
+    //
+    // Checking user is auth or not
+    const { loggedIn, userId } = await checkSession();
+    console.log(userId);
+
+    if (!loggedIn) return showError("Not authenticated");
+
+    // Make
+    const readyData = {
+      company_name: form.company_name,
+      industry_type: form.industry_type,
+      registration_number: form.registration_number,
+      user_id: userId,
+      description: form.description,
+    };
+
+    const result = await createCompanyInfo(readyData);
+
+    console.log(result);
 
     navigate("/auth/signup_form/contact_information");
   };
@@ -177,7 +196,7 @@ function Signup_Company_information() {
             return (
               <div
                 key={button.label}
-                onClick={() => handleNavigation(button.label)}
+                onClick={() => handleNextForm(button.label)}
                 className={`flex flex-row items-center py-1 cursor-pointer hover:scale-[1.02] transition-all duration-150 ease-in-out rounded-small ${isBack ? "bg-white text-nevy_blue border border-nevy_blue" : "bg-g_btn flex-row-reverse text-text_white"} justify-center space-x-1 w-full`}
               >
                 <Icon icon={button.icon} class_name="" />

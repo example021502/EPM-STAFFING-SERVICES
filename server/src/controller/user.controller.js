@@ -77,19 +77,9 @@ export const createUser = async (req, res) => {
 
     const user = await createUserDb(email, hashedPassword);
 
-    // Set session user ID for authentication
-    req.session.userId = user.id;
+    await saveSession(req, user.id); // wait session saved
 
-    // Save session and return success response
-    return req.session.save(() => {
-      res.status(201).json({
-        message: "Account created successfully",
-        user: {
-          id: user.id,
-          email: user.email,
-        },
-      });
-    });
+    return successResponse(res, "Account created successfully", user, 200);
   } catch (err) {
     return errorResponse(res, "Failed to create account");
   }
@@ -131,6 +121,8 @@ export const deleteUser = async (req, res) => {
 
 // Check user is login or not
 export const checkSession = (req, res) => {
+  console.log("check");
+
   if (req.session.userId) {
     return res.json({
       loggedIn: true,
@@ -140,5 +132,22 @@ export const checkSession = (req, res) => {
 
   return res.json({
     loggedIn: false,
+  });
+};
+
+// ================================
+// Helper function
+// ================================
+
+const saveSession = (req, user_id) => {
+  req.session.userId = user_id;
+
+  console.log("Hello");
+
+  return new Promise((resolve, reject) => {
+    req.session.save((err) => {
+      if (err) reject(err);
+      else resolve();
+    });
   });
 };

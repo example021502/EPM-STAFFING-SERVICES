@@ -54,8 +54,9 @@ function Signup_Account_credentials() {
       // Fetching user by email
       const user = await getUserByEmail(form.email);
 
-      // checking user is exist or not
-      if (user.success) return showError("Email already use");
+      // checking user is exist or not and complete signup or not
+      if (user.success && user.data.signup_stage == "completed")
+        return showError("Email already use");
 
       const result = await sendOTP(form.email);
 
@@ -91,6 +92,9 @@ function Signup_Account_credentials() {
 
       // close overlay
       setOtp_overlay(false);
+
+      // Fetching user by email
+      const user = await getUserByEmail(form.email);
 
       // Creating an account
       const response = createAccount({
