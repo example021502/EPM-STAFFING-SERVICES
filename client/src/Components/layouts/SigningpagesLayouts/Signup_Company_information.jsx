@@ -6,9 +6,10 @@ import Icon from "../../common/Icon";
 import Already_have_account from "./Already_have_account";
 import { showError } from "../../../utils/toastUtils";
 import TextArea from "../../common/TextArea";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Signup_Company_information() {
+  // account information form
   const [form, setForm] = useState({
     company_name: "",
     industry_type: "",
@@ -18,6 +19,8 @@ function Signup_Company_information() {
   const [expand, setExpand] = useState(false);
   const target_containerRef = useRef();
   const navigate = useNavigate();
+
+  // use effect for the industry type field
   useEffect(() => {
     const target_ref = target_containerRef.current;
     if (!target_ref) return;
@@ -25,10 +28,12 @@ function Signup_Company_information() {
       if (!target_ref.contains(e.target)) setExpand(false);
     };
 
+    // click event for industry type field clicking
     window.addEventListener("mousedown", updateClicking);
     return () => window.removeEventListener("mousedown", updateClicking);
   }, []);
 
+  // form elements
   const elements = [
     {
       type: "text",
@@ -56,15 +61,19 @@ function Signup_Company_information() {
     },
   ];
 
+  // handling form filling
   const handleInputChange = (value, id) =>
     setForm((prev) => ({
       ...prev,
       [id]: value,
     }));
 
+  // controlling the expanding of industry type field
   const handleClicking = () => setExpand((prev) => !prev);
 
-  const handleNextForm = () => {
+  // handling next form and back navigation buttons
+  const handleNextForm = (name) => {
+    if (name === "back") return navigate("/auth/signup_form/");
     const isEmpty = Object.keys(form).filter(
       (key) => key !== "description" && form[key] === "",
     );
@@ -72,8 +81,15 @@ function Signup_Company_information() {
       return showError(`Fill ${isEmpty.join(", ")} to continue!`);
     }
 
+    // navigating to contact information form
     navigate("/auth/signup_form/contact_information");
   };
+
+  //navigation buttons
+  const buttons = [
+    { label: "Back", id: "back", icon: "ri-arrow-left-line" },
+    { label: "Continue", id: "continue", icon: "ri-arrow-right-line" },
+  ];
 
   // styles
   const label_style = "text-sm font-medium text-gray-600 text-center";
@@ -82,6 +98,7 @@ function Signup_Company_information() {
 
   return (
     <>
+      {/* company information header */}
       <header className="w-full flex flex-col gap-2">
         <Label
           text="Create Account"
@@ -93,6 +110,7 @@ function Signup_Company_information() {
         />
       </header>
 
+      {/* company information: fields container */}
       <div className="flex flex-col items-center justify-start gap-4 w-full text-sm">
         {elements.map((el) => (
           <div
@@ -101,6 +119,7 @@ function Signup_Company_information() {
           >
             <Label text={el.label} class_name={label_style} />
             {el.type === "select" ? (
+              // industry type field component
               <div
                 onClick={handleClicking}
                 ref={target_containerRef}
@@ -112,6 +131,7 @@ function Signup_Company_information() {
                 >
                   <Icon icon={"ri-arrow-down-s-line"} />
                 </span>
+
                 <Input
                   type={el.type}
                   read_only={true}
@@ -122,6 +142,7 @@ function Signup_Company_information() {
                   value={form["industry_type"]}
                 />
 
+                {/* industry type elements */}
                 {expand && (
                   <SelectComponent
                     toggleExpand={handleClicking}
@@ -130,6 +151,7 @@ function Signup_Company_information() {
                 )}
               </div>
             ) : el.type === "textarea" ? (
+              // Optional company description field
               <TextArea
                 id={el.id}
                 onchange={handleInputChange}
@@ -137,6 +159,7 @@ function Signup_Company_information() {
                 class_name={`min-h-20 ${input_style}`}
               />
             ) : (
+              // Other company information information
               <Input
                 id={el.id}
                 onchange={handleInputChange}
@@ -147,28 +170,13 @@ function Signup_Company_information() {
           </div>
         ))}
 
-        {/* buttons */}
-        <div className="w-full text-xs flex flex-row space-x-1 items-center justify-start">
-          <Input id={"terms"} type={"checkbox"} onchange={handleInputChange} />
-          <p>
-            I accept the{" "}
-            <span className="text-red-dark font-semibold">
-              <Link>Terms and Conditions</Link>
-            </span>{" "}
-            and I agree to the{" "}
-            <span className="text-red-dark font-semibold">
-              <Link>Privacy Policy</Link>
-            </span>
-          </p>
-        </div>
-
         <div className="w-full grid grid-cols-2 gap-2 items-center justify-center mb-0">
           {buttons.map((button) => {
             const isBack = button.label === "Back";
             return (
               <div
-                key={button.label}
-                onClick={() => handleNavigation(button.label)}
+                key={button.id}
+                onClick={() => handleNextForm(button.id)}
                 className={`flex flex-row items-center py-1 cursor-pointer hover:scale-[1.02] transition-all duration-150 ease-in-out rounded-small ${isBack ? "bg-white text-nevy_blue border border-nevy_blue" : "bg-g_btn flex-row-reverse text-text_white"} justify-center space-x-1 w-full`}
               >
                 <Icon icon={button.icon} class_name="" />
@@ -178,8 +186,6 @@ function Signup_Company_information() {
           })}
         </div>
       </div>
-
-      {/* <Terms_Conditions onchange={handleInputChange} /> */}
 
       <Already_have_account />
     </>

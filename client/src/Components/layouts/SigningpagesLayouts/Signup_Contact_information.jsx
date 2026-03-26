@@ -6,19 +6,30 @@ import { showError } from "../../../utils/toastUtils";
 import { useNavigate } from "react-router-dom";
 import Already_have_account from "./Already_have_account";
 import Button from "../../common/Button";
+import OTPOverlay from "../Settings/OTPOverlay";
 
 function Signup_Contact_information() {
+  //contact information form
   const [form, setForm] = useState({
     email: "",
     mobile_number: "",
   });
+
+  // state: checking if user is verifying OTP or not..
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  // OTP opening or closing state
+  const [otpOverlay, setOtpOverlay] = useState(false);
+
   const navigate = useNavigate();
   const [addContact, setAddContact] = useState(false);
+  // anchor form -> to capture the added contact details
   const [temp_form, setTemp_form] = useState({
     label: "",
     value: "",
   });
 
+  // form elements
   const [elements, setElements] = useState([
     {
       type: "email",
@@ -34,11 +45,13 @@ function Signup_Contact_information() {
     },
   ]);
 
+  // navigation buttons
   const buttons = [
     { label: "Back", icon: "ri-arrow-left-line" },
     { label: "Continue", icon: "ri-arrow-right-line" },
   ];
 
+  // filling the email and phone number
   const handleInputChange = (value, id) => {
     setForm((prev) => ({
       ...prev,
@@ -46,12 +59,16 @@ function Signup_Contact_information() {
     }));
   };
 
+  // handle filling the new contact information details
   const handleNewContactInputChange = (value, id) => {
     setTemp_form((prev) => ({ ...prev, [id]: value }));
   };
 
+  // handle adding new contact information
   const handleAdd = () => {
+    // only adding the new information if the user enters any value
     if (temp_form.label !== "" && temp_form.value !== "") {
+      // checking if new contact already exist in the form
       const exist = Object.keys(form).filter(
         (key) =>
           key.toLocaleLowerCase() === temp_form.label.toLocaleLowerCase(),
@@ -61,10 +78,13 @@ function Signup_Contact_information() {
       const new_form = { ...form, [label]: value };
       setForm(new_form);
 
+      // generating the new contact id
       const contact_id = temp_form.label
         .toLocaleLowerCase()
         .split(" ")
         .join("_");
+
+      // adding the new contact to elements
       setElements((prev) => [
         ...prev,
         {
@@ -75,16 +95,31 @@ function Signup_Contact_information() {
         },
       ]);
     }
+    // empting the anchor form after adding
     setTemp_form({ label: "", value: "" });
     setAddContact(false);
   };
 
+  // handle verify otp
+  const Verify = () => {
+    setIsVerifying(true);
+    // Logic to handle verifying here...
+    setIsVerifying(false);
+  };
+
+  // handle resending OTP
+  const sendOTP = () => {
+    // Logic to handle resending otp here...
+  };
+
+  // navigation buttons -> next form or previous form
   const handleNavigation = (dir) => {
     if (dir === "Back") return navigate("/auth/signup_form");
     if (form.email === "") return showError("Missing email!");
     if (form["mobile_number"] === "" || form["mobile_number"].length < 4)
       return showError("Mobile number missing!");
 
+    // checking for empty fields
     const empty_fields = Object.keys(form).filter((key) => form[key] === "");
     if (empty_fields.length > 0) {
       empty_fields.map((key) => {
@@ -93,8 +128,12 @@ function Signup_Contact_information() {
       });
     }
 
-    // logic to post the form here...
-    navigate("/auth/signup_form/address_information");
+    // ***OTP confirmation first before continuing here...
+    setOtpOverlay(true);
+
+    // ENABLE THE BELOW COMMENTEND LINE AFTER PUTTING THE OTP VERIFICATION LOGIC
+    // 👇👇👇
+    // navigate("/auth/signup_form/address_information");
   };
 
   // styles
@@ -115,6 +154,7 @@ function Signup_Contact_information() {
         />
       </header>
 
+      {/* the main form elements/fields */}
       <div className="flex flex-col items-center justify-start gap-4 w-full overfow-hidden p-2 text-sm">
         {elements.map((el) => {
           return (
@@ -162,6 +202,7 @@ function Signup_Contact_information() {
             </div>
           </div>
         )}
+        {/* form buttons section */}
         <div className="w-full grid grid-cols-2 gap-2 items-center justify-center mb-0">
           {buttons.map((button) => {
             const isBack = button.label === "Back";
@@ -179,8 +220,14 @@ function Signup_Contact_information() {
         </div>
         <Already_have_account />
       </div>
-
-      {/* <Terms_Conditions onchange={handleInputChange} /> */}
+      <OTPOverlay
+        onVerifyOTP={Verify}
+        onResendOTP={sendOTP}
+        isVerifying={isVerifying}
+        isOpen={otpOverlay}
+        email={form.email}
+        onClose={setOtpOverlay}
+      />
     </>
   );
 }

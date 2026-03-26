@@ -70,9 +70,7 @@ const Signup_Account_credentials = lazy(
   () =>
     import("./Components/layouts/SigningpagesLayouts/Signup_Account_credentials"),
 );
-const ListedJobs = lazy(
-  () => import("./Components/layouts/Admin/ListedJobs/ListedJobs"),
-);
+
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Jobs = lazy(() => import("./Components/sections/Jobs"));
 const JobApplienceOverview = lazy(

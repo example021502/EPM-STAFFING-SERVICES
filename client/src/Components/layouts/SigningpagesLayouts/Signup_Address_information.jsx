@@ -6,8 +6,15 @@ import { showError } from "../../../utils/toastUtils";
 import { useNavigate } from "react-router-dom";
 import Terms_Conditions from "../SigningpagesLayouts/Terms_Conditions";
 import Already_have_account from "./Already_have_account";
+import Signup_Feedback from "./Signup_Feedback";
 
 function Signup_Address_information() {
+  const navigate = useNavigate();
+
+  // signup completion feedback state
+  const [complete, setComplete] = useState(false);
+
+  // company address information form
   const [form, setForm] = useState({
     address: "",
     city: "",
@@ -16,8 +23,7 @@ function Signup_Address_information() {
     terms: false,
   });
 
-  const navigate = useNavigate();
-
+  // form elements
   const elements = [
     {
       type: "text",
@@ -45,6 +51,7 @@ function Signup_Address_information() {
     },
   ];
 
+  // handling form filling
   const handleInputChange = (value, id) => {
     setForm((prev) => ({
       ...prev,
@@ -55,19 +62,22 @@ function Signup_Address_information() {
   // Next form: signup_account_credentials component
   const handleNavigation = (dir) => {
     if (dir === "Back")
+      // navigating back to contact information
       return navigate("/auth/signup_form/contact_information");
+    // checking if any field is empty
     const isEmpty = Object.keys(form).filter(
       (key) => form[key] === "" && key !== "terms",
     );
     if (isEmpty.length > 0) return showError(`Fill in ${isEmpty.join(", ")}`);
-
+    // checking if user agreed to the terms
     if (form.terms === false)
       return showError("Read and Accept our terms and conditions to continue!");
 
     // implementation of the backend posting here...
-    navigate("/auth/signin");
+    setComplete(true);
   };
 
+  // navigation buttons: next form or previous
   const buttons = [
     { label: "Back", icon: "ri-arrow-left-line" },
     { label: "Complete Registration", icon: "ri-arrow-right-line" },
@@ -80,6 +90,7 @@ function Signup_Address_information() {
 
   return (
     <>
+      {/* header part */}
       <header className="w-full flex flex-col gap-2 pt-4 bg-b_white z-20 sticky top-0">
         <Label
           text="Address Details"
@@ -88,6 +99,7 @@ function Signup_Address_information() {
         <Label text={"Complete your registration"} class_name={label_style} />
       </header>
 
+      {/* main component fields */}
       <div className="flex flex-col items-center justify-start gap-4 w-full text-sm">
         {elements.map((el) => (
           <div
@@ -104,7 +116,7 @@ function Signup_Address_information() {
             />
           </div>
         ))}
-
+        {/* navigation buttons section */}
         <div className="w-full grid grid-cols-2 gap-4 items-center justify-center mb-0">
           {buttons.map((button) => {
             const isBack = button.label === "Back";
@@ -125,6 +137,8 @@ function Signup_Address_information() {
       <Terms_Conditions onchange={handleInputChange} />
 
       <Already_have_account />
+      {/* Registration successfull backback */}
+      {complete && <Signup_Feedback onClose={setComplete} />}
     </>
   );
 }
