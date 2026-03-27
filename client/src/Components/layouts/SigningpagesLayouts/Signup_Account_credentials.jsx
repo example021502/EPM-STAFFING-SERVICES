@@ -25,6 +25,9 @@ function Signup_Account_credentials() {
   const [verify_id, setVerify_id] = useState("");
   const [verifying, setVerifying] = useState(false);
 
+  // ✅ NEW: force re-render for countdown reset
+  const [resendKey, setResendKey] = useState(0);
+
   const navigate = useNavigate();
 
   const elements = [
@@ -56,7 +59,7 @@ function Signup_Account_credentials() {
   };
 
   // =========================
-  // SEND OTP
+  // SEND OTP (UPDATED)
   // =========================
   const handleGenerateOtp = async () => {
     try {
@@ -67,6 +70,10 @@ function Signup_Account_credentials() {
       }
 
       setVerify_id(result.data);
+
+      // ✅ IMPORTANT: reset countdown
+      setResendKey((prev) => prev + 1);
+
       setOtp_overlay(true);
       showSuccess("OTP sent successfully!");
     } catch (err) {
@@ -93,12 +100,8 @@ function Signup_Account_credentials() {
       showSuccess("OTP verified successfully!");
       setOtp_overlay(false);
 
-      // Check user
       const user = await getUserByEmail(form.email);
 
-      // =========================
-      // EXISTING USER FLOW
-      // =========================
       if (user.success) {
         const stage = user.data.signup_stage;
 
@@ -116,9 +119,6 @@ function Signup_Account_credentials() {
           return navigate("/auth/signup_form/address_information");
       }
 
-      // =========================
-      // NEW USER FLOW
-      // =========================
       const response = await createAccount({
         email: form.email,
         password: form.confirm_password,
@@ -173,7 +173,6 @@ function Signup_Account_credentials() {
     }
   };
 
-  // styles
   const label_style = "text-sm font-medium text-gray-600 text-start";
   const input_style =
     "w-full p-2 rounded-small border focus:border-none focus:outline-none focus:ring ring-nevy_blue border-light";
@@ -217,6 +216,7 @@ function Signup_Account_credentials() {
       <Already_have_account />
 
       <OTPOverlay
+        key={resendKey}
         isOpen={otp_overlay}
         email={form.email}
         onVerifyOTP={handleVerifyOtp}
