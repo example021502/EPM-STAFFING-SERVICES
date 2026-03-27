@@ -15,7 +15,7 @@ import {
   createUserDb,
   updateUserService,
 } from "../services/db/user.service.db.js";
-import { deleteData } from "../util/dbCrud.js";
+import { deleteData, getByUserId } from "../util/dbCrud.js";
 import { errorResponse, successResponse } from "../util/response.js";
 
 // Checking UUID is valid or not
@@ -146,4 +146,32 @@ const saveSession = (req, user_id) => {
       else resolve();
     });
   });
+};
+
+// LOG IN
+export const loginController = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // 1. find user
+    const user = await getUserByEmail(email);
+
+    if (!user) {
+      return errorResponse(res, "User not found", 400);
+    }
+
+    // 2. check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return errorResponse(res, "Wrong password", 400);
+    }
+
+    // 3. create session
+    saveSession(req, user.id);
+
+    // 4. send response
+    return successResponse(res, "Login successful", user, 200);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 };

@@ -9,12 +9,11 @@
 import express from "express";
 import {
   getUsers,
-  getById,
   getUserByEmailController,
   createUser,
-  updateUser,
   deleteUser,
   checkSession,
+  loginController,
 } from "../controller/user.controller.js";
 import {
   createController,
@@ -32,6 +31,9 @@ const router = express.Router();
  * Base path: /api/users
  */
 
+// LOG IN
+router.post("/login", loginController);
+
 // GET the user data
 router.get("", getUserByEmailController); // fetching the users data by email
 router.get("/all", getUsers); // retrieve all the users data
@@ -41,9 +43,6 @@ router.get("/check-session", checkSession);
 
 // POST
 router.post("/create_account", createUser); // Create a new users
-
-// PUT: update user data
-// router.patch("/:user_id", updateUser);
 
 // DELETE
 router.delete("/:user_id", deleteUser);
