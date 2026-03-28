@@ -168,23 +168,21 @@ function App() {
                           </Route>
 
                           {/* Protected routes - require authentication */}
-                          <Route element={<ProtectedRoutes />}>
+                          <Route
+                            path="client/dashboard"
+                            element={<Dashboard />}
+                          >
+                            <Route index element={<Jobs />} />
                             <Route
-                              path="client/dashboard"
-                              element={<Dashboard />}
-                            >
-                              <Route index element={<Jobs />} />
-                              <Route
-                                path="offer_released"
-                                element={<OfferReleased />}
-                              />
-                              <Route
-                                path="interview_pipeline"
-                                element={<JobApplienceOverview />}
-                              />
+                              path="offer_released"
+                              element={<OfferReleased />}
+                            />
+                            <Route
+                              path="interview_pipeline"
+                              element={<JobApplienceOverview />}
+                            />
 
-                              <Route path="settings" element={<Settings />} />
-                            </Route>
+                            <Route path="settings" element={<Settings />} />
                           </Route>
 
                           {/* Admin routes - require admin privileges */}
