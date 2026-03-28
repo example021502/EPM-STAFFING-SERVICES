@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useMemo } from "react";
 import NameInitials from "../../../common/NameInitials";
 import Label from "../../../common/Label";
 import Button from "../../../common/Button";
@@ -6,8 +6,16 @@ import CandidateCardCommon from "./CandidateCardCommon";
 import Candidates_Information from "../../../dummy_data_structures/Candidate_information.json";
 import { formatValue } from "../../../common/formatText";
 import { showWarning } from "../../../../utils/toastUtils";
+import { Candidates_context } from "../../../../context/CandidatesContext";
 
 function CandidateCard({ candidate, id }) {
+  const cand_id = candidate
+    ? Object.keys(Candidates_Information).find(
+        (key) => Candidates_Information[key] === candidate,
+      )
+    : null;
+  const isFollow = candidate?.follow_status;
+  const { toggleFollowStatus } = useContext(Candidates_context);
   const getSalary = (salary) => {
     return formatValue(salary);
   };
@@ -34,15 +42,13 @@ function CandidateCard({ candidate, id }) {
     },
   ];
 
-  const handleViewOffer = () =>
-    showWarning(`${candidate.name} not yet implemented`);
+  const handleViewOffer = (name) => {
+    if (name === "Un-Follow" || name === "Follow")
+      return toggleFollowStatus(cand_id);
+  };
   const handleFollowup = () =>
     showWarning(`${candidate.name} not implemented!`);
-  const cand_id = candidate?.name
-    ? Object.keys(Candidates_Information).find(
-        (key) => Candidates_Information[key]?.name === candidate.name,
-      )
-    : null;
+
   return (
     <div className="w-full flex flex-row items-start justify-center gap-6 p-6 rounded-small border border-light/60 bg-white hover:border-nevy_blue/40 hover:shadow-xl transition-all duration-300 group">
       {/* Avatar Section */}
@@ -78,6 +84,12 @@ function CandidateCard({ candidate, id }) {
 
           {/* Action Buttons */}
           <div className="flex flex-row items-center gap-3">
+            <Button
+              text={isFollow ? "Un-Follow" : "Follow"}
+              onclick={handleViewOffer}
+              type="button"
+              class_name={`border border-lighter py-2 px-5 rounded-lg font-semibold text-xs text-text_b transition-all active:scale-95 bg-g_btn text-text_white`}
+            />
             <Button
               type="button"
               onclick={handleViewOffer}
