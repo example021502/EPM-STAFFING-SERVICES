@@ -31,6 +31,7 @@ import GridListViewContext from "./context/GridListViewContext";
 import LogState from "./context/LogState";
 import AdminRoutes from "./utils/AdminRoutes";
 import SignupFormContext from "./context/SignupFormContext";
+import FetchButton from "./test/fetcingTest";
 
 // Lazy loaded components for performance optimization
 const SubmittedCandidates = lazy(
@@ -225,6 +226,8 @@ function App() {
           </JobsContext>
         </SignupFormContext>
       </LogState>
+
+      <FetchButton onSuccess={false} />
     </ErrorBoundary>
   );
 }

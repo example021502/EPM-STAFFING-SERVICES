@@ -126,3 +126,15 @@ export const loginService = async (email, password) => {
 
   return data;
 };
+
+// =======================================
+// fetching all user info
+// =======================================
+export const fetchAllUsersInfoService = async (page = 1) => {
+  const res = await fetch(
+    `${API_ROUTES}/api/users/users-full-data?page=${page}`,
+  );
+
+  const data = await res.json();
+  return data;
+};

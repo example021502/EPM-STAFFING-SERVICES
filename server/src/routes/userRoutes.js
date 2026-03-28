@@ -14,6 +14,7 @@ import {
   deleteUser,
   checkSession,
   loginController,
+  getUsersFullData,
 } from "../controller/user.controller.js";
 import {
   createController,
@@ -61,5 +62,11 @@ router.patch("/update/:table/id/:id", updateByIdController);
 
 // feching value by id
 router.get("/get/:table/:user_id", getByUserIdController);
+
+// ================================================
+//                User All info
+// ================================================
+
+router.get("/users-full-data", getUsersFullData);
 
 export default router;

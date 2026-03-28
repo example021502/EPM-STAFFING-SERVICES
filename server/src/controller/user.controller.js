@@ -14,6 +14,7 @@ import {
   getUserByEmail,
   createUserDb,
   updateUserService,
+  getUsersFullDataService,
 } from "../services/db/user.service.db.js";
 import { deleteData, getByUserId } from "../util/dbCrud.js";
 import { errorResponse, successResponse } from "../util/response.js";
@@ -173,5 +174,33 @@ export const loginController = async (req, res) => {
     return successResponse(res, "Login successful", user, 200);
   } catch (err) {
     res.status(500).json({ message: "User not  error" });
+  }
+};
+
+// ================================
+// Get all
+// ================================
+
+// controllers/user.controller.js
+
+export const getUsersFullData = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+
+    const users = await getUsersFullDataService(page, limit);
+
+    res.status(200).json({
+      success: true,
+      page,
+      limit,
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
