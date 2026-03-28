@@ -27,7 +27,7 @@ function Signin_form() {
     password: "",
   });
 
-  // ✅ NEW: loading state
+  // NEW: loading state
   const [loading, setLoading] = useState(false);
 
   const loadData = (user_type) => {
@@ -40,7 +40,7 @@ function Signin_form() {
   const handle_form_submission = async (e) => {
     e.preventDefault();
 
-    if (loading) return; // ✅ prevent multiple clicks
+    if (loading) return; // prevent multiple clicks
 
     if (!form.email) return showError("Email missing!");
     if (!form.password) return showError("Password missing!");
@@ -52,13 +52,12 @@ function Signin_form() {
       const result = await loginService(email, password);
 
       if (!result.success) {
-        showError(result.message);
-        return;
+        return showError(result.message);
       }
 
       if (result.data.role === "user") {
         navigate("/client/dashboard");
-      } else if (result.user.role === "admin") {
+      } else if (result.data.role === "admin") {
         navigate("/admin/management");
       }
 

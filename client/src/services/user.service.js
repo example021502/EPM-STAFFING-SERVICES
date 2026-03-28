@@ -125,16 +125,4 @@ export const loginService = async (email, password) => {
   const data = await res.json();
 
   return data;
-
-  // if (res.ok) {
-  //   console.log(data.user);
-
-  //   if (data.user.role === "admin") {
-  //     navigate("/admin");
-  //   } else {
-  //     navigate("/dashboard");
-  //   }
-  // } else {
-  //   alert(data.message);
-  // }
 };
