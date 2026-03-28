@@ -10,8 +10,9 @@ function OfferReleased() {
   const offeredCandidates = useMemo(() => {
     return Object.values(candidates).filter(
       (candidate) =>
-        candidate?.["released date"] !== null ||
-        candidate?.["released date"] !== "",
+        (candidate?.["released date"] !== null ||
+          candidate?.["released date"] !== "") &&
+        candidate?.["offer status"]?.toLocaleLowerCase() !== "rejected",
     );
   }, [candidates]);
 

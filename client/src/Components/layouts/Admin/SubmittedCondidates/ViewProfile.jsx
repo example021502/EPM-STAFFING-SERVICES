@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { createPortal } from "react-dom";
 import Label from "../../../common/Label";
 import { Company_context } from "../../../../context/AccountsContext";
 import Icon from "../../../common/Icon";
@@ -10,6 +11,9 @@ import Compensation from "./ManageOverlay/Compensation";
 import Skills from "./ManageOverlay/Skills";
 import { Jobs_context } from "../../../../context/JobsContext";
 import { showInfo } from "../../../../utils/toastUtils";
+import { useLocation } from "react-router-dom";
+import EmploymentDetails from "../../Dashboard/OfferReleased/EMploymentDetails";
+import ImportantDates from "../../Dashboard/OfferReleased/ImportantDates";
 
 /**
  * ViewProfile component - Modal overlay for viewing detailed data profile information
@@ -19,8 +23,15 @@ import { showInfo } from "../../../../utils/toastUtils";
  * @returns {JSX.Element} Rendered view profile component
  */
 function ViewProfile({ isListed_jobs, data, setClosing }) {
-  // Validate data data
-  if (!data) return showInfo("Something went wrong!");
+  // check the path to decide which sections to show and hide
+  // pathname from location path
+  const { pathname } = useLocation();
+
+  // extracting the section name
+  const section = pathname.split("/").at(-1);
+
+  // checking if the section is Offer Released
+  const isOfferReleased = section === "offer_released";
 
   // Get jobs context for accessing job data
   const { jobs } = useContext(Jobs_context) || {};
@@ -69,6 +80,7 @@ function ViewProfile({ isListed_jobs, data, setClosing }) {
     { label: "Current Stage", val: data["hiring stage"] || "-" },
     { label: "Job Type", val: job?.["contract type"] || "-" },
   ];
+
   // Contact information for the data
   const contact_info = [
     {
@@ -122,8 +134,10 @@ function ViewProfile({ isListed_jobs, data, setClosing }) {
       value: data["cover letter"] || "Not provided",
     },
   ];
+  // Validate data data
+  if (!data) return showInfo("Something went wrong!");
 
-  return (
+  return createPortal(
     <div
       onClick={() => setClosing(false)}
       className="w-full h-full absolute text-xs top-0 left-0 flex items-center justify-center bg-light_black z-20"
@@ -134,6 +148,7 @@ function ViewProfile({ isListed_jobs, data, setClosing }) {
       >
         {/* Header section with data and job information */}
         <ManageOverlayHeader
+          candidate={data}
           data={data}
           job_name={job_name}
           exp={exp}
@@ -150,24 +165,43 @@ function ViewProfile({ isListed_jobs, data, setClosing }) {
             contact_info={contact_info}
             heading_class={heading_class}
           />
-          <SubmissionDetails
-            submission_details={submission_details}
-            company={company}
-            heading_class={heading_class}
-          />
+
+          {/* submission details */}
+          {!isOfferReleased && (
+            <SubmissionDetails
+              submission_details={submission_details}
+              company={company}
+              heading_class={heading_class}
+            />
+          )}
           <Skills heading_class={heading_class} skills={skills} />
           <Compensation heading_class={heading_class} job={job} data={data} />
+          <EmploymentDetails job={job} />
+          {/* Important Dates section - only show for OfferReleased section */}
+          {isOfferReleased && <ImportantDates data={data} />}
+
           {/* Notes section */}
           <div className="w-full flex flex-col items-start justify-start gap-2">
-            <Label text={"Notes"} class_name={heading_class} />
+            <Label
+              text={isOfferReleased ? "Message" : "Notes"}
+              class_name={heading_class}
+            />
             <div className="p-2 rounded-small w-full bg-blue/5 flex flex-row items-center justify-start">
               <Icon icon={"ri-file-text-line"} class_name="text-xl" />
-              <Label text={notes} class_name={""} />
+              <Label
+                text={
+                  isOfferReleased
+                    ? data?.client_message || notes
+                    : job.notes || "No Notes"
+                }
+                class_name={""}
+              />
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
