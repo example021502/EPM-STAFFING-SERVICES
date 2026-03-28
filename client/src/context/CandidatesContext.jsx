@@ -266,10 +266,12 @@ function CandidatesContext({ children }) {
   };
 
   const toggleFollowStatus = (candidate_id) => {
-    const candidate = candidates[candidate_id];
-    const followStatus = candidate.follow_status;
-    const updatedCandidate = { ...candidate, follow_status: !followStatus };
-    setCandidates({ ...candidates, candidate_id: updatedCandidate });
+    const candidate = candidates?.[candidate_id];
+    const followStatus = candidate?.follow_status;
+    setCandidates((prev) => ({
+      ...prev,
+      [candidate_id]: { ...prev[candidate_id], follow_status: !followStatus },
+    }));
   };
 
   return (

@@ -42,12 +42,38 @@ function CandidateCard({ candidate, id }) {
     },
   ];
 
+  const follow_btn_style = `border border-lighter py-2 px-5 rounded-lg font-semibold text-xs text-text_b transition-all active:scale-95 bg-g_btn text-text_white`;
+
   const handleViewOffer = (name) => {
     if (name === "Un-Follow" || name === "Follow")
       return toggleFollowStatus(cand_id);
   };
-  const handleFollowup = () =>
+  const handleFollow = (name) => {
+    return toggleFollowStatus(cand_id);
+  };
+  const handleFollowup = (name) =>
     showWarning(`${candidate.name} not implemented!`);
+
+  const buttons = [
+    {
+      label: "Follow",
+      class_name: follow_btn_style,
+      type: "button",
+      id: "follow_btn",
+    },
+    {
+      label: "Follow",
+      class_name: follow_btn_style,
+      type: "button",
+      id: "follow_btn",
+    },
+    {
+      label: "Follow",
+      class_name: follow_btn_style,
+      type: "button",
+      id: "follow_btn",
+    },
+  ];
 
   return (
     <div className="w-full flex flex-row items-start justify-center gap-6 p-6 rounded-small border border-light/60 bg-white hover:border-nevy_blue/40 hover:shadow-xl transition-all duration-300 group">
@@ -88,7 +114,7 @@ function CandidateCard({ candidate, id }) {
               text={isFollow ? "Un-Follow" : "Follow"}
               onclick={handleViewOffer}
               type="button"
-              class_name={`border border-lighter py-2 px-5 rounded-lg font-semibold text-xs text-text_b transition-all active:scale-95 bg-g_btn text-text_white`}
+              class_name={""}
             />
             <Button
               type="button"
