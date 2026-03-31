@@ -1,7 +1,25 @@
-// Creat by user id
+/* 
+==============================
+        INSERT/POST
+==============================
+*/
+
 // Front End
-createbyUserIdService(URL, objData, userId) <../../utils/server_until/service>
+createbyUserIdService(URL, objData) <../../utils/server_until/service>
 
 // Back End
-createController() <util/controller.js>
-* api/[users,jobs]/create/:table/user-id/:userId
+insertController() <util/controller.js>
+* api/[users,jobs,dr]/create/:table
+
+/* 
+==============================
+        GET BY ID
+==============================
+*/
+// Front End
+getByIdService(URL, id)     <../../utils/server_until/service>
+
+
+// Backend
+getByIdController() <util/controller.js>
+* api/[users,jobs,dr]/get/:table/:id    <../routes/dynamicRoutes.js>

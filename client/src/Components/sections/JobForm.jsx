@@ -4,50 +4,72 @@ import { Jobs_context } from "../../context/JobsContext";
 import JobForm_Anchor_Component from "../layouts/Dashboard/PostNewJob/JobForm_Anchor_Component";
 import Button from "../common/Button";
 import Header from "../layouts/Dashboard/Candidate/Common/Header";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import { useAuth } from "../../hooks/useAuth";
-import { createDataService } from "../../utils/server_until/service";
+import { insertDataService } from "../../utils/server_until/service";
+
+const sections = [
+  { id: "requirements", label: "Requirements" },
+  { id: "responsibilities", label: "Responsibilities" },
+  { id: "benefits", label: "Benefits & Perks" },
+];
 
 function JobForm({ setClosing }) {
   const { user } = useAuth();
   const { addJob } = useContext(Jobs_context);
   const navigate = useNavigate();
 
-  // Default form (single source of truth)
   const defaultForm = {
     job_title: "",
     priority: false,
     location: "",
     contract_type: "full-time",
-
     offer_ctc_min: "",
     offer_ctc_max: "",
-
     experience_required: "",
     max_applications: "",
     application_deadline: "",
     job_description: "",
-
     requirements: [],
     responsibilities: [],
     benefits: [],
   };
 
   const [job_form, setJob_form] = useState(defaultForm);
-  const [loading, setLoading] = useState(false); // loading state
+  const [loading, setLoading] = useState(false);
 
-  // Input handler
+  // ── Generic field handler ──────────────────────────────────────────────────
   const handleInputChange = (value, id) => {
+    setJob_form((prev) => ({ ...prev, [id]: value }));
+  };
+
+  // ── Dynamic list handlers ──────────────────────────────────────────────────
+  const handleAddItem = (sectionId) => {
     setJob_form((prev) => ({
       ...prev,
-      [id]: value,
+      [sectionId]: [...prev[sectionId], ""],
     }));
   };
 
-  // Submit handler
+  const handleItemChange = (sectionId, index, value) => {
+    setJob_form((prev) => {
+      const updated = [...prev[sectionId]];
+      updated[index] = value;
+      return { ...prev, [sectionId]: updated };
+    });
+  };
+
+  const handleRemoveItem = (sectionId, index) => {
+    setJob_form((prev) => ({
+      ...prev,
+      [sectionId]: prev[sectionId].filter((_, i) => i !== index),
+    }));
+  };
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
   const handleFormSubmission = async () => {
-    if (loading) return; // prevent double click
+    if (loading) return;
 
     const requiredFields = [
       "job_title",
@@ -76,9 +98,8 @@ function JobForm({ setClosing }) {
     }
 
     try {
-      setLoading(true); // start loading
+      setLoading(true);
 
-      // Local state update
       const newJob = {
         job_title: job_form.job_title,
         status: "Active",
@@ -101,10 +122,10 @@ function JobForm({ setClosing }) {
 
       addJob(newJob);
 
-      // API payload
       const readyPost = {
         active: true,
         urgent: job_form.priority,
+        location: job_form.location,
         job_name: job_form.job_title,
         job_type: job_form.contract_type.toLowerCase(),
         salary_min: Number(job_form.offer_ctc_min),
@@ -116,7 +137,8 @@ function JobForm({ setClosing }) {
         user_id: user.id,
       };
 
-      const res = await createDataService("api/dr/insert/jobs", readyPost);
+      // ── Submit core job ────────────────────────────────────────────────────
+      const res = await insertDataService("api/dr/insert/jobs", readyPost);
 
       if (res.success) {
         showSuccess("Job posted successfully!");
@@ -124,15 +146,37 @@ function JobForm({ setClosing }) {
         showError("Failed to post job");
       }
 
-      setTimeout(() => {
-        setClosing(false);
-        navigate("/client/dashboard");
-      }, 2000);
+      // ── Submit requirements (only if not empty) ────────────────────────────
+      if (job_form.requirements.length > 0) {
+        await insertDataService("api/dr/insert/job_requirements", {
+          job_id: res.data.id,
+          requirements: { ...job_form.requirements },
+        });
+      }
+
+      // ── Submit responsibilities (only if not empty) ────────────────────────
+      if (job_form.responsibilities.length > 0) {
+        await insertDataService("api/dr/insert/job_responsibilities", {
+          job_id: res.data.id,
+          responsibilities: { ...job_form.responsibilities },
+        });
+      }
+
+      // ── Submit benefits (only if not empty) ───────────────────────────────
+      if (job_form.benefits.length > 0) {
+        await insertDataService("api/dr/insert/job_benefits", {
+          job_id: res.data.id,
+          benefits: { ...job_form.benefits },
+        });
+      }
+
+      setClosing(false);
+      navigate("/client/dashboard");
     } catch (error) {
       console.error(error);
       showError("Failed to post job");
     } finally {
-      setLoading(false); // always stop loading
+      setLoading(false);
     }
   };
 
@@ -157,14 +201,72 @@ function JobForm({ setClosing }) {
         />
 
         <div className="w-full overflow-y-auto flex flex-col items-center gap-4 pt-4">
-          {/*  Pass job_form */}
+          {/* Existing form fields */}
           <JobForm_Anchor_Component
             handleInputChange={handleInputChange}
             job_form={job_form}
             icon_class={icon_class}
           />
 
-          {/* Button */}
+          {/* ── Dynamic List Sections ───────────────────────────────────── */}
+          {sections.map(({ id, label }) => (
+            <div key={id} className="w-full px-4 flex flex-col gap-2">
+              {/* Section header */}
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-sm text-gray-700">
+                  {label}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => handleAddItem(id)}
+                  className="flex items-center gap-1 text-sm text-green-600 hover:text-green-800 font-medium transition-colors duration-150"
+                >
+                  <span className="text-base leading-none">+</span> Add
+                </button>
+              </div>
+
+              {/* Empty state */}
+              {job_form[id].length === 0 && (
+                <p className="text-xs text-gray-400 italic">
+                  No items yet. Click &quot;+ Add&quot; to begin.
+                </p>
+              )}
+
+              {/* Items */}
+              <AnimatePresence initial={false}>
+                {job_form[id].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center gap-2"
+                  >
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) =>
+                        handleItemChange(id, index, e.target.value)
+                      }
+                      placeholder={`Enter ${label.toLowerCase()} item...`}
+                      className="flex-1 border border-gray-300 rounded-small px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-green-400 focus:border-green-400 transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItem(id, index)}
+                      className="w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-150 text-lg leading-none flex-shrink-0"
+                      aria-label={`Remove ${label} item`}
+                    >
+                      ×
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ))}
+
+          {/* Submit Button */}
           <div className="w-full flex flex-col items-center my-4 px-4">
             <Button
               onclick={handleFormSubmission}
@@ -174,7 +276,7 @@ function JobForm({ setClosing }) {
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-500 to-green-700 hover:scale-105"
               }`}
-              text={loading ? "⏳ Posting..." : "Post Job"}
+              text={loading ? "Posting..." : "Post Job"}
             />
           </div>
         </div>

@@ -15,7 +15,7 @@ export const insertData = async (table_name, dataArray) => {
 };
 
 // GET: get data by id
-export const getById = async (id, table_name) => {
+export const getById = async (table_name, id) => {
   try {
     const res = await db`SELECT * FROM ${db(table_name)} WHERE id = ${id}`;
 
@@ -42,7 +42,7 @@ export const getByUserId = async (user_id, table_name) => {
     const res =
       await db`SELECT * FROM ${db(table_name)} WHERE user_id = ${user_id}`;
 
-    return res[0];
+    return res;
   } catch (err) {
     throw err;
   }

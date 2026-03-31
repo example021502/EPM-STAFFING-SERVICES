@@ -4,7 +4,9 @@ import "./styles/index.css";
 import App from "./App.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+
 import AuthProvider from "./context/AuthContext";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 /**
  * Create the root React component and render the application
@@ -16,6 +18,8 @@ import AuthProvider from "./context/AuthContext";
  *   - Hidden progress bar for cleaner UI
  */
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ToastContainer
@@ -25,7 +29,9 @@ createRoot(document.getElementById("root")).render(
     />
 
     <AuthProvider>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </AuthProvider>
   </StrictMode>,
 );

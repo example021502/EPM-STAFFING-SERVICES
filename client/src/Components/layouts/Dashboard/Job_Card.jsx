@@ -20,8 +20,6 @@ function Job_Card({ Card_index, card }) {
   const [edit_details, setEdit_details] = useState(false);
   const [deleteOverlay, setDeleteOverlay] = useState(false);
 
-  // handle editing job post : view applications buttons
-
   const handleConfirming = (name) => {
     if (name === "Confirm") {
       try {
@@ -47,9 +45,16 @@ function Job_Card({ Card_index, card }) {
     return sessionStorage.setItem("selected_job_id", Card_index);
   };
 
+  // Calculate remaining spots
+  const remainingSpots = Math.max(
+    0,
+    (card["max applications"] || 0) - (card["applicants"] || 0),
+  );
+
   return (
     <>
-      <section className="w-full p-5 rounded-[8px] cursor-pointer hover:scale-[1.02] hover:shadow-md border  border-lighter transition-all duration-300 gap-4 flex flex-col items-start justify-center bg-white">
+      <section className="w-full p-5 rounded-[8px] cursor-pointer hover:scale-[1.02] hover:shadow-md border border-lighter transition-all duration-300 gap-4 flex flex-col items-start justify-center bg-white">
+        {/* HEADER - Title and Status */}
         <div className="w-full flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Label
@@ -61,13 +66,14 @@ function Job_Card({ Card_index, card }) {
               class_name={`px-2 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
                 card.status === "Active"
                   ? "bg-b_light_blue text-nevy_blue"
-                  : card.status === "UnActive"
+                  : card.status === "Inactive"
                     ? "text-red-dark bg-red-light"
                     : "text-Darkgold bg-gold_lighter"
               }`}
             />
           </div>
 
+          {/* Actions - View Details, Edit, Delete */}
           <nav
             onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-4 ml-auto"
@@ -91,18 +97,23 @@ function Job_Card({ Card_index, card }) {
           </nav>
         </div>
 
-        <div className="w-full py-2  border-y border-lighter/50">
+        {/* DIVIDER */}
+        <div className="w-full py-2 border-y border-lighter/50">
           <CardIcons job_card={card} />
         </div>
 
+        {/* FOOTER - Meta Information */}
         <footer className="flex relative flex-row flex-wrap gap-6 items-center justify-start w-full opacity-70">
+          {/* Remaining Applications Spots */}
           <div className="flex items-center gap-1.5">
             <i className="ri-team-line text-xs" aria-hidden="true"></i>
             <Label
-              text={`${card["max applications"] - card["applicants"]}`}
+              text={`${remainingSpots} spots available`}
               class_name="text-xs font-medium"
             />
           </div>
+
+          {/* Posted Date */}
           <div className="flex items-center gap-1.5">
             <i className="ri-calendar-line text-xs" aria-hidden="true"></i>
             <Label
@@ -110,16 +121,21 @@ function Job_Card({ Card_index, card }) {
               class_name="text-xs font-medium"
             />
           </div>
+
+          {/* Priority Badge - Top Right */}
           {card.priority === true && card.status.toLowerCase() === "active" && (
             <div className="absolute flex text-nevy_blue flex-row flex-wrap items-center justify-center right-0 gap-2">
               <Label
-                text={"Priority : "}
-                class_name={"text-[clamp(0.8em,0.8vw,1em)]"}
+                text={"Priority"}
+                class_name={"text-[clamp(0.8em,0.8vw,1em)] font-semibold"}
               />
-              <span title="This Openning is on High Priority Mode" className="">
+              <span
+                title="This Opening is on High Priority Mode"
+                className="flex items-center"
+              >
                 <Icon
                   icon={"ri-flashlight-line"}
-                  class_name="font-md text-[clamp(1em,1.2vw,1.4em)] w-5 h-5 rounded-full"
+                  class_name="font-md text-[clamp(1em,1.2vw,1.4em)] w-5 h-5"
                 />
               </span>
             </div>
@@ -127,13 +143,15 @@ function Job_Card({ Card_index, card }) {
         </footer>
       </section>
 
-      {/* deleting overlay */}
+      {/* Delete Confirmation Overlay */}
       {deleteOverlay && (
         <JobCardDeleteOverlay
           onConfirm={handleConfirming}
           card_name={card["job title"]}
         />
       )}
+
+      {/* Edit Job Post Modal */}
       {edit_details && (
         <EditCardDetails
           card_index={Card_index}
@@ -142,7 +160,7 @@ function Job_Card({ Card_index, card }) {
         />
       )}
 
-      {/*Modal overlay*/}
+      {/* View More Details Modal */}
       {moreDetails && (
         <JobCardMoreDetails
           card={card}
