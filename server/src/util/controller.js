@@ -15,6 +15,10 @@ const allowedTables = [
   "user_contacts",
   "company_info",
   "user_address",
+  "job_requirements",
+  "job_responsibilities",
+  "job_benefits",
+  "job_categories",
 ];
 
 // ================================================
@@ -24,7 +28,6 @@ const allowedTables = [
 // INSERT : data
 export const insertController = async (req, res) => {
   const { table } = req.params;
-
   try {
     if (!allowedTables.includes(table)) {
       return errorResponse(res, "Invalid table", 400);
