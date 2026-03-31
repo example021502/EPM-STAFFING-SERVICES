@@ -125,6 +125,7 @@ function JobForm({ setClosing }) {
       const readyPost = {
         active: true,
         urgent: job_form.priority,
+        location: job_form.location,
         job_name: job_form.job_title,
         job_type: job_form.contract_type.toLowerCase(),
         salary_min: Number(job_form.offer_ctc_min),
@@ -147,8 +148,6 @@ function JobForm({ setClosing }) {
 
       // ── Submit requirements (only if not empty) ────────────────────────────
       if (job_form.requirements.length > 0) {
-        //TODO: replace with your actual requirements endpoint
-
         await insertDataService("api/dr/insert/job_requirements", {
           job_id: res.data.id,
           requirements: { ...job_form.requirements },
@@ -157,7 +156,6 @@ function JobForm({ setClosing }) {
 
       // ── Submit responsibilities (only if not empty) ────────────────────────
       if (job_form.responsibilities.length > 0) {
-        // TODO: replace with your actual responsibilities endpoint
         await insertDataService("api/dr/insert/job_responsibilities", {
           job_id: res.data.id,
           responsibilities: { ...job_form.responsibilities },
@@ -166,7 +164,6 @@ function JobForm({ setClosing }) {
 
       // ── Submit benefits (only if not empty) ───────────────────────────────
       if (job_form.benefits.length > 0) {
-        // TODO: replace with your actual benefits endpoint
         await insertDataService("api/dr/insert/job_benefits", {
           job_id: res.data.id,
           benefits: { ...job_form.benefits },

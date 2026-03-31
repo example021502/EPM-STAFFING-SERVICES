@@ -6,8 +6,8 @@ import { getSalaryRange } from "../layouts/Admin/common/GetSalaryRange";
 function CardIcons({ job_card }) {
   const icons = {
     location: "ri-map-pin-line",
-    "contract type": "ri-suitcase-line",
-    "expected ctc": "₹",
+    job_type: "ri-suitcase-line",
+    salary: "₹",
   };
   return (
     <div className="w-full text-sm flex flex-wrap items-center justify-start gap-8">
@@ -17,11 +17,11 @@ function CardIcons({ job_card }) {
           case "location":
             value = job_card[key];
             break;
-          case "contract type":
+          case "job_type":
             value = job_card[key];
             break;
-          case "expected ctc":
-            value = getSalaryRange(job_card["expected ctc"]);
+          case "salary":
+            value = getSalaryRange(job_card["salary"]);
             break;
         }
         return (

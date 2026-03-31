@@ -121,6 +121,7 @@ function PathNormalizer() {
 function App() {
   return (
     <ErrorBoundary>
+      <FetchButton />
       <SignupFormContext>
         <JobsContext>
           <AdminAccountsContext>

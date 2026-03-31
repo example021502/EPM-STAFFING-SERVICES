@@ -65,6 +65,8 @@ export const getAllController = async (req, res) => {
 export const getByUserIdController = async (req, res) => {
   const { table, user_id } = req.params;
 
+  console.log("Table name: ", table, "User Id", user_id);
+
   try {
     if (!allowedTables.includes(table)) {
       return errorResponse(res, "Invalid table", 400);
@@ -82,11 +84,9 @@ export const getByUserIdController = async (req, res) => {
 export const getByIdController = async (req, res) => {
   const { table, id } = req.params;
 
-  try {
-    if (!allowedTables.includes(table)) {
-      return errorResponse(res, "Invalid table", 400);
-    }
+  console.log(table, id);
 
+  try {
     const result = await getById(table, id);
 
     return successResponse(res, "Fetched successfully", result, 200);
