@@ -24,8 +24,6 @@ function Signup_Account_credentials() {
   const [otp_overlay, setOtp_overlay] = useState(false);
   const [verify_id, setVerify_id] = useState("");
   const [verifying, setVerifying] = useState(false);
-
-  // ✅ NEW: force re-render for countdown reset
   const [resendKey, setResendKey] = useState(0);
 
   const navigate = useNavigate();
@@ -51,16 +49,10 @@ function Signup_Account_credentials() {
     },
   ];
 
-  // =========================
-  // INPUT HANDLER
-  // =========================
   const handleInputChange = (value, id) => {
     setForm((prev) => ({ ...prev, [id]: value }));
   };
 
-  // =========================
-  // SEND OTP (UPDATED)
-  // =========================
   const handleGenerateOtp = async () => {
     try {
       const result = await sendOTP(form.email);
@@ -69,24 +61,21 @@ function Signup_Account_credentials() {
         return showError(result.message || "Failed to send OTP");
       }
 
+      console.log(result);
+
       setVerify_id(result.data);
-
-      // ✅ IMPORTANT: reset countdown
       setResendKey((prev) => prev + 1);
-
       setOtp_overlay(true);
       showSuccess("OTP sent successfully!");
     } catch (err) {
       console.log(err);
-      showError("Something went wrong!");
+      showError("Something went wrong while sending OTP!");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // =========================
-  // VERIFY OTP + SIGNUP FLOW
-  // =========================
+  // FIX 4 & 5: Handle all signup_stage cases explicitly; never fall through to createAccount for existing users
   const handleVerifyOtp = async (otp_code) => {
     try {
       setVerifying(true);
@@ -100,25 +89,40 @@ function Signup_Account_credentials() {
       showSuccess("OTP verified successfully!");
       setOtp_overlay(false);
 
-      const user = await getUserByEmail(form.email);
-
-      if (user.success) {
-        const stage = user.data.signup_stage;
-
-        if (stage === "completed") {
-          return showError("Account already completed");
-        }
-
-        if (stage === "1")
-          return navigate("/auth/signup_form/company_information");
-        if (stage === "2")
-          return navigate("/auth/signup_form/company_information");
-        if (stage === "3")
-          return navigate("/auth/signup_form/contact_information");
-        if (stage === "4")
-          return navigate("/auth/signup_form/address_information");
+      // Check if user already exists
+      let existingUser = null;
+      try {
+        const user = await getUserByEmail(form.email);
+        if (user.success) existingUser = user.data;
+      } catch {
+        // User not found — this is expected for new signups, continue below
       }
 
+      if (existingUser) {
+        const stage = existingUser.signup_stage;
+
+        if (stage === "completed") {
+          return showError(
+            "This account is already registered. Please log in.",
+          );
+        }
+
+        // Route existing incomplete signups to the correct step
+        if (stage === "1" || stage === "2") {
+          return navigate("/auth/signup_form/company_information");
+        }
+        if (stage === "3") {
+          return navigate("/auth/signup_form/contact_information");
+        }
+        if (stage === "4") {
+          return navigate("/auth/signup_form/address_information");
+        }
+
+        // FIX 4: Unknown stage — don't fall through; show a clear error
+        return showError("Unexpected account state. Please contact support.");
+      }
+
+      // New user — create account
       const response = await createAccount({
         email: form.email,
         password: form.confirm_password,
@@ -138,45 +142,56 @@ function Signup_Account_credentials() {
       navigate("/auth/signup_form/company_information");
     } catch (err) {
       console.log(err);
-      showError("Verification failed!");
+      showError("Verification failed! Please try again.");
     } finally {
       setVerifying(false);
       setIsLoading(false);
     }
   };
 
-  // form navigation buttons and validating the form details
+  // FIX 1, 2 & 3: Validate email first + add format check + handle "user not found" safely
   const handleNavigation = async () => {
+    // FIX 1: Validate email before password fields
+    if (form.email === "") return showError("Email is required!");
+
+    // FIX 2: Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email))
+      return showError("Please enter a valid email address!");
+
     if (form.password === "") return showError("Password is required!");
-    const regex = /^[A-Z]/;
-    const isValidPassword = regex.test(form.password);
     if (form.password.length < 5)
-      return showError("Password should be atLeast *5 characters");
-    if (!isValidPassword)
-      return showError("Password should Start with a capital letter");
+      return showError("Password must be at least 5 characters");
+    if (!/^[A-Z]/.test(form.password))
+      return showError("Password must start with a capital letter");
     if (!/\d/.test(form.password))
-      return showError("Password should contain atLeast 1 digit");
-    regex.test(form.password);
+      return showError("Password must contain at least 1 digit");
     if (form.confirm_password === "")
-      return showError("Confirm your password!");
-    if (form.email === "") return showError("Email missing!");
+      return showError("Please confirm your password!");
     if (form.password !== form.confirm_password)
       return showError("Passwords do not match!");
 
     setIsLoading(true);
 
     try {
-      const user = await getUserByEmail(form.email);
+      // FIX 3: Wrap getUserByEmail in try/catch so "not found" doesn't crash the flow
+      let existingUser = null;
+      try {
+        const user = await getUserByEmail(form.email);
+        if (user.success) existingUser = user.data;
+      } catch {
+        // User doesn't exist — perfectly fine for new signup
+      }
 
-      if (user.success && user.data.signup_stage === "completed") {
+      if (existingUser && existingUser.signup_stage === "completed") {
         setIsLoading(false);
-        return showError("Email is already used");
+        return showError("This email is already registered. Please log in.");
       }
 
       await handleGenerateOtp();
     } catch (err) {
       console.log(err);
-      showError("Something went wrong");
+      showError("Something went wrong. Please try again.");
       setIsLoading(false);
     }
   };

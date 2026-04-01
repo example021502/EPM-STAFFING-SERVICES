@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useState } from "react";
 import Label from "../../../common/Label";
 import LabelInput from "../../../common/LabelInput";
 import UrgentJob from "./UrgentJob";
@@ -11,13 +11,36 @@ import Header from "../Candidate/Common/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { showSuccess } from "../../../../utils/toastUtils";
 
+import {
+  updateByColumnNameIdService,
+  updateByIdService,
+} from "../../../../utils/server_until/service";
+
 function EditCardDetails({ setEditJobPost, card, card_index }) {
   const { updateJob } = useContext(Jobs_context);
 
-  // Draft state: changes here won't affect global state until Save is clicked
-  const [newForm_data, setNewForm_data] = useState(card);
+  const [newForm_data, setNewForm_data] = useState(() => {
+    const parseField = (value) => {
+      if (typeof value === "string") {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      }
+      return value ?? [];
+    };
 
-  // If no job is selected, don't render the component
+    return {
+      ...card,
+      requirements: parseField(card.requirements),
+      responsibilities: parseField(card.responsibilities),
+      benefits: parseField(card.benefits),
+    };
+  });
+
+  const [isSaving, setIsSaving] = useState(false);
+
   if (!card) {
     return null;
   }
@@ -54,18 +77,83 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
     }));
   };
 
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
+    if (isSaving) return; // ✅ Prevent duplicate clicks
     setIsSaving(true);
-    updateJob(card_index, newForm_data);
-    showSuccess("Job updated successfully!");
 
-    setTimeout(() => {
-      setNewForm_data(null);
-      setIsSaving(false);
-      setEditJobPost(false);
-    }, 1000);
+    // Handling form superbase timestamp
+    const toSupabaseTimestamp = (dateStr) => {
+      if (!dateStr) return null;
+      const date = new Date(dateStr);
+      if (isNaN(date)) return null;
+      return date.toISOString();
+    };
+
+    const toActive = (data) => {
+      if (data == "Active") {
+        return true;
+      } else return false;
+    };
+
+    const readyJobs = {
+      active: toActive(newForm_data.status),
+      urgent: newForm_data.priority,
+      job_name: newForm_data["job title"],
+      job_type: newForm_data.job_type,
+      salary_min:
+        newForm_data.salary_min ?? // updated via input
+        newForm_data.salary?.split("-")[0]?.trim() ?? // fallback: parse from original
+        null,
+      salary_max:
+        newForm_data.salary_max ?? // updated via input
+        newForm_data.salary?.split("-")[1]?.trim() ?? // fallback: parse from original
+        null,
+      experience_years: newForm_data.experience,
+      max_applications: Number(newForm_data["max applications"]), // ensure number not string
+      deadline: toSupabaseTimestamp(newForm_data.deadline),
+      description: newForm_data.description,
+      location: newForm_data.location,
+    };
+
+    try {
+      await updateByIdService(
+        "api/dr/update/id",
+        readyJobs,
+        "jobs",
+        newForm_data.id,
+      );
+
+      await updateByColumnNameIdService(
+        "api/dr/update/id",
+        { requirements: { ...newForm_data.requirements } },
+        "job_requirements",
+        "job_id",
+        newForm_data.id,
+      );
+
+      await updateByColumnNameIdService(
+        "api/dr/update/id",
+        { responsibilities: { ...newForm_data.responsibilities } },
+        "job_responsibilities",
+        "job_id",
+        newForm_data.id,
+      );
+
+      await updateByColumnNameIdService(
+        "api/dr/update/id",
+        { benefits: { ...newForm_data.benefits } },
+        "job_benefits",
+        "job_id",
+        newForm_data.id,
+      );
+
+      showSuccess("Job updated successfully!");
+      setEditJobPost(false); // ✅ Close overlay on success
+    } catch (error) {
+      console.error("Failed to save job:", error);
+    } finally {
+      setIsSaving(false); // ✅ Always re-enable button (on success or error)
+    }
   };
 
   const icon_class =
@@ -158,10 +246,15 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
               </div>
             ))}
 
+            {/* Disabled + dimmed while saving */}
             <Button
-              text={"Saving changes"}
+              text={isSaving ? "Saving..." : "Save Changes"}
               onclick={handleSaveChanges}
-              class_name={`py-2 w-full text-center rounded-small bg-g_btn text-text_white`}
+              class_name={`py-2 w-full text-center rounded-small bg-g_btn text-text_white transition-opacity duration-200 ${
+                isSaving
+                  ? "opacity-60 cursor-not-allowed pointer-events-none"
+                  : ""
+              }`}
             />
           </div>
         </motion.div>

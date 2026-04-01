@@ -31,7 +31,6 @@ export const getUserByEmail = async (email) => {
         credentials: "include",
       },
     );
-
     const data = await response.json();
     return data;
   } catch (err) {

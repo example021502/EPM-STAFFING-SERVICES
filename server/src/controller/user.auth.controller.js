@@ -70,7 +70,7 @@ export const verifiedOTPContoller = async (req, res) => {
       });
     }
 
-    const { otp_hash } = await getById(id, "otp_verification");
+    const { otp_hash } = await getById("otp_verification", id);
 
     if (!otp_hash) {
       return res.status(404).json({

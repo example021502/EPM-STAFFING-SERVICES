@@ -42,14 +42,13 @@ function JobCardMoreDetails({ setMoreDetails, card }) {
 
           {/* Scrollable Body */}
           <div className="p-4 overflow-y-auto no-scrollbar flex flex-col gap-4">
-            <MoreDetails card={card} />
             <div className="h-px bg-lighter w-full" />
             <MoreDetailsRequirements card={card} />
           </div>
 
           {/* Footer Actions */}
           <div className="w-full px-4 py-2 border-t border-lighter flex justify-center gap-4">
-            {["View Applications", "Edit Job Post"].map((btn) => {
+            {["View Applications"].map((btn) => {
               return (
                 <Button
                   text={btn}

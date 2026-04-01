@@ -63,6 +63,9 @@ export const updateById = async (table, id, data) => {
   }
 };
 
+// ================================================
+//                  UPDATE
+// ================================================
 // UPDATE: by user_id
 export const updateByUserId = async (user_id, table_name, data) => {
   try {
@@ -74,6 +77,28 @@ export const updateByUserId = async (user_id, table_name, data) => {
     throw err;
   }
 };
+
+export const updateByColumnNameId = async (
+  id,
+  table_name,
+  column_name,
+  data,
+) => {
+  console.log(id, table_name, column_name, data);
+
+  try {
+    const res =
+      await db`UPDATE ${db(table_name)} SET ${db(data)}, updated_at = NOW() WHERE ${db(column_name)} = ${id} RETURNING *`;
+
+    return res[0];
+  } catch (err) {
+    throw err;
+  }
+};
+
+// ================================================
+//                  DELETE
+// ================================================
 
 // DELETE single data
 export const deleteData = async (id, table_name) => {

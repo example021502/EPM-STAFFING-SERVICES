@@ -57,6 +57,8 @@ export const getById = async (req, res) => {
 
 // Get user by email
 export const getUserByEmailController = async (req, res) => {
+  console.log(req.query.email);
+
   try {
     const user = await getUserByEmail(req.query.email);
 

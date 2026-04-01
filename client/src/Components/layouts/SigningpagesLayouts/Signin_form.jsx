@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import Signin_input from "./Signin_input";
 import display_data from "../../InputElements.json";
 import Label from "../../common/Label";
@@ -11,10 +11,11 @@ import AdminAccounts from "../../dummy_data_structures/AdminAccounts.json";
 import { showError, showInfo, showSuccess } from "../../../utils/toastUtils";
 import Icon from "../../common/Icon";
 import TopHeader from "./TopHeader";
-
 import { loginService } from "../../../services/user.service.js";
+import { useAuth } from "../../../hooks/useAuth";
 
 function Signin_form() {
+  const { setUser } = useAuth();
   const { save_company_accounts } = useContext(Company_context);
   const { save_admin_accounts } = useContext(admin_accounts_context);
 
@@ -25,7 +26,6 @@ function Signin_form() {
     password: "",
   });
 
-  // NEW: loading state
   const [loading, setLoading] = useState(false);
 
   const loadData = (user_type) => {
@@ -38,8 +38,7 @@ function Signin_form() {
   const handle_form_submission = async (e) => {
     e.preventDefault();
 
-    if (loading) return; // prevent multiple clicks
-
+    if (loading) return;
     if (!form.email) return showError("Email missing!");
     if (!form.password) return showError("Password missing!");
 
@@ -49,18 +48,22 @@ function Signin_form() {
       const { email, password } = form;
       const result = await loginService(email, password);
 
-      if (!result.success) {
-        return showError(result.message);
-      }
+      if (!result.success) return showError(result.message);
+
+      setUser({
+        id: result.data.id,
+        email: result.data.email,
+        role: result.data.role,
+      });
+
+      loadData(result.data.role);
+      showSuccess(result.message);
 
       if (result.data.role === "user") {
         navigate("/client/dashboard");
       } else if (result.data.role === "admin") {
         navigate("/admin/management");
-        console.log(result.data.role);
       }
-
-      showSuccess(result.message);
     } catch (err) {
       showError("Something went wrong!");
     } finally {
@@ -121,7 +124,6 @@ function Signin_form() {
           />
         </div>
 
-        {/* Submit Button with loading control */}
         <div className="w-full transition-all ease-in-out duration-150 hover:scale-[1.02] text-text_white flex flex-row items-center relative justify-center rounded-small bg-g_btn overflow-hidden">
           <button
             className={`w-full flex items-center justify-center ${
