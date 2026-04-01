@@ -1,8 +1,15 @@
 const API_ROUTES = import.meta.env.VITE_URL;
 
-export const updateByIdService = async (data, URL, id) => {
+// ================================================
+//                  DELETE
+// ================================================
+
+// update by id
+export const updateByIdService = async (URL, data, table, id) => {
+  console.log(data);
+
   try {
-    const response = await fetch(`${API_ROUTES}/${URL}/${id}`, {
+    const response = await fetch(`${API_ROUTES}/${URL}/${table}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -17,6 +24,36 @@ export const updateByIdService = async (data, URL, id) => {
     return await response.json();
   } catch (err) {
     console.error("Update Error:", err.message);
+    return { error: err.message };
+  }
+};
+
+export const updateByColumnNameIdService = async (
+  URL,
+  data,
+  table,
+  column_name,
+  id,
+) => {
+  try {
+    const response = await fetch(
+      `${API_ROUTES}/${URL}/${table}/${column_name}/${id}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update account");
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error("Update error", err.message);
     return { error: err.message };
   }
 };

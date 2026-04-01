@@ -7,6 +7,7 @@ import {
   updateById,
   updateByUserId,
   deleteData,
+  updateByColumnNameId,
 } from "./dbCrud.js";
 
 const allowedTables = [
@@ -44,6 +45,7 @@ export const insertController = async (req, res) => {
 // ================================================
 //                  GET
 // ================================================
+
 // GET : Fetching all data
 export const getAllController = async (req, res) => {
   const { table } = req.params;
@@ -96,6 +98,7 @@ export const getByIdController = async (req, res) => {
 // ================================================
 export const updateByIdController = async (req, res) => {
   const { table, id } = req.params;
+
   try {
     if (!allowedTables.includes(table)) {
       return errorResponse(res, "Invalid table", 400);
@@ -125,9 +128,22 @@ export const updateByUserIdController = async (req, res) => {
   }
 };
 
+export const updateByColumnNameIdController = async (req, res) => {
+  const { table, column_name, id } = req.params;
+
+  try {
+    const result = await updateByColumnNameId(id, table, column_name, req.body);
+
+    return successResponse(res, "Update successfully", result, 200);
+  } catch (err) {
+    return errorResponse(res, "Update failed", 400, err);
+  }
+};
+
 // ================================================
 //                  DELETE
 // ================================================
+
 // DELETE: delete data
 export const deleteController = async (req, res) => {
   const { table, id } = req.params;

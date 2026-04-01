@@ -3,6 +3,8 @@ import {
   insertController,
   getByIdController,
   getByUserIdController,
+  updateByIdController,
+  updateByColumnNameIdController,
 } from "../util/controller.js";
 
 const router = express.Router();
@@ -23,5 +25,17 @@ router.get("/get/user-id/:table/:user_id", getByUserIdController);
 ==============================
 */
 router.post("/insert/:table", insertController);
+
+/* 
+==============================
+        UPDATE
+==============================
+*/
+
+router.patch("/update/id/:table/:id", updateByIdController);
+router.patch(
+  "/update/id/:table/:column_name/:id",
+  updateByColumnNameIdController,
+);
 
 export default router;
