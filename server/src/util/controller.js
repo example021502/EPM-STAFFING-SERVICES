@@ -68,10 +68,6 @@ export const getByUserIdController = async (req, res) => {
   console.log("Table name: ", table, "User Id", user_id);
 
   try {
-    if (!allowedTables.includes(table)) {
-      return errorResponse(res, "Invalid table", 400);
-    }
-
     const result = await getByUserId(user_id, table);
 
     return successResponse(res, "Fetched successfully", result, 200);
