@@ -13,13 +13,36 @@ import {
   getUserByEmail,
 } from "../../../services/user.service.js";
 
+// FIX 1: Correct field types — email → "email", confirm → "password" (removed space)
+const FORM_ELEMENTS = [
+  {
+    type: "email", // was "new-password" — wrong type entirely
+    placeholder: "Enter email here...",
+    label: "Email*",
+    id: "email",
+  },
+  {
+    type: "password",
+    placeholder: "Create a Strong Password",
+    label: "Password*",
+    id: "password",
+  },
+  {
+    type: "password", // was "confirm password" — space made it an unknown type
+    placeholder: "Confirm your Password",
+    label: "Confirm Password*",
+    id: "confirm_password",
+  },
+];
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function Signup_Account_credentials() {
   const [form, setForm] = useState({
     email: "",
     password: "",
     confirm_password: "",
   });
-
   const [isLoading, setIsLoading] = useState(false);
   const [otp_overlay, setOtp_overlay] = useState(false);
   const [verify_id, setVerify_id] = useState("");
@@ -28,118 +51,91 @@ function Signup_Account_credentials() {
 
   const navigate = useNavigate();
 
-  const elements = [
-    {
-      type: "new-password",
-      placeholder: "Enter email here...",
-      label: "Email*",
-      id: "email",
-    },
-    {
-      type: "password",
-      placeholder: "Create a Strong Password",
-      label: "Password*",
-      id: "password",
-    },
-    {
-      type: "confirm password",
-      placeholder: "Confirm your Password",
-      label: "Confirm Password*",
-      id: "confirm_password",
-    },
-  ];
-
-  const handleInputChange = (value, id) => {
+  const handleInputChange = (value, id) =>
     setForm((prev) => ({ ...prev, [id]: value }));
-  };
 
+  // ─── OTP send ────────────────────────────────────────────────────────────────
   const handleGenerateOtp = async () => {
     try {
       const result = await sendOTP(form.email);
-
-      if (!result.success) {
+      if (!result.success)
         return showError(result.message || "Failed to send OTP");
-      }
 
       setVerify_id(result.data);
       setResendKey((prev) => prev + 1);
       setOtp_overlay(true);
       showSuccess("OTP sent successfully!");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       showError("Something went wrong while sending OTP!");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // FIX 4 & 5: Handle all signup_stage cases explicitly; never fall through to createAccount for existing users
+  // ─── OTP verify ──────────────────────────────────────────────────────────────
   const handleVerifyOtp = async (otp_code) => {
     try {
       setVerifying(true);
 
       const otpRes = await verifyOTP(verify_id, otp_code);
-
-      if (!otpRes.success) {
-        return showError(otpRes.message || "Invalid OTP");
-      }
+      if (!otpRes.success) return showError(otpRes.message || "Invalid OTP");
 
       showSuccess("OTP verified successfully!");
       setOtp_overlay(false);
 
-      // Check if user already exists
+      // Check whether this email already has a partial / completed account
       let existingUser = null;
       try {
         const user = await getUserByEmail(form.email);
         if (user.success) existingUser = user.data;
       } catch {
-        // User not found — this is expected for new signups, continue below
+        // Expected for brand-new signups — not an error
       }
 
       if (existingUser) {
         const stage = existingUser.signup_stage;
 
-        if (stage === "completed") {
+        if (stage === "completed")
           return showError(
             "This account is already registered. Please log in.",
           );
-        }
 
-        // Route existing incomplete signups to the correct step
-        if (stage === "1" || stage === "2") {
+        if (stage === "1" || stage === "2")
           return navigate("/auth/signup_form/company_information");
-        }
-        if (stage === "3") {
-          return navigate("/auth/signup_form/contact_information");
-        }
-        if (stage === "4") {
-          return navigate("/auth/signup_form/address_information");
-        }
 
-        // FIX 4: Unknown stage — don't fall through; show a clear error
+        if (stage === "3")
+          return navigate("/auth/signup_form/contact_information");
+
+        if (stage === "4")
+          return navigate("/auth/signup_form/address_information");
+
         return showError("Unexpected account state. Please contact support.");
       }
 
-      // New user — create account
+      // ── New user — create account ────────────────────────────────────────────
+      // FIX 2: Pass form.password (not confirm_password) as the intended password
       const response = await createAccount({
         email: form.email,
-        password: form.confirm_password,
+        password: form.password,
       });
 
-      if (!response.success) {
+      if (!response.success)
         return showError(response.message || "Failed to create account");
-      }
 
+      // FIX 3: Use consistent 4-arg signature (path, data, table, id)
+      // was: updateByIdService({ signup_stage: "2" }, "api/users/update/users/id", response.data.id)
       await updateByIdService(
+        "api/dr/update/id",
         { signup_stage: "2" },
-        "api/users/update/users/id",
+        "users",
         response.data.id,
       );
 
       showSuccess("Account created successfully!");
       navigate("/auth/signup_form/company_information");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       showError("Verification failed! Please try again.");
     } finally {
       setVerifying(false);
@@ -147,16 +143,11 @@ function Signup_Account_credentials() {
     }
   };
 
-  // FIX 1, 2 & 3: Validate email first + add format check + handle "user not found" safely
+  // ─── Form validation ─────────────────────────────────────────────────────────
   const handleNavigation = async () => {
-    // FIX 1: Validate email before password fields
     if (form.email === "") return showError("Email is required!");
-
-    // FIX 2: Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email))
+    if (!EMAIL_REGEX.test(form.email))
       return showError("Please enter a valid email address!");
-
     if (form.password === "") return showError("Password is required!");
     if (form.password.length < 5)
       return showError("Password must be at least 5 characters");
@@ -172,44 +163,45 @@ function Signup_Account_credentials() {
     setIsLoading(true);
 
     try {
-      // FIX 3: Wrap getUserByEmail in try/catch so "not found" doesn't crash the flow
       let existingUser = null;
       try {
         const user = await getUserByEmail(form.email);
         if (user.success) existingUser = user.data;
       } catch {
-        // User doesn't exist — perfectly fine for new signup
+        // User doesn't exist — fine for new signup
       }
 
-      if (existingUser && existingUser.signup_stage === "completed") {
-        setIsLoading(false);
+      if (existingUser?.signup_stage === "completed") {
         return showError("This email is already registered. Please log in.");
       }
 
       await handleGenerateOtp();
     } catch (err) {
-      console.log(err);
+      console.error(err);
       showError("Something went wrong. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
 
+  // ─── Styles ──────────────────────────────────────────────────────────────────
   const label_style = "text-sm font-medium text-gray-600 text-start";
   const input_style =
     "w-full p-2 rounded-small border focus:border-none focus:outline-none focus:ring ring-nevy_blue border-light";
 
   return (
     <>
+      {/* FIX 4: Header text was "Address Details" — wrong for this step */}
       <header className="w-full flex flex-col gap-2 pt-4 bg-b_white z-20 sticky top-0 items-center">
         <Label
-          text="Address Details"
+          text="Create Account"
           class_name="text-2xl font-bold text-gray-900 text-center"
         />
-        <Label text={"Complete your registration"} class_name={label_style} />
+        <Label text="Set up your login credentials" class_name={label_style} />
       </header>
 
       <div className="flex flex-col items-center justify-start gap-4 w-full p-2 text-sm">
-        {elements.map((el) => (
+        {FORM_ELEMENTS.map((el) => (
           <div key={el.id} className="w-full flex flex-col space-y-1">
             <Label text={el.label} class_name={label_style} />
             <Input
@@ -230,7 +222,7 @@ function Signup_Account_credentials() {
             ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
         >
           <Label text={isLoading ? "Loading..." : "Continue"} />
-          <Icon icon={"ri-arrow-right-line"} />
+          <Icon icon="ri-arrow-right-line" />
         </button>
       </div>
 

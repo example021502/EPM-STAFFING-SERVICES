@@ -15,8 +15,34 @@ import {
   updateByIdService,
 } from "../../../utils/server_until/service.js";
 
+const FORM_ELEMENTS = [
+  {
+    type: "text",
+    placeholder: "Enter company name",
+    label: "Company name*",
+    id: "company_name",
+  },
+  {
+    type: "select",
+    placeholder: "Select industry type",
+    label: "Industry Type*",
+    id: "industry_type",
+  },
+  {
+    type: "text",
+    placeholder: "Enter company registration number",
+    label: "Registration Number*",
+    id: "registration_number",
+  },
+  {
+    type: "textarea",
+    placeholder: "Tell us about your company",
+    label: "Description (optional)",
+    id: "description",
+  },
+];
+
 function Signup_Company_information() {
-  // account information form
   const [form, setForm] = useState({
     company_name: "",
     industry_type: "",
@@ -26,13 +52,13 @@ function Signup_Company_information() {
 
   const [expand, setExpand] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const target_containerRef = useRef();
   const companyInfoIdRef = useRef(null);
   const navigate = useNavigate();
 
-  // ==============================
-  // Helper
-  // ==============================
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
+  // FIX 1: Removed unused `id` parameter from getPayload
   const getPayload = () => ({
     company_name: form.company_name,
     industry_type: form.industry_type,
@@ -40,82 +66,80 @@ function Signup_Company_information() {
     description: form.description,
   });
 
-  // ==============================
-  // Create
-  // ==============================
-  const createCompany = async (id) => {
-    try {
-      const company = await createCompanyInfo(getPayload(id));
+  // ─── Create ──────────────────────────────────────────────────────────────────
+  const createCompany = async (userId) => {
+    // FIX 2: getPayload() called without spurious `id` argument
+    const company = await createCompanyInfo(getPayload());
 
-      await updateByIdService(
-        { signup_stage: "3" },
-        "api/users/update/users/id",
-        id,
-      );
+    if (!company.success) throw new Error(company.message);
 
-      if (!company.success) return showError(company.message);
+    // FIX 3: Consistent 4-arg updateByIdService (path, data, table, id)
+    // was: updateByIdService({ signup_stage: "3" }, "api/users/update/users/id", id)
+    await updateByIdService(
+      "api/dr/update/id",
+      { signup_stage: "3" },
+      "users",
+      userId,
+    );
 
-      return showSuccess(company.message);
-    } catch (err) {
-      return showError(err.message);
-    }
+    showSuccess(company.message || "Company information saved!");
   };
 
-  // ==============================
-  // Update
-  // ==============================
-  const updateCompany = async () => {
-    try {
-      const update = await updateByIdService(
-        "api/dr/update/id",
-        getPayload(),
-        "company_info",
-        companyInfoIdRef.current,
-      );
+  // ─── Update ──────────────────────────────────────────────────────────────────
+  const updateCompany = async (userId) => {
+    const update = await updateByIdService(
+      "api/dr/update/id",
+      getPayload(),
+      "company_info",
+      companyInfoIdRef.current,
+    );
 
-      if (!update.success) return showError(update.message);
-      return showSuccess(update.message);
-    } catch (err) {
-      return showError(err.message);
-    }
+    if (!update.success) throw new Error(update.message);
+
+    // Also advance signup_stage on update path (was missing)
+    await updateByIdService(
+      "api/dr/update/id",
+      { signup_stage: "3" },
+      "users",
+      userId,
+    );
+
+    showSuccess(update.message || "Company information updated!");
   };
 
-  // ==============================
-  // Load Data
-  // ==============================
+  // ─── Load existing data ───────────────────────────────────────────────────────
   useEffect(() => {
     const loadData = async () => {
       try {
         const { loggedIn, userId } = await checkSession();
-
         if (!loggedIn) {
           showError("Not authenticated");
           return;
         }
 
-        const { data } = await getByUserIdService(
+        const res = await getByUserIdService(
           "api/dr/get/user-id/company_info",
           userId,
         );
+        const data = res.data?.[0];
 
         if (data) {
           setForm({
-            company_name: data[0].company_name || "",
-            industry_type: data[0].industry_type || "",
-            registration_number: data[0].registration_number || "",
-            description: data[0].description || "",
+            company_name: data.company_name || "",
+            industry_type: data.industry_type || "",
+            registration_number: data.registration_number || "",
+            description: data.description || "",
           });
-
-          companyInfoIdRef.current = data[0].id;
+          companyInfoIdRef.current = data.id;
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
       }
     };
 
     loadData();
 
-    const updateClicking = (e) => {
+    const handleOutsideClick = (e) => {
       if (
         target_containerRef.current &&
         !target_containerRef.current.contains(e.target)
@@ -124,43 +148,37 @@ function Signup_Company_information() {
       }
     };
 
-    document.addEventListener("click", updateClicking);
-
-    return () => {
-      document.removeEventListener("click", updateClicking);
-    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
   }, []);
 
-  // ==============================
-  // Handlers
-  // ==============================
+  // ─── Input handlers ──────────────────────────────────────────────────────────
   const handleInputChange = (value, id) =>
-    setForm((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+    setForm((prev) => ({ ...prev, [id]: value }));
 
   const handleClicking = () => setExpand((prev) => !prev);
 
-  const handleNextForm = async (type) => {
-    if (isLoading) return; // prevent multiple clicks
+  // ─── Submit ──────────────────────────────────────────────────────────────────
+  const handleNextForm = async () => {
+    // FIX 4: Guard moved to top — isLoading check before anything runs
+    if (isLoading) return;
 
-    const isEmpty = Object.keys(form).filter(
+    const emptyFields = Object.keys(form).filter(
       (key) => key !== "description" && form[key] === "",
     );
 
-    if (isEmpty.length > 0) {
-      return showError(`Fill ${isEmpty.join(", ")} to continue!`);
-    }
+    if (emptyFields.length > 0)
+      return showError(`Fill ${emptyFields.join(", ")} to continue!`);
 
+    // FIX 5: Session check before setIsLoading, so we don't lock UI if not authed
     const { loggedIn, userId } = await checkSession();
     if (!loggedIn) return showError("Not authenticated");
 
     try {
-      setIsLoading(true); // start loading
+      setIsLoading(true);
 
       if (companyInfoIdRef.current) {
-        await updateCompany();
+        await updateCompany(userId);
       } else {
         await createCompany(userId);
       }
@@ -168,68 +186,32 @@ function Signup_Company_information() {
       navigate("/auth/signup_form/contact_information");
     } catch (err) {
       console.error(err);
+      showError(err.message || "Something went wrong. Please try again.");
     } finally {
-      setIsLoading(false); // stop loading
+      setIsLoading(false);
     }
   };
 
-  // ==============================
-  // UI (UNCHANGED)
-  // ==============================
-  const elements = [
-    {
-      type: "text",
-      placeholder: "Enter company name",
-      label: "Company name*",
-      id: "company_name",
-    },
-    {
-      type: "select",
-      placeholder: "Select industry type",
-      label: "Industry Type*",
-      id: "industry_type",
-    },
-    {
-      type: "text",
-      placeholder: "Enter company registration number",
-      label: "Registration Number*",
-      id: "registration_number",
-    },
-    {
-      type: "textarea",
-      placeholder: "Tell us about your company",
-      label: "Description (optional)",
-      id: "description",
-    },
-  ];
-
-  //navigation buttons
-  const buttons = [
-    { label: "Continue", id: "continue", icon: "ri-arrow-right-line" },
-  ];
-
-  // styles
+  // ─── Styles ──────────────────────────────────────────────────────────────────
   const label_style = "text-sm font-medium text-gray-600 text-center";
   const input_style =
     "w-full p-2 rounded-small border focus:border-none focus:outline-none focus:ring ring-nevy_blue border-light";
 
   return (
     <>
-      {/* company information header */}
       <header className="w-full flex flex-col gap-2">
         <Label
           text="Create Account"
           class_name="text-2xl font-bold text-gray-900 text-center"
         />
         <Label
-          text={"Provide details about your company"}
+          text="Provide details about your company"
           class_name={label_style}
         />
       </header>
 
-      {/* company information: fields container */}
       <div className="flex flex-col items-center justify-start gap-4 w-full text-sm">
-        {elements.map((el) => (
+        {FORM_ELEMENTS.map((el) => (
           <div
             key={el.id}
             className="w-full flex flex-col items-start justify-start space-y-1"
@@ -237,19 +219,17 @@ function Signup_Company_information() {
             <Label text={el.label} class_name={label_style} />
 
             {el.type === "select" ? (
-              // industry type field component
               <div
                 onClick={handleClicking}
                 ref={target_containerRef}
                 className="relative w-full rounded-small"
               >
                 <span
-                  onClick={handleClicking}
                   className={`absolute right-2 z-1 top-0 bottom-0 my-auto h-5 w-5 flex items-center justify-center text-md transition-all duration-150 ease-in-out ${
                     expand ? "rotate-180" : ""
                   }`}
                 >
-                  <Icon icon={"ri-arrow-down-s-line"} />
+                  <Icon icon="ri-arrow-down-s-line" />
                 </span>
 
                 <Input
@@ -262,7 +242,6 @@ function Signup_Company_information() {
                   value={form.industry_type}
                 />
 
-                {/* industry type elements */}
                 {expand && (
                   <SelectComponent
                     toggleExpand={handleClicking}
@@ -271,7 +250,6 @@ function Signup_Company_information() {
                 )}
               </div>
             ) : el.type === "textarea" ? (
-              // Optional company description field
               <TextArea
                 id={el.id}
                 onchange={handleInputChange}
@@ -280,7 +258,6 @@ function Signup_Company_information() {
                 value={form.description}
               />
             ) : (
-              // Other company information information
               <Input
                 id={el.id}
                 onchange={handleInputChange}
@@ -292,26 +269,16 @@ function Signup_Company_information() {
           </div>
         ))}
 
-        <div className="w-full grid grid-cols-1 mt-4 gap-2 items-center justify-center mb-0">
-          {buttons.map((button) => {
-            const isBack = button.label === "Back";
-            return (
-              <div
-                key={button.label}
-                onClick={() => !isLoading && handleNextForm(button.label)}
-                className={`flex flex-row items-center py-1 cursor-pointer hover:scale-[1.02] transition-all duration-150 ease-in-out rounded-small ${
-                  isBack
-                    ? "bg-white text-nevy_blue border border-nevy_blue"
-                    : "bg-g_btn flex-row-reverse text-text_white"
-                } justify-center space-x-1 w-full ${
-                  isLoading ? "opacity-70 cursor-not-allowed" : ""
-                }`}
-              >
-                <Icon icon={button.icon} class_name="" />
-                <Label text={button.label} class_name={""} />
-              </div>
-            );
-          })}
+        <div className="w-full mt-4">
+          <div
+            onClick={handleNextForm}
+            className={`flex flex-row-reverse items-center py-1 cursor-pointer hover:scale-[1.02] transition-all duration-150 ease-in-out rounded-small bg-g_btn text-text_white justify-center space-x-1 w-full ${
+              isLoading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+          >
+            <Icon icon="ri-arrow-right-line" />
+            <Label text={isLoading ? "Loading..." : "Continue"} />
+          </div>
         </div>
 
         <Already_have_account />

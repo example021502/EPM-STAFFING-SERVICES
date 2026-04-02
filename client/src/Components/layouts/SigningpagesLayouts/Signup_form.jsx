@@ -1,132 +1,123 @@
-import { useEffect, useContext, useState, useRef } from "react";
+import { useEffect, useContext, useState, useRef, useCallback } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Label from "../../common/Label";
 import { signup_stage_context } from "../../../context/SignupFormContext";
 import TopHeader from "./TopHeader";
 
+const SECTIONS = [
+  "signup_form",
+  "company_information",
+  "contact_information",
+  "address_information",
+];
+
+const SECTION_VISUALS = [
+  { label: 1, info: "Account Credentials", id: "signup_form" },
+  { label: 2, info: "Company Info", id: "company_information" },
+  { label: 3, info: "Contact Info", id: "contact_information" },
+  { label: 4, info: "Address", id: "address_information" },
+];
+
 function Signup_form() {
   const { pathname } = useLocation();
   const { stage, setStage } = useContext(signup_stage_context);
+
   const name = pathname.split("/").at(-1);
 
-  // Loading state management
   const [isLoading, setIsLoading] = useState(false);
   const [direction, setDirection] = useState("forward");
+
+  // Refs to avoid stale closures inside timeouts
   const prevPathnameRef = useRef(pathname);
+  const stageRef = useRef(stage);
   const timeoutRef = useRef(null);
+  stageRef.current = stage;
 
-  // Determine navigation direction
+  // ── Direction detection ──────────────────────────────────────────────────
   useEffect(() => {
-    const prevPathname = prevPathnameRef.current;
-    const currentPath = pathname;
-
-    // Determine if navigating forward or backward
-    const sections = [
-      "signup_form",
-      "company_information",
-      "contact_information",
-      "address_information",
-    ];
-    const prevIndex = sections.indexOf(prevPathname.split("/").pop());
-    const currentIndex = sections.indexOf(currentPath.split("/").pop());
-
-    if (prevIndex < currentIndex) {
-      setDirection("forward");
-    } else if (prevIndex > currentIndex) {
-      setDirection("backward");
-    } else {
-      setDirection("forward"); // Default to forward for same level navigation
-    }
-
-    prevPathnameRef.current = currentPath;
+    const prevIndex = SECTIONS.indexOf(
+      prevPathnameRef.current.split("/").pop(),
+    );
+    const currIndex = SECTIONS.indexOf(pathname.split("/").pop());
+    setDirection(prevIndex <= currIndex ? "forward" : "backward");
+    prevPathnameRef.current = pathname;
   }, [pathname]);
 
-  // Handle loading state with smooth transitions
+  // ── Stage sync with loading animation ───────────────────────────────────
   useEffect(() => {
-    // Set loading state when pathname changes
     setIsLoading(true);
+    clearTimeout(timeoutRef.current);
 
-    // Clear any existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    // Update stage after a brief delay to allow loading animation
     timeoutRef.current = setTimeout(() => {
-      const currentStageIndex = stage.indexOf(name);
+      const currentStage = stageRef.current;
+      const idx = currentStage.indexOf(name);
 
-      let newArr;
-      if (currentStageIndex === -1) {
-        // Forward navigation - add new stage
-        newArr = [...stage, name];
-      } else if (currentStageIndex < stage.length - 1) {
-        // Backward navigation - truncate to current stage
-        newArr = stage.slice(0, currentStageIndex + 1);
-      } else {
-        // Already at this stage
-        newArr = stage;
-      }
+      const newStage =
+        idx === -1
+          ? [...currentStage, name] // forward
+          : idx < currentStage.length - 1
+            ? currentStage.slice(0, idx + 1) // backward
+            : currentStage; // same step
 
-      setStage(newArr);
+      setStage(newStage);
+      setIsLoading(false);
+    }, 200);
 
-      // End loading after stage update
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 100); // Small delay for smooth transition
-    }, 200); // Loading duration
+    return () => clearTimeout(timeoutRef.current);
+  }, [name, setStage]); // ← `stage` intentionally excluded; read via ref
 
-    // Cleanup timeout on unmount
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [name, stage, setStage]);
+  // ── Keyboard: Enter → click the active submit button ────────────────────
+  const handleKeyDown = useCallback((e) => {
+    if (e.key !== "Enter") return;
 
-  // credintials
-  const section_visuals = [
-    { label: 1, info: "Account Credentials", id: "signup_form" },
-    { label: 2, info: "Company Info", id: "company_information" },
-    { label: 3, info: "Contact Info", id: "contact_information" },
-    { label: 4, info: "Address", id: "address_information" },
-  ];
+    // Don't intercept Enter inside <textarea>
+    if (e.target.tagName === "TEXTAREA") return;
 
-  // Calculate progress percentage
-  const currentStageIndex = section_visuals.findIndex(
-    (v) => v.id === name || `${v.id}/` === name || name === "",
+    // Let browser handle Enter for <select> and <a>
+    if (["SELECT", "A"].includes(e.target.tagName)) return;
+
+    const submitBtn = document.querySelector(
+      'button[type="submit"], button[data-submit="true"]',
+    );
+    submitBtn?.click();
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  // ── Derived values ───────────────────────────────────────────────────────
+  const currentStageIndex = SECTION_VISUALS.findIndex(
+    (v) => v.id === name || name === "",
   );
-  const totalStages = section_visuals.length;
-  const progressPercentage = ((currentStageIndex + 1) / totalStages) * 100;
-
-  // styles
-  const form_style =
-    "w-[80%] sm:max-w-[60%] h-[90%] overflow-y-auto no-scrollbar  md:max-w-[55%] lg:max-w-[40%] bg-white rounded-2xl shadow-sm border border-gray-100 p-4 pt-0 space-y-4";
+  const progressPercentage =
+    ((currentStageIndex + 1) / SECTION_VISUALS.length) * 100;
 
   return (
-    <div
-      className={`w-full h-dvh overflow-hidden relative flex flex-col pt-14 items-center justify-center`}
-    >
+    <div className="w-full h-dvh overflow-hidden relative flex flex-col pt-14 items-center justify-center">
       <TopHeader />
-      <div className={`${form_style}`}>
-        {/* Loading Overlay */}
+
+      <div className="w-[80%] sm:max-w-[60%] md:max-w-[55%] lg:max-w-[40%] h-[90%] overflow-y-auto no-scrollbar bg-white rounded-2xl shadow-sm border border-gray-100 p-4 pt-0 space-y-4">
+        {/* ── Loading Overlay ── */}
         {isLoading && (
           <div
-            className={`absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300 ${
+            className={`fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300 ${
               direction === "forward"
                 ? "animate-slide-up"
                 : "animate-slide-down"
             }`}
           >
             <div className="flex flex-col items-center space-y-4">
-              <div className="relative">
-                <div className="w-12 h-12 border-4 border-nevy_blue/20 border-t-nevy_blue rounded-full animate-spin"></div>
+              <div className="relative w-12 h-12">
+                <div className="absolute inset-0 border-4 border-nevy_blue/20 border-t-nevy_blue rounded-full animate-spin" />
                 <div
-                  className="absolute inset-0 w-12 h-12 border-4 border-nevy_blue/20 border-b-nevy_blue rounded-full animate-spin"
+                  className="absolute inset-0 border-4 border-nevy_blue/20 border-b-nevy_blue rounded-full animate-spin"
                   style={{
                     animationDirection: "reverse",
                     animationDuration: "1.5s",
                   }}
-                ></div>
+                />
               </div>
               <Label
                 text="Loading next step..."
@@ -136,13 +127,12 @@ function Signup_form() {
           </div>
         )}
 
-        {/* Progress Header with Unified Container */}
+        {/* ── Progress Header ── */}
         <div className="w-full pt-4 z-2 bg-b_white sticky top-0 text-xs flex flex-row items-center justify-between transition-all duration-300">
-          {/* Progress Bar Container */}
           <div className="w-full relative">
-            {/* Stage Markers */}
+            {/* Stage markers */}
             <div className="flex justify-between mb-2">
-              {section_visuals.map((visual, i) => {
+              {SECTION_VISUALS.map((visual, i) => {
                 const isActive = stage.includes(visual.id);
                 const isCompleted = i < currentStageIndex || isActive;
                 const isCurrent = i === currentStageIndex;
@@ -152,7 +142,6 @@ function Signup_form() {
                     key={visual.label}
                     className="flex flex-col items-center gap-2"
                   >
-                    {/* Stage Circle */}
                     <div
                       className={`relative flex items-center justify-center h-10 w-10 rounded-full transition-all duration-300 border-2 ${
                         isCurrent
@@ -181,7 +170,6 @@ function Signup_form() {
                       )}
                     </div>
 
-                    {/* Stage Label */}
                     <Label
                       text={visual.info}
                       class_name={`text-xs transition-all duration-300 ${
@@ -194,18 +182,17 @@ function Signup_form() {
                 );
               })}
             </div>
-            {/* Progress Fill */}
+
+            {/* Progress fill */}
             <div
               className="absolute bottom-0 left-0 h-1 bg-red transition-all duration-500 ease-out"
               style={{ width: `${progressPercentage}%` }}
             />
-
-            {/* Progress Track */}
-            <div className="w-full h-1 bg-gray-200 rounded-full"></div>
+            <div className="w-full h-1 bg-gray-200 rounded-full" />
           </div>
         </div>
 
-        {/* Form Content with Transition */}
+        {/* ── Form Content ── */}
         <div
           className={`transition-all duration-400 h-full overflow-hidden px-2 space-y-2 ${
             isLoading ? "opacity-0 scale-95" : "opacity-100 scale-100"
@@ -213,8 +200,6 @@ function Signup_form() {
         >
           <Outlet />
         </div>
-
-        {/* Navigation Direction Indicators (Optional subtle hints) */}
       </div>
     </div>
   );
