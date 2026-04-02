@@ -4,10 +4,10 @@ const API_ROUTES = import.meta.env.VITE_URL;
 //                  DELETE
 // ================================================
 
-// update by id
-export const updateByIdService = async (URL, data, table, id) => {
-  console.log(data);
+// update by idj
+// router.patch("/update/id/:table/:id", updateByIdController);
 
+export const updateByIdService = async (URL, data, table, id) => {
   try {
     const response = await fetch(`${API_ROUTES}/${URL}/${table}/${id}`, {
       method: "PATCH",

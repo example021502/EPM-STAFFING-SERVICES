@@ -21,7 +21,6 @@ function AuthProvider({ children }) {
           });
         }
       } catch (err) {
-        showError("User not found!");
       } finally {
         setLoading(false);
       }

@@ -25,20 +25,19 @@ function Signup_Company_information() {
   });
 
   const [expand, setExpand] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // ✅ loading state
+  const [isLoading, setIsLoading] = useState(false);
   const target_containerRef = useRef();
-  const companyInfoIdRef = useRef(null); // ✅ fixed
+  const companyInfoIdRef = useRef(null);
   const navigate = useNavigate();
 
   // ==============================
   // Helper
   // ==============================
-  const getPayload = (userId = null) => ({
+  const getPayload = () => ({
     company_name: form.company_name,
     industry_type: form.industry_type,
     registration_number: form.registration_number,
     description: form.description,
-    ...(userId && { user_id: userId }),
   });
 
   // ==============================
@@ -68,13 +67,13 @@ function Signup_Company_information() {
   const updateCompany = async () => {
     try {
       const update = await updateByIdService(
+        "api/dr/update/id",
         getPayload(),
-        "api/users/update/company_info/id",
+        "company_info",
         companyInfoIdRef.current,
       );
 
       if (!update.success) return showError(update.message);
-
       return showSuccess(update.message);
     } catch (err) {
       return showError(err.message);
@@ -95,19 +94,19 @@ function Signup_Company_information() {
         }
 
         const { data } = await getByUserIdService(
-          "api/users/get/company_info",
+          "api/dr/get/user-id/company_info",
           userId,
         );
 
         if (data) {
           setForm({
-            company_name: data.company_name || "",
-            industry_type: data.industry_type || "",
-            registration_number: data.registration_number || "",
-            description: data.description || "",
+            company_name: data[0].company_name || "",
+            industry_type: data[0].industry_type || "",
+            registration_number: data[0].registration_number || "",
+            description: data[0].description || "",
           });
 
-          companyInfoIdRef.current = data.id;
+          companyInfoIdRef.current = data[0].id;
         }
       } catch (error) {
         console.error(error);
@@ -144,7 +143,7 @@ function Signup_Company_information() {
   const handleClicking = () => setExpand((prev) => !prev);
 
   const handleNextForm = async (type) => {
-    if (isLoading) return; // ✅ prevent multiple clicks
+    if (isLoading) return; // prevent multiple clicks
 
     const isEmpty = Object.keys(form).filter(
       (key) => key !== "description" && form[key] === "",
@@ -158,7 +157,7 @@ function Signup_Company_information() {
     if (!loggedIn) return showError("Not authenticated");
 
     try {
-      setIsLoading(true); // ✅ start loading
+      setIsLoading(true); // start loading
 
       if (companyInfoIdRef.current) {
         await updateCompany();
@@ -170,7 +169,7 @@ function Signup_Company_information() {
     } catch (err) {
       console.error(err);
     } finally {
-      setIsLoading(false); // ✅ stop loading
+      setIsLoading(false); // stop loading
     }
   };
 

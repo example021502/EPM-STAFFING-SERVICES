@@ -23,3 +23,12 @@ getByIdService(URL, id)     <../../utils/server_until/service>
 // Backend
 getByIdController() <util/controller.js>
 * api/[users,jobs,dr]/get/:table/:id    <../routes/dynamicRoutes.js>
+
+
+/* 
+==============================
+        UPDATE BY ID
+==============================
+*/
+// router.patch("/update/id/:table/:id", updateByIdController);
+// export const updateByIdService = async (URL, data, table, id)

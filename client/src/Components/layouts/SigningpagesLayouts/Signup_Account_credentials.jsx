@@ -61,8 +61,6 @@ function Signup_Account_credentials() {
         return showError(result.message || "Failed to send OTP");
       }
 
-      console.log(result);
-
       setVerify_id(result.data);
       setResendKey((prev) => prev + 1);
       setOtp_overlay(true);

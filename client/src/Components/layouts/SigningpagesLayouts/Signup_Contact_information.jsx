@@ -62,10 +62,12 @@ function Signup_user_contactsrmation() {
         const { userId, loggedIn } = await checkSession();
         if (!loggedIn) return;
 
-        const { data } = await getByUserIdService(
+        const res = await getByUserIdService(
           "api/users/get/user_contacts",
           userId,
         );
+
+        const data = res.data[0];
 
         if (!data) return;
 
@@ -176,8 +178,9 @@ function Signup_user_contactsrmation() {
 
       if (contactIdRef.current) {
         await updateByIdService(
+          "api/dr/update/id",
           readyData,
-          "api/users/update/user_contacts/id",
+          "user_contacts",
           contactIdRef.current,
         );
 
@@ -187,8 +190,9 @@ function Signup_user_contactsrmation() {
       }
 
       await updateByIdService(
+        "api/dr/update/id",
         { signup_stage: "4" },
-        "api/users/update/users/id",
+        "users",
         userId,
       );
 
@@ -272,6 +276,7 @@ function Signup_user_contactsrmation() {
         <div className="w-full grid grid-cols-2 gap-2">
           {buttons.map((button) => {
             const isBack = button.label === "Back";
+            const isContinue = button.label === "Continue";
             return (
               <div
                 key={button.label}
@@ -280,10 +285,16 @@ function Signup_user_contactsrmation() {
                   isBack
                     ? "bg-white text-nevy_blue border border-nevy_blue"
                     : "bg-g_btn flex-row-reverse text-text_white"
-                } justify-center space-x-1 w-full`}
+                } justify-center space-x-1 w-full ${isContinue && isLoading ? "opacity-70 pointer-events-none" : ""}`}
               >
-                <Icon icon={button.icon} />
-                <Label text={button.label} />
+                {isContinue && isLoading ? (
+                  <Icon icon="ri-loader-4-line animate-spin" />
+                ) : (
+                  <Icon icon={button.icon} />
+                )}
+                <Label
+                  text={isContinue && isLoading ? "Loading..." : button.label}
+                />
               </div>
             );
           })}

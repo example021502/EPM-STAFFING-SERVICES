@@ -68,10 +68,12 @@ function Signup_Address_information() {
         const { userId, loggedIn } = await checkSession();
         if (!loggedIn) return;
 
-        const { data } = await getByUserIdService(
+        const res = await getByUserIdService(
           "api/users/get/user_address",
           userId,
         );
+
+        const data = res.data[0];
 
         if (!data) return;
 
@@ -86,8 +88,6 @@ function Signup_Address_information() {
         }));
 
         setDataVersion((prev) => prev + 1);
-
-        console.log("✅ Address loaded:", data);
       } catch (err) {
         console.error("Error loading address:", err);
       }
@@ -143,8 +143,9 @@ function Signup_Address_information() {
       // ==============================
       if (addressIdRef.current) {
         await updateByIdService(
+          "api/dr/update/id",
           readyData,
-          "api/users/update/user_address/id",
+          "user_address",
           addressIdRef.current,
         );
       } else {
@@ -154,8 +155,9 @@ function Signup_Address_information() {
 
       // update signup stage
       await updateByIdService(
+        "api/dr/update/id",
         { signup_stage: "completed" },
-        "api/users/update/users/id",
+        "users",
         userId,
       );
 

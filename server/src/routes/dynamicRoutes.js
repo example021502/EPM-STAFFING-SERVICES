@@ -33,6 +33,7 @@ router.post("/insert/:table", insertController);
 */
 
 router.patch("/update/id/:table/:id", updateByIdController);
+
 router.patch(
   "/update/id/:table/:column_name/:id",
   updateByColumnNameIdController,
