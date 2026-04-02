@@ -8,10 +8,10 @@ const startOtpCleanup = () => {
         await sql`DELETE FROM otp_verification WHERE expires_at < NOW();`;
 
       if (result.count > 0) {
-        console.log(`Deleted ${result.count} expired OTP(s)`);
+        `Deleted ${result.count} expired OTP(s)`;
       }
     } catch (err) {
-      console.log("Cron Error:", err);
+      ("Cron Error:", err);
     }
   });
 };

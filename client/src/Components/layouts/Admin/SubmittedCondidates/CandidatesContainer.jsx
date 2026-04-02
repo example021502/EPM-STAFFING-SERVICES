@@ -26,7 +26,7 @@ function CandidatesContainer({
   const { jobs } = useContext(Jobs_context);
   // Get company context for accessing company data
   const { company_accounts } = useContext(Company_context);
-  console.log(jobs);
+  jobs;
 
   // Icon definitions for consistent styling
   const icons = {

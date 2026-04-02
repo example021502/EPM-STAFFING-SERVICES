@@ -30,7 +30,7 @@ function CompanyProvider({ children }) {
       if (typeof parsed === "string") return JSON.parse(parsed);
       return parsed;
     } catch (e) {
-      console.log("failed to parse company_accounts, ", e);
+      ("failed to parse company_accounts, ", e);
       return {};
     }
   });

@@ -945,7 +945,7 @@ var require_react_dom_client_development = __commonJS({
       }
       function disableLogs() {
         if (0 === disabledDepth) {
-          prevLog = console.log;
+          prevLog =  ;
           prevInfo = console.info;
           prevWarn = console.warn;
           prevError = console.error;

@@ -17,7 +17,7 @@ const FetchButton = ({ label = "Fetch Data" }) => {
 
       // const res = await fetchAllUsersInfoService(1);
       const jobs = await getAllJobs();
-      console.log(jobs);
+      jobs;
     } catch (error) {
       console.error("Fetch error:", error);
     } finally {

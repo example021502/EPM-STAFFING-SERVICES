@@ -30,5 +30,5 @@ app.use("/api", apiRoutes);
 startOtpCleanup();
 
 app.listen(4000, () => {
-  console.log("PORT : 4000");
+  ("PORT : 4000");
 });

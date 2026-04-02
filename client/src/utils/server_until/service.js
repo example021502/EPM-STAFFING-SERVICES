@@ -58,6 +58,10 @@ export const updateByColumnNameIdService = async (
   }
 };
 
+// ================================================
+//                  GET
+// ================================================
+
 // get data by user id
 export const getByUserIdService = async (URL, id) => {
   try {
@@ -74,8 +78,14 @@ export const getByUserIdService = async (URL, id) => {
   }
 };
 
+// ================================================
+//                  DELETE
+// ================================================
+
 // Create company information
 export const insertDataService = async (URL, objData) => {
+  ("URL: ", URL, "Insert Data: ", objData);
+
   try {
     const res = await fetch(`${API_ROUTES}/${URL}`, {
       method: "POST",

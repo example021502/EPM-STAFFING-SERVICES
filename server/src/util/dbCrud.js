@@ -2,6 +2,8 @@ import db from "../config/db.js";
 
 // INSERT
 export const insertData = async (table_name, dataArray) => {
+  ("last", table_name, dataArray);
+
   try {
     const res = await db`
       INSERT INTO ${db(table_name)} ${db(dataArray)}
@@ -84,7 +86,7 @@ export const updateByColumnNameId = async (
   column_name,
   data,
 ) => {
-  console.log(id, table_name, column_name, data);
+  (id, table_name, column_name, data);
 
   try {
     const res =

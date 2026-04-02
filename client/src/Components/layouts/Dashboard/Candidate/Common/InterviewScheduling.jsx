@@ -138,7 +138,7 @@ function InterviewScheduling({ candidate, handleClosing }) {
 
               // Simulate API call
               setTimeout(() => {
-                console.log("Interview scheduled:", schedule_data);
+                ("Interview scheduled:", schedule_data);
                 toast.success("Interview scheduled successfully!");
                 setIsScheduling(false);
 

@@ -8,11 +8,11 @@ import TextArea from "../../common/TextArea";
 import { useNavigate } from "react-router-dom";
 import Already_have_account from "./Already_have_account";
 
-import { createCompanyInfo } from "../../../services/user.service";
 import { checkSession } from "../../../services/session.service.js";
 import {
   getByUserIdService,
   updateByIdService,
+  insertDataService,
 } from "../../../utils/server_until/service.js";
 
 const FORM_ELEMENTS = [
@@ -59,17 +59,21 @@ function Signup_Company_information() {
 
   // ─── Helpers ─────────────────────────────────────────────────────────────────
   // FIX 1: Removed unused `id` parameter from getPayload
-  const getPayload = () => ({
+  const getPayload = (userId) => ({
     company_name: form.company_name,
     industry_type: form.industry_type,
     registration_number: form.registration_number,
     description: form.description,
+    user_id: userId,
   });
 
   // ─── Create ──────────────────────────────────────────────────────────────────
   const createCompany = async (userId) => {
     // FIX 2: getPayload() called without spurious `id` argument
-    const company = await createCompanyInfo(getPayload());
+    const company = await insertDataService(
+      "api/dr/insert/company_info",
+      getPayload(userId),
+    );
 
     if (!company.success) throw new Error(company.message);
 

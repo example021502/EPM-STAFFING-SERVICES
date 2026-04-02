@@ -41,7 +41,7 @@ export const updateByJobId = async (job_id, data) => {
 
     return data;
   } catch (err) {
-    console.log(err);
+    err;
     return err;
   }
 };

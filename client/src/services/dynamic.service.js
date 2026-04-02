@@ -7,7 +7,7 @@ const API_ROUTES = import.meta.env.VITE_URL;
 */
 
 export const getByIdService = async (URL, table, id) => {
-  console.log("URL: ", URL, "table: ", table, "id: ", id);
+  ("URL: ", URL, "table: ", table, "id: ", id);
 
   try {
     const res = await fetch(`${API_ROUTES}/${URL}/${table}/${id}`, {
@@ -24,7 +24,7 @@ export const getByIdService = async (URL, table, id) => {
 };
 
 export const getByUserIdService = async (URL, table, id) => {
-  console.log("getByUserIdService", "URL: ", URL, "table: ", table, "id: ", id);
+  ("getByUserIdService", "URL: ", URL, "table: ", table, "id: ", id);
 
   try {
     const res = await fetch(`${API_ROUTES}/${URL}/${table}/${id}`, {
@@ -46,7 +46,7 @@ export const getByUserIdService = async (URL, table, id) => {
 ========================================
 */
 export const insertDataService = async (URL, table, id) => {
-  console.log("getByUserIdService", "URL: ", URL, "table: ", table, "id: ", id);
+  ("getByUserIdService", "URL: ", URL, "table: ", table, "id: ", id);
 
   try {
     const res = await fetch(`${API_ROUTES}/${URL}/${table}/${id}`, {

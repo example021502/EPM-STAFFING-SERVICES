@@ -10,7 +10,7 @@ export const createJob = async (jobData) => {
 
     return result[0];
   } catch (err) {
-    console.log(err);
+    err;
     throw err;
   }
 };

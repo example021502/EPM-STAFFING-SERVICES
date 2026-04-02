@@ -100,8 +100,6 @@ function CandidateCard({
     }
   };
 
-  console.log(jobs);
-
   // Determine status styling based on current status
   const isPending = data.status === "Pending";
   const isInterviewed = data.status === "Interviewed";

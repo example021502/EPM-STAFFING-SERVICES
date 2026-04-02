@@ -39,24 +39,6 @@ export const getUserByEmail = async (email) => {
 };
 
 // Create company information
-export const createCompanyInfo = async (objData) => {
-  try {
-    const res = await fetch(`${API_ROUTES}/api/users/create/company_info`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(objData),
-      credentials: "include",
-    });
-
-    const data = await res.json();
-
-    return data;
-  } catch (err) {
-    throw err;
-  }
-};
-
-// Create company information
 export const createContactInfo = async (objData) => {
   try {
     const res = await fetch(`${API_ROUTES}/api/users/create/user_contacts`, {

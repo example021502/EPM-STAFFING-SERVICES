@@ -57,7 +57,7 @@ export const getById = async (req, res) => {
 
 // Get user by email
 export const getUserByEmailController = async (req, res) => {
-  console.log(req.query.email);
+  req.query.email;
 
   try {
     const user = await getUserByEmail(req.query.email);
@@ -81,7 +81,7 @@ export const createUser = async (req, res) => {
 
     const user = await createUserDb(email, hashedPassword);
 
-    console.log(user);
+    user;
 
     await saveSession(req, user.id, user.email, user.role); // wait session saved
 

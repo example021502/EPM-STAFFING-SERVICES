@@ -71,7 +71,7 @@ export const updateByJobIdController = async (req, res) => {
 export const deleteByJobIdController = async (req, res) => {
   const job_id = req.params.job_id;
 
-  console.log(job_id);
+  job_id;
 
   try {
     const result = await deleteByJobId(job_id);

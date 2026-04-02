@@ -21,7 +21,7 @@ const CreateAccount = () => {
       alert("Passwords do not match!");
       return;
     }
-    console.log("Form Data Submitted:", formData);
+    ("Form Data Submitted:", formData);
   };
 
   return (

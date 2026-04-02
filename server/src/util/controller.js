@@ -29,11 +29,9 @@ const allowedTables = [
 // INSERT : data
 export const insertController = async (req, res) => {
   const { table } = req.params;
-  try {
-    if (!allowedTables.includes(table)) {
-      return errorResponse(res, "Invalid table", 400);
-    }
 
+  table;
+  try {
     const result = await insertData(table, req.body);
 
     return successResponse(res, "Created successfully", result, 201);
@@ -67,7 +65,7 @@ export const getAllController = async (req, res) => {
 export const getByUserIdController = async (req, res) => {
   const { table, user_id } = req.params;
 
-  console.log("Table name: ", table, "User Id", user_id);
+  ("Table name: ", table, "User Id", user_id);
 
   try {
     const result = await getByUserId(user_id, table);
@@ -82,7 +80,7 @@ export const getByUserIdController = async (req, res) => {
 export const getByIdController = async (req, res) => {
   const { table, id } = req.params;
 
-  console.log(table, id);
+  (table, id);
 
   try {
     const result = await getById(table, id);
