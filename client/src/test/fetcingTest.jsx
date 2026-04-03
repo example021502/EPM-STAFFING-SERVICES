@@ -1,10 +1,12 @@
 // components/FetchButton.jsx
 
 import React, { useState } from "react";
-import { fetchAllUsersInfoService } from "../services/user.service";
-
+// import { fetchAllUsersInfoService } from "../services/user.service";
+import {
+  getByIdService,
+  getByUserIdService,
+} from "../services/dynamic.service";
 import { getAllJobs } from "../utils/function_utility/jobs.utility";
-import { getClientManagementData } from "../Components/layouts/Admin/AdminClientManagement/end-point-function/client_management";
 
 const FetchButton = ({ label = "Fetch Data" }) => {
   const [loading, setLoading] = useState(false);
@@ -13,10 +15,9 @@ const FetchButton = ({ label = "Fetch Data" }) => {
     try {
       setLoading(true);
 
-      // Your fetching data try here
-      const res = await getClientManagementData(1);
-
-      console.log(res);
+      // const res = await fetchAllUsersInfoService(1);
+      const jobs = await getAllJobs();
+      jobs;
     } catch (error) {
       console.error("Fetch error:", error);
     } finally {

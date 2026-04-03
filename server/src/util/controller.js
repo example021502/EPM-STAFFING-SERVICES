@@ -8,7 +8,6 @@ import {
   updateByUserId,
   deleteData,
   updateByColumnNameId,
-  getAllWithPage,
 } from "./dbCrud.js";
 
 const allowedTables = [
@@ -86,24 +85,6 @@ export const getByIdController = async (req, res) => {
     const result = await getById(table, id);
 
     return successResponse(res, "Fetched successfully", result, 200);
-  } catch (err) {
-    return errorResponse(res, "Fetch failed", 400, err);
-  }
-};
-
-export const getWithPageController = async (req, res) => {
-  console.log("Hello");
-
-  const { table } = req.params;
-  const page = parseInt(req.query.page);
-  const offset = (page - 1) * 10;
-
-  try {
-    const result = await getAllWithPage(table, 10, offset);
-
-    console.log("result: ", result);
-
-    return successResponse(res, "Fetched succesffully", result, 200);
   } catch (err) {
     return errorResponse(res, "Fetch failed", 400, err);
   }

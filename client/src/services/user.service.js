@@ -95,11 +95,7 @@ export const loginService = async (email, password) => {
 // =======================================
 export const fetchAllUsersInfoService = async (page = 1) => {
   const res = await fetch(
-    `${API_ROUTES}/api/users/get/users-full-data?page=${page}`,
-    {
-      method: "GET",
-      credentials: "include",
-    },
+    `${API_ROUTES}/api/users/users-full-data?page=${page}`,
   );
 
   const data = await res.json();

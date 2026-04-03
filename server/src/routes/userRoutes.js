@@ -68,11 +68,8 @@ router.get("/get/:table/:user_id", getByUserIdController);
 // ================================================
 //                User All info
 // ================================================
-/**
- * User API endpoints
- * Base path: /api/users
- */
-router.get("/get/users-full-data", getUsersFullData);
+
+router.get("/users-full-data", getUsersFullData);
 router.get("/get-all-jobs-details", getAllJobDetailsContoller);
 
 export default router;
