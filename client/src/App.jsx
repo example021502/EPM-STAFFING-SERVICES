@@ -28,8 +28,11 @@ import AdminCompanyOverview from "./Components/layouts/Admin/AdminCompanyOvervie
 import AdminAccountsContext from "./context/AdminAccountsContext";
 import GridListViewContext from "./context/GridListViewContext";
 import SignupFormContext from "./context/SignupFormContext";
-import FetchButton from "./test/fetcingTest";
 import PrivateRoute from "./routes/PrivateRoutes";
+
+// For testing
+// import UploadDocument from "./test/updatePDF";
+import FetchButton from "./test/fetcingTest";
 
 // Lazy loaded components for performance optimization
 const SubmittedCandidates = lazy(
@@ -121,7 +124,10 @@ function PathNormalizer() {
 function App() {
   return (
     <ErrorBoundary>
+      {/* Don't remove it This for testing */}
       <FetchButton />
+      {/* <UploadDocument /> */}
+
       <SignupFormContext>
         <JobsContext>
           <AdminAccountsContext>
