@@ -4,6 +4,9 @@ import React, { useState } from "react";
 import {
   getClientManagementData,
   updatefollowClient,
+  updateListJob,
+  saveCandidates,
+  deleteClient,
 } from "../Components/layouts/Admin/AdminClientManagement/end-point-function/client_management";
 
 const FetchButton = ({ label = "Fetch Data" }) => {
@@ -13,11 +16,17 @@ const FetchButton = ({ label = "Fetch Data" }) => {
     try {
       setLoading(true);
 
-      // Your fetching data try here
-      const res = await updatefollowClient(
+      const res = await saveCandidates(
         "0755b375-7bd4-4583-96d8-605d640e2cd9",
-        "98ca40ea-c3dd-43f2-b290-c500bf211bcd",
-        true,
+        "India",
+        "India",
+        "India",
+        "India",
+        "India",
+        "India",
+        "India",
+        "India",
+        "738372",
       );
 
       console.log(res);
