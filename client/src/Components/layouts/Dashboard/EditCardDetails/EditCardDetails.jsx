@@ -9,42 +9,26 @@ import JobStatus from "./JobStatus";
 import { Jobs_context } from "../../../../context/JobsContext";
 import Header from "../Candidate/Common/Header";
 import { motion, AnimatePresence } from "framer-motion";
-import { showSuccess } from "../../../../utils/toastUtils";
+import { showInfo, showSuccess } from "../../../../utils/toastUtils";
 
 import {
   updateByColumnNameIdService,
   updateByIdService,
 } from "../../../../utils/server_until/service";
 
-function EditCardDetails({ setEditJobPost, card, card_index }) {
-  const { updateJob } = useContext(Jobs_context);
+function EditCardDetails({ setEditJobPost, job }) {
+  // new Local form state to handle edits before saving
+  const [newForm_data, setNewForm_data] = useState(job || {});
 
-  const [newForm_data, setNewForm_data] = useState(() => {
-    const parseField = (value) => {
-      if (typeof value === "string") {
-        try {
-          return JSON.parse(value);
-        } catch {
-          return [];
-        }
-      }
-      return value ?? [];
-    };
-
-    return {
-      ...card,
-      requirements: parseField(card.requirements),
-      responsibilities: parseField(card.responsibilities),
-      benefits: parseField(card.benefits),
-    };
-  });
-
+  // state to prevent multiple rapid clicks on save
   const [isSaving, setIsSaving] = useState(false);
 
-  if (!card) {
-    return null;
+  // Feed back if job date is missing or invalid (shouldn't happen but just in case)
+  if (!job) {
+    return showInfo("Something went wrong!");
   }
 
+  // Handler to update form state on input changes
   const handle_update_form = (value, id) => {
     setNewForm_data((prev) => {
       const isStatus = id === "status";
@@ -53,30 +37,86 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
     });
   };
 
-  const updateReq_Res_Ben = (value, id) => {
-    const [index, section] = id.split(":");
-    const idx = parseInt(index);
+  // Handler to update a specific requirement, responsibility, or benefit
+  const handleUpdateReq_Res_Ben = (section, key, newValue) => {
     setNewForm_data((prev) => {
-      const updatedList = [...prev[section]];
-      updatedList[idx] = value;
-      return { ...prev, [section]: updatedList };
+      // 1. Create a shallow copy of the array for that section
+      const updatedArray = [...prev[section]];
+
+      // 2. Create a shallow copy of the first object in that array
+      // This is where the actual key-value pairs (0, 1, 2...) live
+      const updatedFirstObject = {
+        ...updatedArray[0],
+        [key]: newValue,
+      };
+
+      // 3. Put the updated object back into the first position of the array
+      updatedArray[0] = updatedFirstObject;
+
+      // 4. Return the new state object
+      return {
+        ...prev,
+        [section]: updatedArray,
+      };
     });
   };
 
-  const deletingReq_Res_Ben = (section, index) => {
-    setNewForm_data((prev) => ({
-      ...prev,
-      [section]: prev[section].filter((_, i) => i !== index),
-    }));
+  // Handler to delete a requirement, responsibility or benefit by index
+  const deleteReq_Res_Ben = (section, keyToDelete) => {
+    setNewForm_data((prev) => {
+      // 1. Get the first object from the array (e.g., benefits[0])
+      const firstObject = { ...prev[section][0] };
+
+      // 2. Remove the specific key
+      delete firstObject[keyToDelete];
+
+      // 3. Re-index the remaining values to prevent gaps (0, 1, 2...)
+      // Object.values returns ['val0', 'val2'] if 'val1' was deleted
+      const reIndexedObject = Object.values(firstObject).reduce(
+        (acc, val, index) => {
+          acc[index.toString()] = val;
+          return acc;
+        },
+        {},
+      );
+
+      // 4. Update the array with the new re-indexed object
+      const updatedArray = [...prev[section]];
+      updatedArray[0] = reIndexedObject;
+
+      return {
+        ...prev,
+        [section]: updatedArray,
+      };
+    });
   };
 
+  // handler to add a new empty requirement, responsibility or benefit
   const addingReq_Res_Ben = (section) => {
-    setNewForm_data((prev) => ({
-      ...prev,
-      [section]: [...(prev[section] || []), ""],
-    }));
-  };
+    setNewForm_data((prev) => {
+      // 1. Target the specific array
+      const targetArray = [...prev[section]];
 
+      // 2. Target the first object in that array
+      const firstObject = { ...targetArray[0] };
+
+      // 3. Determine the next key (Length of keys gives you the next 0-based index)
+      const nextKey = Object.keys(firstObject).length;
+
+      // 4. Update that first object
+      targetArray[0] = {
+        ...firstObject,
+        [nextKey]: "",
+      };
+
+      // 5. Update the state with the modified array
+      return {
+        ...prev,
+        [section]: targetArray,
+      };
+    });
+  };
+  // Handler to save changes - calls multiple update services for different tables
   const handleSaveChanges = async () => {
     if (isSaving) return; // ✅ Prevent duplicate clicks
     setIsSaving(true);
@@ -96,23 +136,17 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
     };
 
     const readyJobs = {
-      active: toActive(newForm_data.status),
-      urgent: newForm_data.priority,
-      job_name: newForm_data["job title"],
-      job_type: newForm_data.job_type,
-      salary_min:
-        newForm_data.salary_min ?? // updated via input
-        newForm_data.salary?.split("-")[0]?.trim() ?? // fallback: parse from original
-        null,
-      salary_max:
-        newForm_data.salary_max ?? // updated via input
-        newForm_data.salary?.split("-")[1]?.trim() ?? // fallback: parse from original
-        null,
-      experience_years: newForm_data.experience,
-      max_applications: Number(newForm_data["max applications"]), // ensure number not string
-      deadline: toSupabaseTimestamp(newForm_data.deadline),
-      description: newForm_data.description,
-      location: newForm_data.location,
+      active: toActive(newForm_data?.status),
+      urgent: newForm_data?.priority,
+      job_name: newForm_data?.job_name,
+      job_type: newForm_data?.job_type,
+      salary_min: newForm_data?.salary_min ?? null,
+      salary_max: newForm_data?.salary_max ?? null,
+      experience_years: newForm_data?.experience_years,
+      max_applications: Number(newForm_data?.mazx_applications), // ensure number not string
+      deadline: toSupabaseTimestamp(newForm_data?.deadline),
+      description: newForm_data?.job_description,
+      location: newForm_data?.location,
     };
 
     try {
@@ -173,9 +207,9 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
   ];
 
   const display_text =
-    card.status === "Active"
+    job?.status === "Active"
       ? "This job is active and candidates can apply. Applications will be reviewed by the hiring team."
-      : `This job has been ${card.status}`;
+      : `This job has been ${job?.status}`;
 
   return (
     <AnimatePresence>
@@ -191,15 +225,15 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
           className="h-full w-[40%] overflow-hidden rounded-small shadow-xl flex flex-col bg-white"
         >
           <Header
-            heading={card["job title"]}
+            heading={job?.job_name || "N/A"}
             candidate_name={"Edit Job Post"}
             handleClosingModal={() => setEditJobPost(false)}
           />
           <div className="flex overflow-y-auto no-scrollbar overflow-x-hidden gap-6 p-4 flex-col items-start justify-between w-full flex-1">
             <JobStatus
-              card={card}
+              card={job}
               handle_update_form={handle_update_form}
-              heading={card.status}
+              heading={job?.status || "N/A"}
               label={display_text}
             />
 
@@ -207,7 +241,7 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
               onchange={handle_update_form}
               id="job title"
               text="Job Title"
-              default_value={card["job title"]}
+              default_value={job?.job_name || "N/A"}
               label_class_name={label_class_name}
               input_class_name={input_class_name}
               type="text"
@@ -216,12 +250,12 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
             <UrgentJob
               heading="Mark as Urgent"
               label="This will assign a priority badge to your listing"
-              priority={card.priority}
+              priority={job?.priority || false}
               handle_update_form={handle_update_form}
             />
 
             <EditComponentAnchor
-              card={card}
+              card={job}
               handleInputChange={handle_update_form}
             />
 
@@ -235,13 +269,13 @@ function EditCardDetails({ setEditJobPost, card, card_index }) {
                   class_name={`border-b border-lighter pb-1 mb-2 w-full ${label_class_name}`}
                 />
                 <RequirementsEditComponent
-                  id={section.id}
+                  section_id={section.id}
                   icon_class={icon_class}
                   data_prop={newForm_data[section.id] || []}
                   button={section.button}
-                  updateReq_Res_Ben={updateReq_Res_Ben}
-                  deletingReq_Res_Ben={deletingReq_Res_Ben}
-                  addingReq_Res_Ben={() => addingReq_Res_Ben(section.id)}
+                  updateReq_Res_Ben={handleUpdateReq_Res_Ben}
+                  deletingReq_Res_Ben={deleteReq_Res_Ben}
+                  addingReq_Res_Ben={addingReq_Res_Ben}
                 />
               </div>
             ))}

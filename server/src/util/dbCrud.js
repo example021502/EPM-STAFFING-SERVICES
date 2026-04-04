@@ -2,6 +2,12 @@ import db from "../config/db.js";
 
 const allowedTables = ["users", "jobs", "orders"];
 
+/*
+=====================================
+        INSERT
+=====================================
+*/
+
 // INSERT
 export const insertData = async (table_name, dataArray) => {
   ("last", table_name, dataArray);
@@ -17,6 +23,12 @@ export const insertData = async (table_name, dataArray) => {
     throw err;
   }
 };
+
+/*
+=====================================
+        GET
+=====================================
+*/
 
 // GET: get data by id
 export const getById = async (table_name, id) => {
@@ -52,6 +64,21 @@ export const getByUserId = async (user_id, table_name) => {
   }
 };
 
+export const getAllWithPage = async (table_name, limit, offset) => {
+  try {
+    const res =
+      await db`SELECT * FROM ${db(table_name)} LIMIT ${Number(limit)} OFFSET ${Number(offset)} `;
+
+    return res;
+  } catch (err) {
+    throw err;
+  }
+};
+
+// ================================================
+//                  UPDATE
+// ================================================
+
 export const updateById = async (table, id, data) => {
   try {
     const res = await db`
@@ -67,17 +94,31 @@ export const updateById = async (table, id, data) => {
   }
 };
 
-// ================================================
-//                  UPDATE
-// ================================================
 // UPDATE: by user_id
-export const updateByUserId = async (user_id, table_name, data) => {
+export const updateByUserId = async (table_name, user_id, data) => {
+  console.log("Incoming:", { user_id, table_name, data });
+
+  const cleanData = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v !== undefined && v !== null),
+  );
+
+  if (Object.keys(cleanData).length === 0) {
+    throw new Error("No fields to update");
+  }
+
   try {
-    const res =
-      await db`UPDATE ${db(table_name)} SET ${db(data)}, updated_at = NOW() WHERE user_id = ${user_id} RETURNING *`;
+    const res = await db`
+      UPDATE ${db(table_name)}
+      SET ${db(cleanData, Object.keys(cleanData))}, updated_at = NOW()
+      WHERE user_id = ${user_id}
+      RETURNING *
+    `;
+
+    // console.log("DB Result:", res);
 
     return res[0];
   } catch (err) {
+    console.error("DB ERROR:", err);
     throw err;
   }
 };

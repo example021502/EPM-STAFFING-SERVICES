@@ -11,8 +11,7 @@ function CompanyCardTopPart({
   companyId,
   company,
 }) {
-  const { company_info } = company || {};
-  const isActive = company_info.status === "Active" || false;
+  const isActive = company.active;
 
   return !isGrid ? (
     <header
@@ -22,18 +21,18 @@ function CompanyCardTopPart({
         className="h-12 w-12 text-white bg-d_blue rounded-small text-xl font-semibold flex items-center justify-center shrink-0 shadow-sm"
         aria-hidden="true"
       >
-        <Image link={getInitials(company_info[0].company_name || "N/As")} />
+        <Image link={getInitials(company.company_name || "N/As")} />
       </div>
 
       <div className="flex flex-col items-start justify-center overflow-hidden flex-1">
         <Label
-          text={company_info[0].company_name || "N/A"}
+          text={company.company_name || "N/A"}
           class_name="text-[clamp(1.2em,1vw,1.4em)] font-semibold truncate w-full text-text_b leading-tight"
         />
 
         <div className="flex flex-row text-[10px] font-semibold items-center justify-start gap-2 mt-1 uppercase tracking-wide">
           <Label
-            text={company_info[0].industry_type || "N/A"}
+            text={company.industry_type || "N/A"}
             class_name="px-2 py-0.5 rounded-small bg-lighter text-text_b_l border border-lighter"
           />
           <div className="flex items-center gap-1.5 ml-1">
@@ -50,7 +49,7 @@ function CompanyCardTopPart({
           </div>
           <div className="w-fit flex items-center justify-center cursor-pointer">
             <FollowLabel
-              status={company_info[0].follow_status || "N/A"}
+              status={company.follow_status || "N/A"}
               class_name={"text-[clamp(1em,1vw,1.2em)]"}
               onToggle={() => handleFollowChange(companyId)}
             />
@@ -60,11 +59,11 @@ function CompanyCardTopPart({
 
       <div
         className="flex flex-col items-center ml-auto justify-center px-2 py-1 bg-hover-light/50 rounded-small shrink-0 border border-lighter/50"
-        aria-label={`${company_info[0].open_positions || "N/A"} open positions`}
+        aria-label={`${company.open_positions || "N/A"} open positions`}
       >
         <Label
           as="span"
-          text={company_info[0].open_positions || "N/A"}
+          text={company.open_positions || "N/A"}
           class_name="text-lg font-extrabold text-text_b"
         />
         <Label

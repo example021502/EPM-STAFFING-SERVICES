@@ -21,8 +21,8 @@ function ListView({ company, handleFollowChange, companyId }) {
       <div className="flex flex-row items-center justify-start gap-2 flex-1">
         <ListFirstPart
           field={company.field}
-          name={company.name}
-          status={company.status}
+          name={company.company_name}
+          status={company.active}
           follow_status={company["follow status"]}
           companyId={companyId}
           handleFollowChange={handleFollowChange}

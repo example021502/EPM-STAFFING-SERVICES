@@ -6,8 +6,6 @@ import CompanyViewOverlay from "./CompanyViewOverlay";
 import CompanyManageOverlay from "./CompanyManageOverlay";
 
 const CompanyCard = ({ companyId, company, handleFollowChange }) => {
-  console.log(company);
-
   // Don't render if company data is invalid
   if (!company || !companyId || !handleFollowChange) {
     return null;
@@ -29,10 +27,14 @@ const CompanyCard = ({ companyId, company, handleFollowChange }) => {
   // determining if the current view is grid for styling purposes
   const isGrid = view === "grid";
 
+  // formatting the joined date
+  const [date, time] = company?.user_created_at?.split("T") || [];
+
   return (
     <article
       className={`rounded-small bg-white shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center justify-between w-full h-full ${isGrid ? "p-3" : "p-5"}`}
     >
+      {/* Top Part */}
       <CompanyCardTopPart
         isGrid={isGrid}
         companyId={companyId}
@@ -45,25 +47,27 @@ const CompanyCard = ({ companyId, company, handleFollowChange }) => {
         role="group"
         aria-label="Job Statistics"
       >
+        {/* Number of active jobs */}
         <Active_Pending_jobs
           isGrid={isGrid}
           icon="ri-suitcase-line"
           label="Active Jobs"
-          number_of_jobs={company["active jobs"]}
+          number_of_jobs={company?.jobs.length}
         />
+        {/* Registration Number */}
         <Active_Pending_jobs
           isGrid={isGrid}
           icon="ri-time-line"
-          label="Pending Jobs"
-          number_of_jobs={company["pending jobs"]}
+          label="Registration Number"
+          number_of_jobs={company?.registration_number || "N/A"}
         />
       </div>
 
       <div className="w-full pt-4 border-t border-lighter/50">
         <CompanyCardBottomPart
           isGrid={isGrid}
-          email={company.email}
-          joined_date={company["joined date"]}
+          email={company?.email}
+          joined_date={`${date || "N/A"} | ${time ? time.split(".")[0] : "N/A"}`}
           company_id={companyId}
           handleBtnClick={handleBtnClick}
         />

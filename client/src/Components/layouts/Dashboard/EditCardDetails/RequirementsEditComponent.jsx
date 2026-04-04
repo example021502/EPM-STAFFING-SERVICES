@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import Input from "../../../common/Input";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
@@ -10,52 +10,38 @@ function RequirementsEditComponent({
   button,
   deletingReq_Res_Ben,
   addingReq_Res_Ben,
-  id,
+  section_id,
 }) {
-  // Stable keys — never change on typing, only on add/delete
-  const stableKeysRef = useRef(
-    data_prop.map((_, i) => `${id}-${i}-${Date.now() + i}`),
-  );
-
-  // Sync keys array length if data_prop grows (safety net)
-  while (stableKeysRef.current.length < data_prop.length) {
-    stableKeysRef.current.push(
-      `${id}-${stableKeysRef.current.length}-${Date.now()}`,
-    );
-  }
-
-  const handleDelete = (index) => {
-    // Remove key at the deleted index so remaining keys stay in sync
-    stableKeysRef.current.splice(index, 1);
-    deletingReq_Res_Ben(id, index);
+  // Remove key at the deleted index so remaining keys stay in sync
+  const handleDelete = (key) => {
+    deletingReq_Res_Ben(section_id, key);
   };
 
-  const handleAdd = () => {
-    // Push a new unique key for the new item
-    stableKeysRef.current.push(
-      `${id}-${stableKeysRef.current.length}-${Date.now()}`,
-    );
-    addingReq_Res_Ben();
+  // handling input change: sending the section id, key, and value
+  const handleInputChange = (value, key) => {
+    updateReq_Res_Ben(section_id, key, value);
   };
 
   return (
     <div className="flex flex-col gap-3 w-full items-start justify-start">
-      {data_prop.map((text, i) => (
+      {Object.entries(data_prop?.[0] || {}).map(([key, value]) => (
         <div
-          key={stableKeysRef.current[i]} // stable — never changes on typing
+          key={`prop-0-${key}`}
           className="w-full flex gap-1 flex-row items-center justify-start"
         >
           <Input
-            id={`${i}:${id}`}
-            default_value={text || ""}
-            onchange={updateReq_Res_Ben}
+            id={key}
+            value={value}
+            onchange={handleInputChange}
             class_name="py-1 px-2 rounded-small border border-light/60 focus:outline-none focus:ring-1 ring-nevy_blue w-full"
           />
           <span
             className={`cursor-pointer transition-opacity ${
-              data_prop.length === 1 ? "opacity-30 pointer-events-none" : ""
+              Object.entries(data_prop?.[0]).length > 1
+                ? ""
+                : "opacity-30 pointer-events-none"
             }`}
-            onClick={() => data_prop.length > 1 && handleDelete(i)}
+            onClick={() => handleDelete(key)}
           >
             <Icon icon="ri-close-line" class_name={icon_class} />
           </span>
@@ -63,7 +49,7 @@ function RequirementsEditComponent({
       ))}
 
       <div
-        onClick={handleAdd}
+        onClick={() => addingReq_Res_Ben(section_id)}
         className="cursor-pointer hover:scale-105 transition-all"
       >
         <Label

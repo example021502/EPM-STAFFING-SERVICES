@@ -6,6 +6,11 @@ function UrgentJob({ priority, heading, label, handle_update_form }) {
   //local checking or unchecking the urgent checkbox
   const [check, setCheck] = useState(priority);
 
+  // updater function to update the parent form state when checkbox is toggled
+  const updater = () => {
+    handle_update_form(check, "priority");
+  };
+
   return (
     <div
       className={`flex text-text_b flex-row gap-4 p-2 rounded-small w-full items-center justify-start border border-highLightBorder bg-red-light/40`}
@@ -13,10 +18,7 @@ function UrgentJob({ priority, heading, label, handle_update_form }) {
       <input
         type={"checkbox"}
         className={"w-5 h-5"}
-        onChange={(e) => (
-          setCheck(e.target.checked),
-          handle_update_form(e.target.checked, "priority")
-        )}
+        onChange={(e) => (setCheck(e.target.checked), updater())}
         checked={check}
       />
       <div className="flex flex-col items-start justify-start">
