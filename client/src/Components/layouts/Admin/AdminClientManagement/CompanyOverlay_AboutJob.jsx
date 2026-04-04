@@ -21,7 +21,7 @@ function CompanyOverlay_AboutJob({
   const job_name = job?.job_name || "N/A";
   const company_name = company?.company_name || "N/A";
 
-  const job_id = sessionStorage.getItem("selected_job_id");
+  const job_id = job?.job_id;
   const getDate = (rawDate) => {
     if (!rawDate) return "N/A";
     const [date, time] = rawDate.split("T");
@@ -47,7 +47,7 @@ function CompanyOverlay_AboutJob({
     {
       label: "Experience",
       icon: "ri-time-line",
-      value: `${job?.experience_years} years` || "N/A",
+      value: job?.experience_years ? `${job.experience_years} years` : "N/A",
     },
     {
       label: "Applicants",

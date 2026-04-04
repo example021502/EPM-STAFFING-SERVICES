@@ -12,13 +12,17 @@ import { showSuccess } from "../../../../utils/toastUtils.js";
 function AdminCompanyOverview() {
   const { candidates, deleteCandidate, updateCandidate } =
     useContext(Candidates_context) || {};
+
   const { jobs } = useContext(Jobs_context) || {};
   const [viewProfile, setViewProfile] = useState(false);
   const [del_candidate, setDel_candidate] = useState(false);
   const [manageProfile, setManageProfile] = useState(false);
 
   const selected_job_id = sessionStorage.getItem("selected_job_id");
-  const job = jobs[selected_job_id];
+  // Handle both object-based (dummy data) and array-based (backend) jobs
+  const job = Array.isArray(jobs)
+    ? jobs.find((j) => j.job_id === selected_job_id || j.id === selected_job_id)
+    : jobs[selected_job_id];
 
   const [candidate, setCandidate] = useState({});
   const [cand_index, setCand_index] = useState("");
@@ -103,9 +107,11 @@ function AdminCompanyOverview() {
 
   return (
     <div className="w-full p-4 h-full flex flex-col items-center overflow-y-auto no-scrollbar overflow-x-hidden justify-start gap-10">
-      <div className="w-full flex border-2 rounded-small p-8 bg-highlightBackground border-highLightBorder">
-        <CompanyRequirements job={job} />
-      </div>
+      {job && (
+        <div className="w-full flex border-2 rounded-small p-8 bg-highlightBackground border-highLightBorder">
+          <CompanyRequirements job={job} />
+        </div>
+      )}
       <SearchCandidate setSearchKey={setSearch_key} />
       <div className="flex flex-col items-start justify-start gap-1 w-full">
         <CandidatesTabel

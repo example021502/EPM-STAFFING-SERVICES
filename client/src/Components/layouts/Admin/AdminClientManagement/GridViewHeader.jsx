@@ -3,27 +3,32 @@ import Label from "../../../common/Label";
 import FollowLabel from "../common/FollowLabel";
 import NameInitials from "../../../common/NameInitials";
 
-function GridViewHeader({ company, companyId, isActive, handleFollowChange }) {
-  const { company_info } = company || {};
+function GridViewHeader({
+  company,
+  companyId,
+  isActive,
+  hasFollowers,
+  totalOpenings,
+  handleFollowChange,
+}) {
+  const companyName = company?.company_name || "N/A";
+  const industryType = company?.industry_type || "N/A";
+
   return (
     <header
       className={`flex gap-2 relative flex-row w-full items-center justify-start border-b border-lighter/30 pb-3`}
     >
-      <NameInitials
-        name={company_info[0]?.company_name || "N/A"}
-        bg="5629dc"
-        class_name="w-10 h-10"
-      />
+      <NameInitials name={companyName} bg="5629dc" class_name="w-10 h-10" />
 
       <div className="flex flex-col items-start justify-center overflow-hidden flex-1">
         <Label
-          text={company_info[0]?.company_name || "N/A"}
+          text={companyName}
           class_name="text-md font-semibold truncate w-[70%] text-text_b leading-tight"
         />
 
         <div className="flex flex-row text-[8px] font-semibold items-center justify-start gap-2 mt-1 uppercase tracking-wide">
           <Label
-            text={company_info[0]?.industry_type || "N/A"}
+            text={industryType}
             class_name="px-2 py-0.5 rounded-small bg-lighter text-text_b_l border border-lighter"
           />
           <div className="flex items-center gap-1.5 ml-1">
@@ -34,13 +39,13 @@ function GridViewHeader({ company, companyId, isActive, handleFollowChange }) {
               aria-hidden="true"
             />
             <Label
-              text={status}
+              text={isActive ? "Active" : "Inactive"}
               class_name={isActive ? "text-Darkgold" : "text-nevy_blue"}
             />
           </div>
           <div className="w-fit flex items-center justify-center">
             <FollowLabel
-              status={company_info[0]?.follow_status || "N/A"}
+              status={hasFollowers ? "Following" : "Not Following"}
               class_name={"text-[clamp(1em,1vw,1.2em)] py-0.5"}
               onToggle={() => handleFollowChange(companyId)}
             />
@@ -50,17 +55,17 @@ function GridViewHeader({ company, companyId, isActive, handleFollowChange }) {
 
       <div
         className="flex absolute -top-1 right-0 flex-row-reverse items-center ml-auto justify-center"
-        aria-label={`${company_info[0]?.open_positions || "N/A"} open positions`}
+        aria-label={`${totalOpenings} open positions`}
       >
         <Label
           as="span"
-          text={company_info[0]?.open_positions || "N/A"}
+          text={totalOpenings}
           class_name="text-lg font-bold text-text_b"
         />
         <Label
           as="span"
           text="Openings"
-          class_name="text-[10px] font- opacity-70"
+          class_name="text-[10px] font-bold opacity-70"
         />
       </div>
     </header>

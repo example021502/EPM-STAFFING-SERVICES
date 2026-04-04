@@ -239,7 +239,7 @@ function EditCardDetails({ setEditJobPost, job }) {
 
             <LabelInput
               onchange={handle_update_form}
-              id="job title"
+              id={"job_name"}
               text="Job Title"
               default_value={job?.job_name || "N/A"}
               label_class_name={label_class_name}
