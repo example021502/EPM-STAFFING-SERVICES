@@ -27,10 +27,18 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
   const { jobs } = useContext(Jobs_context);
   const { company_accounts } = useContext(Company_context);
   const { addCandidate } = useContext(Candidates_context);
-  const job_id = Object.keys(jobs).find((key) => jobs[key] === job);
-  const company_id = Object.keys(company_accounts).find(
-    (key) => company_accounts[key] === company,
-  );
+
+  // Find job_id from jobs array or object
+  const job_id = Array.isArray(jobs)
+    ? jobs.findIndex((j) => j === job)
+    : Object.keys(jobs).find((key) => jobs[key] === job);
+
+  // Find company_id from company_accounts array or object
+  const company_id = Array.isArray(company_accounts)
+    ? company_accounts.findIndex((acc) => acc === company)
+    : Object.keys(company_accounts).find(
+        (key) => company_accounts[key] === company,
+      );
 
   const [skills, setSkills] = useState([""]);
   const [resume, setResume] = useState("");
@@ -117,8 +125,8 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
       className="w-[40%] max-h-full bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
     >
       <Header
-        heading={company.name}
-        candidate_name={job["job title"]}
+        heading={company?.company_name}
+        candidate_name={job?.job_name}
         handleClosingModal={() => setClosing(false)}
       />
       <div className="w-full relative flex flex-col items-center justify-start gap-6 p-4 overflow-y-auto no-scrollbar">
@@ -132,7 +140,7 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
         />
         <div className="w-full grid grid-cols-2 items-center justify-center gap-4">
           {FORM_ELEMENTS.map((el, i) => {
-            const isContract = el.id === "contract type";
+            const isContract = el.id === "job_type";
             return isContract ? (
               <ContractType_input
                 key={`element-${i}`}

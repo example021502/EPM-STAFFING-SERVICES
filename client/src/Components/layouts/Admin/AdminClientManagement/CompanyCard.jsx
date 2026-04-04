@@ -45,20 +45,20 @@ const CompanyCard = ({ companyId, company, handleFollowChange }) => {
       <div
         className={`flex flex-row w-full gap-4 items-center justify-between`}
         role="group"
-        aria-label="Job Statistics"
+        aria-label="Company Statistics"
       >
         {/* Number of active jobs */}
         <Active_Pending_jobs
           isGrid={isGrid}
           icon="ri-suitcase-line"
           label="Active Jobs"
-          number_of_jobs={company?.jobs.length}
+          number_of_jobs={company?.jobs?.length || 0}
         />
         {/* Registration Number */}
         <Active_Pending_jobs
           isGrid={isGrid}
-          icon="ri-time-line"
-          label="Registration Number"
+          icon="ri-id-card-line"
+          label="CIN Number"
           number_of_jobs={company?.registration_number || "N/A"}
         />
       </div>

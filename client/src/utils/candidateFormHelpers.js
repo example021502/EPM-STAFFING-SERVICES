@@ -62,8 +62,16 @@ export const CANDIDATE_FORM_INITIAL_STATE = (jobId, companyId) => ({
 });
 
 export const FORM_ELEMENTS = [
-  { label: "Email*", id: "email", type: "email" },
-  { label: "Phone*", id: "phone number", type: "tel" },
+  {
+    label: "Email*",
+    id: "email",
+    type: "email",
+  },
+  {
+    label: "Phone*",
+    id: "phone number",
+    type: "tel",
+  },
   { label: "Location*", id: "location", type: "text" },
   { label: "Job type*", id: "contract type", type: "text" },
   { label: "Current CTC*", id: "current ctc", type: "text" },
