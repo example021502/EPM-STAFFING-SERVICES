@@ -3,26 +3,18 @@ import LabelInput from "../../../common/LabelInput";
 import LabelTextArea from "../../../common/LabelTextArea";
 
 function EditComponentAnchor({ card, handleInputChange }) {
+  // input classes for consistent styling
   const input_class =
     "border border-light/60 focus:outline-none focus:ring-1 ring-nevy_blue w-full rounded-small p-2 placeholder-lighter";
 
+  // label class for consistent styling
   const label_class = "font-semibold text-sm text-text";
-
-  const getCTC = (min_or_max) => {
-    const range = card?.salary;
-    if (!range) return "";
-    const parts = range.split("-");
-    const min = parts[0]?.trim();
-    const max = parts[1]?.trim();
-    return min_or_max === "min" ? min || "" : max || "";
-  };
 
   const get_Date = () => {
     const raw = card?.deadline;
     if (!raw) return "";
-    const parsed = new Date(raw);
-    if (isNaN(parsed)) return "";
-    return parsed.toISOString().split("T")[0];
+    // Convert to YYYY-MM-DD format for date input
+    return raw.split("T")[0];
   };
 
   const jobTypeOptions = ["full-time", "part-time", "internship", "contract"];
@@ -42,11 +34,11 @@ function EditComponentAnchor({ card, handleInputChange }) {
       id1: "salary_min",
       label1: "Offer CTC Min (PA)",
       type1: "number",
-      value1: getCTC("min"),
+      value1: card?.salary_min || 0,
       id2: "salary_max",
       label2: "Offer CTC Max (PA)",
       type2: "number",
-      value2: getCTC("max"),
+      value2: card?.salary_max || 0,
     },
     {
       id1: "experience",
@@ -123,7 +115,7 @@ function EditComponentAnchor({ card, handleInputChange }) {
       <LabelTextArea
         id={"description"}
         text={"Job Description"}
-        default_value={card?.description || ""}
+        default_value={card?.job_description || ""}
         onchange={handleInputChange}
         placeholder={"Type the Job description here..."}
         label_class_name={label_class}

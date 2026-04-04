@@ -23,7 +23,7 @@ const FetchButton = ({ label = "Fetch Data" }) => {
 
       const res = await getClientManagementData(1);
 
-      console.log(res);
+      console.log(res.data);
     } catch (error) {
       console.error("Fetch error:", error);
     } finally {

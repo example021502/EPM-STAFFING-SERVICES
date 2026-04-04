@@ -35,7 +35,7 @@ function ClientManagementCards({ clients = {} }) {
         }`}
       >
         <AnimatePresence>
-          {clients.map((company, i) => {
+          {clients?.map((company, i) => {
             return (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -47,13 +47,13 @@ function ClientManagementCards({ clients = {} }) {
                 {view === "list" ? (
                   <ListView
                     company={company}
-                    companyId={company.id}
+                    companyId={company.user_id}
                     handleFollowChange={handleFollowChange}
                   />
                 ) : (
                   <div>
                     <CompanyCard
-                      companyId={company.id}
+                      companyId={company.user_id}
                       company={company}
                       handleFollowChange={handleFollowChange}
                     />

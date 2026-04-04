@@ -11,8 +11,6 @@ function ListFirstPart({
   status,
   follow_status,
 }) {
-  const isActive = status === "Active";
-
   return (
     <div className="flex gap-2 flex-1 flex-row items-center justify-between">
       <div className="flex flex-row items-center justify-start gap-2">
@@ -32,14 +30,18 @@ function ListFirstPart({
             <div className="flex items-center gap-1.5 ml-1">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  isActive ? "bg-Darkgold" : "bg-nevy_blue"
+                  status ? "bg-Darkgold" : "bg-nevy_blue"
                 }`}
                 aria-hidden="true"
               />
               <Label
                 as="span"
                 text={status}
-                class_name={isActive ? "text-Darkgold" : "text-nevy_blue"}
+                class_name={
+                  status.toLocaleLowerCase() === "active"
+                    ? "text-Darkgold"
+                    : "text-nevy_blue"
+                }
               />
             </div>
           </div>

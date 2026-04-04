@@ -5,13 +5,13 @@ export const formatValue = (val) => {
 
   if (num >= 100000) {
     const lakhs = num / 100000;
-    return `${lakhs} Lakhs`;
+    return `₹${lakhs} Lakhs`;
   }
 
   if (num >= 1000) {
     const thousands = num / 1000;
-    return `${thousands}K`;
+    return `₹ ${thousands}K`;
   }
 
-  return num.toString();
+  return `₹ ${num.toString()}`;
 };

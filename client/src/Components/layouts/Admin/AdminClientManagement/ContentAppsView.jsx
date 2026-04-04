@@ -11,7 +11,6 @@ function ContentAppsView() {
   // loader Function for fetching data on component mount
   const get_user_accounts = async () => {
     const result = await getClientManagementData(1);
-    console.log(result);
     setCompanyAccounts(result.data);
   };
 
@@ -136,7 +135,7 @@ function ContentAppsView() {
         {/* ================= DISPLAY CLIENTS ================= */}
 
         {/* If no clients found */}
-        {Object.values(filteredClients).length === 0 ? (
+        {filteredClients.length === 0 ? (
           <div className="w-full h-full flex flex-col items-center justify-center">
             <p className="font-semibold text-text_l_b/60 text-[clamp(1em,2vw,1.2em)]">
               Nothing to Display
