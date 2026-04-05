@@ -47,7 +47,7 @@ export const insertController = async (req, res) => {
 // upload pdf
 export const uploadPdfController = async (req, res) => {
   try {
-    const { file_name, candidate_id } = req.body;
+    const { folder_name, candidate_id } = req.body;
     const file = req.file;
 
     if (!file) {
@@ -64,7 +64,7 @@ export const uploadPdfController = async (req, res) => {
       .replace(/\s+/g, "-")
       .replace(/[^a-zA-Z0-9.-]/g, "");
 
-    const fileName = `${file_name}/${Date.now()}-${cleanName}`;
+    const fileName = `${folder_name}/${Date.now()}-${cleanName}`;
 
     const { error } = await supabase.storage
       .from("documents")
@@ -83,7 +83,7 @@ export const uploadPdfController = async (req, res) => {
 
     const readyData = {
       candidate_id,
-      file_name,
+      file_name: folder_name,
       file_url: publicUrlData.publicUrl,
       file_type: file.mimetype,
     };

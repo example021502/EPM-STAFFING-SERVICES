@@ -1,79 +1,172 @@
 import { useState } from "react";
+import { submitCandidates } from "../Components/layouts/Admin/AdminClientManagement/end-point-function/client_management";
 
-const API_ROUTES = import.meta.env.VITE_URL;
+export default function CandidateForm() {
+  const [form, setForm] = useState({
+    email: "",
+    phone: "",
+    location: "",
+    job_type: "",
+    expected_ctc: "",
+    current_ctc: "",
+    gender: "",
+    date_of_birth: "",
+    linkedin: "",
+    notice_period_days: "",
+    description: "",
+  });
 
-export default function UploadPDF() {
-  const [file, setFile] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  // handle input change
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage("Please select a PDF file");
-      return;
-    }
+  // handle file
+  const handleFileChange = (e) => {
+    setResumeFile(e.target.files[0]);
+  };
 
-    const formData = new FormData();
-    formData.append("pdf", file);
-    formData.append("candidate_id", "20e7b1c5-ae36-4026-b103-d8b02a9a9331");
-    formData.append("file_name", "resumes");
-
-    console.log(formData.get("pdf"));
+  // submit form
+  const handleSubmit = async () => {
+    setLoading(true);
+    setMessage("");
 
     try {
-      const res = await fetch(`${API_ROUTES}/api/candidates/upload/pdf`, {
-        method: "POST",
-        body: formData,
-      });
+      const res = await submitCandidates(
+        true,
+        "352550c0-d299-469c-9ed6-93cbaa0a9186",
+        form.email,
+        form.phone,
+        form.location,
+        form.job_type,
+        form.expected_ctc,
+        form.current_ctc,
+        form.gender,
+        form.date_of_birth,
+        form.linkedin,
+        form.notice_period_days,
+        form.description,
+        resumeFile,
+        null,
+        null,
+      );
 
-      const data = await res.json();
-
-      console.log(data);
-
-      setMessage(data.message || "Upload successful");
-    } catch (error) {
-      console.error(error);
-      setMessage("Upload failed");
+      if (!res.success) {
+        setMessage(res.message);
+      } else {
+        setMessage("Candidate submitted successfully");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Something went wrong");
     }
+
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black text-white">
-      <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl w-[350px]">
-        <h2 className="text-2xl font-bold mb-4 text-center">Upload PDF</h2>
+      <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl w-[400px] space-y-4">
+        <h2 className="text-2xl font-bold text-center">Candidate Form</h2>
 
-        {/* File Input */}
+        {/* Inputs */}
+        <input
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="phone"
+          placeholder="Phone"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="location"
+          placeholder="Location"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="job_type"
+          placeholder="Job Type"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="expected_ctc"
+          placeholder="Expected CTC"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="current_ctc"
+          placeholder="Current CTC"
+          onChange={handleChange}
+          className="input"
+        />
+
+        <select name="gender" onChange={handleChange} className="input">
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+
+        <input
+          type="date"
+          name="date_of_birth"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="linkedin"
+          placeholder="LinkedIn URL"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="notice_period_days"
+          placeholder="Notice Period (days)"
+          onChange={handleChange}
+          className="input"
+        />
+
+        <textarea
+          name="description"
+          placeholder="Description"
+          onChange={handleChange}
+          className="input"
+        />
+
+        {/* File Upload */}
         <input
           type="file"
           accept="application/pdf"
           onChange={handleFileChange}
-          className="w-full text-sm text-gray-300 
-                     file:mr-4 file:py-2 file:px-4 
-                     file:rounded-lg file:border-0 
-                     file:text-sm file:font-semibold 
-                     file:bg-purple-600 file:text-white 
-                     hover:file:bg-purple-700 cursor-pointer"
+          className="text-sm file:bg-purple-600 file:text-white file:px-4 file:py-2 file:rounded-lg"
         />
 
-        {/* File Name */}
-        {file && (
-          <p className="mt-3 text-sm text-gray-300">Selected: {file.name}</p>
+        {resumeFile && (
+          <p className="text-sm text-gray-300">Selected: {resumeFile.name}</p>
         )}
 
-        {/* Upload Button */}
+        {/* Submit */}
         <button
-          onClick={handleUpload}
-          className="mt-5 w-full bg-purple-600 hover:bg-purple-700 transition-all duration-300 py-2 rounded-lg font-semibold"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-lg font-semibold"
         >
-          Upload
+          {loading ? "Submitting..." : "Submit"}
         </button>
 
         {/* Message */}
         {message && (
-          <p className="mt-4 text-center text-sm text-green-400">{message}</p>
+          <p className="text-center text-sm text-green-400">{message}</p>
         )}
       </div>
     </div>
