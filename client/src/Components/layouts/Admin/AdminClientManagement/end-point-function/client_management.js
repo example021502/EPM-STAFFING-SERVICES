@@ -137,7 +137,7 @@ export const submitCandidates = async (
   resumeFile,
   coverFile,
   portfolioFile,
-  skills, // Object
+  skills, //object
 ) => {
   const readyCandidate = {
     active,
