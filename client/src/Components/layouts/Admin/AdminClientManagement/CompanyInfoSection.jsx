@@ -19,9 +19,7 @@ function CompanyInfoSection({
               key={`element-${i}`}
               icon={el.icon}
               label={el.label}
-              value={
-                company[el.key] || company[el.label.toLowerCase()] || "N/A"
-              }
+              value={el.value}
             />
           ))}
         </div>
@@ -43,7 +41,7 @@ function CompanyInfoSection({
         <Label text={"Notes (Description)"} class_name={heading_class} />
         <div className="w-full flex flex-row items-start justify-start gap-1 p-2 bg-nevy_blue/10 rounded-small">
           <Icon icon={"ri-file-text-line"} class_name="text-lg w-5 h-5" />
-          <Label text={company.description} class_name={""} />
+          <Label text={company?.company_description} class_name={""} />
         </div>
       </div>
     </div>

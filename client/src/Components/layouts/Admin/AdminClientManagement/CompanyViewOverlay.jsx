@@ -9,8 +9,6 @@ import CompanyOverlay_SubmitCandidate from "./CompanyOverlay_SubmitCandidate";
 import CompanyInfoSection from "./CompanyInfoSection";
 import CompanyJobsGrid from "./CompanyJobsGrid";
 import {
-  getCompanyKey,
-  getRelatedJobs,
   getTotalCandidates,
   getDaysPosted,
   CONTACT_ELEMENTS,
@@ -23,19 +21,16 @@ function CompanyViewOverlay({ company, setClosing }) {
   const [submitCandidate, setSubmitCandidate] = useState(false);
   const [viewJob, setViewJob] = useState(false);
 
-  const { jobs } = useContext(Jobs_context);
   const { company_accounts } = useContext(Company_context);
   const { candidates } = useContext(Candidates_context);
 
   if (!company || !company_accounts) return showInfo("Something went wrong!");
 
-  const comp_key = getCompanyKey(company_accounts, company);
-  const related_job_keys = getRelatedJobs(jobs, comp_key);
   const heading_class =
     "font-semibold text-[clamp(1em,1vw,1.2em)] pb-1 mb-2 border-b w-full border-lighter";
 
   const handleClicking = (name, jobData) => {
-    const job_id = Object.keys(jobs).find((key) => jobs[key] === jobData);
+    const job_id = jobData?.job_id;
     setJob(jobData);
     if (name === "View") {
       setViewJob(true);
@@ -61,25 +56,24 @@ function CompanyViewOverlay({ company, setClosing }) {
           className="w-[40%] max-h-full bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
         >
           <Header
-            heading={company.name}
-            candidate_name={company.field}
+            heading={company?.company_name || "N/A"}
+            candidate_name={company?.industry_type || "N/A"}
             handleClosingModal={() => setClosing(false)}
           />
           <div className="overflow-y-auto no-scrollbar w-full h-full gap-10 flex flex-col items-center justify-start p-4">
             <CompanyInfoSection
               company={company}
-              contactElements={CONTACT_ELEMENTS}
+              contactElements={CONTACT_ELEMENTS(company)}
               businessDetails={BUSINESS_DETAILS(company)}
               heading_class={heading_class}
             />
             <CompanyJobsGrid
-              relatedJobs={related_job_keys}
-              jobs={jobs}
+              jobs={company?.jobs || []}
               candidates={candidates}
               onJobAction={handleClicking}
               heading_class={heading_class}
-              getTotal={(k) => getTotalCandidates(candidates, k)}
-              getDays={(k) => getDaysPosted(jobs, k)}
+              // getTotal={(job_id) => getTotalCandidates(job_id)}
+              getDays={(created_at) => getDaysPosted(created_at)}
             />
           </div>
         </motion.div>
@@ -92,8 +86,8 @@ function CompanyViewOverlay({ company, setClosing }) {
             className="w-full h-full absolute p-4 top-0 bg-light_black left-0 flex items-center justify-center z-202"
           >
             <CompanyOverlay_AboutJob
-              job={job}
-              company={company}
+              job={job || {}}
+              company={company || {}}
               setViewJob={setViewJob}
               heading_class={heading_class}
               openCompanyOverlay={() => setClosing(true)}

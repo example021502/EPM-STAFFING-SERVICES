@@ -18,33 +18,46 @@ function CompanyOverlay_AboutJob({
   openCompanyOverlay,
 }) {
   const navigate = useNavigate();
-  const job_name = job["job title"];
-  const company_name = company.name;
+  const job_name = job?.job_name || "N/A";
+  const company_name = company?.company_name || "N/A";
 
   const job_id = sessionStorage.getItem("selected_job_id");
+  const getDate = (rawDate) => {
+    if (!rawDate) return "N/A";
+    const [date, time] = rawDate.split("T");
+    return `${date} | ${time.split(".")[0]}`;
+  };
 
   const elements = [
-    { label: "Location", icon: "ri-map-pin-line", value: job.location },
+    {
+      label: "Location",
+      icon: "ri-map-pin-line",
+      value: job?.location || "N/A",
+    },
     {
       label: "Job Type",
       icon: "ri-suitcase-line",
-      value: job["contract type"],
+      value: job?.job_type || "N/A",
     },
     {
       label: "Expected CTC",
       icon: "ri-wallet-line",
-      value: getSalaryRange(job["expected ctc"]),
+      value: getSalaryRange(job?.salary_max, job?.salary_min) || "N/A",
     },
     {
       label: "Experience",
       icon: "ri-time-line",
-      value: job["experience required"],
+      value: `${job?.experience_years} years` || "N/A",
     },
-    { label: "Applicants", icon: "ri-group-line", value: job.applicants },
+    {
+      label: "Applicants",
+      icon: "ri-group-line",
+      value: job?.max_application || "N/A",
+    },
     {
       label: "Application Deadline",
       icon: "ri-calendar-line",
-      value: job["application deadline"],
+      value: getDate(job?.deadline),
     },
   ];
 
@@ -110,7 +123,7 @@ function CompanyOverlay_AboutJob({
                 <Label text={"Job Description"} class_name={""} />
               </div>
               <Label
-                text={job["job description"]}
+                text={job?.job_description || "N/A"}
                 class_name={"w-full p-2 rounded-small bg-nevy_blue/10"}
               />
             </div>
@@ -135,6 +148,7 @@ function CompanyOverlay_AboutJob({
         <EditCardDetails
           setEditJobPost={setEditJobPost}
           setViewJob={setViewJob}
+          job={job}
         />
       )}
     </>

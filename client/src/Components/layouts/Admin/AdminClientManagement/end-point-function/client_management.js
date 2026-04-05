@@ -16,7 +16,6 @@ import { uploadPdfService } from "../../../../../services/candidate.service";
 // Get client info => #Admin@1
 export const getClientManagementData = async (page = 1) => {
   const data = await getClientManagementService(page);
-
   return data;
 };
 
