@@ -137,11 +137,7 @@ export const submitCandidates = async (
   resumeFile,
   coverFile,
   portfolioFile,
-<<<<<<< Updated upstream
-  skills, // Object
-=======
   skills, //object
->>>>>>> Stashed changes
 ) => {
   const readyCandidate = {
     active,

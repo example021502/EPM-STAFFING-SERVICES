@@ -82,15 +82,6 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
           "Any initialized skill field must be filled or removed!!",
         );
 
-<<<<<<< Updated upstream
-      const candidateToAdd = {
-        ...candidate_form,
-        skills: [{ ...skills }],
-        resume: resume,
-        "cover letter": cover_letter ? cover_letter : "",
-        portfolio: portfolio ? portfolio : "",
-      };
-=======
       const {
         name,
         email,
@@ -108,7 +99,6 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
         cover_letter,
         portfolio,
       } = candidate_form;
->>>>>>> Stashed changes
 
       try {
         await submitCandidates(
