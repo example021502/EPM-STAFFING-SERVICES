@@ -5,7 +5,7 @@ import {
   getClientManagementData,
   updatefollowClient,
   updateListJob,
-  saveCandidates,
+  saveClients,
   deleteClient,
 } from "../Components/layouts/Admin/AdminClientManagement/end-point-function/client_management";
 
@@ -16,7 +16,7 @@ const FetchButton = ({ label = "Fetch Data" }) => {
     try {
       setLoading(true);
 
-      const res = await saveCandidates(
+      const res = await saveClients(
         "0755b375-7bd4-4583-96d8-605d640e2cd9",
         "India",
         "India",

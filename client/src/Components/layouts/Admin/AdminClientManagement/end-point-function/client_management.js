@@ -71,7 +71,7 @@ export const deleteClient = async (jobId) => {
 };
 
 // save client info ==> #Admin@5
-export const saveCandidates = async (
+export const saveClients = async (
   clientId,
   companyName,
   description,
