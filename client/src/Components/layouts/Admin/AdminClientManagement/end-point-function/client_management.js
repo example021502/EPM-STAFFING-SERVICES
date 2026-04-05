@@ -127,6 +127,7 @@ export const saveClients = async (
 export const submitCandidates = async (
   active = true,
   job_id,
+  candidate_name,
   email,
   phone,
   location,
@@ -146,6 +147,7 @@ export const submitCandidates = async (
   const readyCandidate = {
     active,
     job_id,
+    candidate_name,
     email,
     phone,
     location,
