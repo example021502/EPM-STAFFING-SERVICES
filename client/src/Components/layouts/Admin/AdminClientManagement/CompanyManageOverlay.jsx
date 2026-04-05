@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import Label from "../../../common/Label";
 import { motion, AnimatePresence } from "framer-motion";
 import Icon from "../../../common/Icon";
@@ -9,7 +9,13 @@ import { Company_context } from "../../../../context/AccountsContext";
 import DeleteComponent from "../common/DeleteComponent";
 import { showError, showSuccess, showInfo } from "../../../../utils/toastUtils";
 
+import {
+  deleteClient,
+  saveClients,
+} from "./end-point-function/client_management";
+
 function CompanyManageOverlay({ company, setClosing }) {
+  // fallback display for missing company information
   if (!company)
     return (
       <div className="w-full h-full flex items-center justify-center bg-lighter p-2">
@@ -19,44 +25,49 @@ function CompanyManageOverlay({ company, setClosing }) {
       </div>
     );
 
-  const { updateWholeCompany, deleteCompany, company_accounts } =
-    useContext(Company_context);
-  const comp_id = Object.keys(company_accounts || {}).find(
-    (key) => (company_accounts?.[key] || {}) === company,
-  );
+  //  distructuring important information
+  const {
+    user_id,
+    company_description,
+    company_name,
+    email,
+    phone,
+    street,
+    city,
+    state,
+    pin_code,
+    registration_number,
+  } = company;
+
+  // local company information : to allow editing
+  const [company_form, setCompany_form] = useState({
+    company_name: company_name,
+    email: email,
+    phone: phone,
+    street: street,
+    city: city,
+    state: state,
+    pin_code: pin_code,
+    registration_number: registration_number,
+    company_description: company_description,
+  });
+
+  // Input elements
   const elements = [
-    { label: "Email", value: company?.email, id: "email" },
-    { label: "Phone", value: company?.["phone number"], id: "phone number" },
-    { label: "Location", value: company?.address, id: "address" },
+    { label: "Email", value: company_form?.email || "--", id: "email" },
+    { label: "Phone", value: company_form?.phone, id: "phone" },
+    { label: "Street", value: company_form?.street, id: "street" },
+    { label: "City", value: company_form?.city, id: "city" },
+    { label: "State", value: company_form?.state, id: "state" },
+    { label: "Pin Code", value: company_form?.pin_code, id: "pin_code" },
     {
       label: "CIN",
-      value: company?.["registration number"],
-      id: "registration number",
+      value: company_form?.registration_number,
+      id: "registration_number",
     },
   ];
 
-  const [company_form, setCompany_form] = useState({
-    ...company,
-    name: "",
-    email: "",
-    "phone number": "",
-    address: "",
-    "registration number": "",
-    description: "",
-  });
-
-  useEffect(() => {
-    setCompany_form({
-      ...company,
-      name: company?.name,
-      email: company?.email,
-      "phone number": company?.["phone number"],
-      address: company?.address,
-      "registration number": company?.["registration number"],
-      description: company?.description,
-    });
-  }, [company]);
-
+  //
   const handleInputChange = (value, id) => {
     setCompany_form((prev) => ({ ...prev, [id]: value }));
   };
@@ -68,7 +79,7 @@ function CompanyManageOverlay({ company, setClosing }) {
   const [deleteOverlay, setDeleteOverlay] = useState(false);
   const [clicked, setClicked] = useState(false);
 
-  const handleClicking = (name) => {
+  const handleClicking = async (name) => {
     setClicked(true);
     if (name === "Delete Client") {
       setDeleteOverlay(true);
@@ -76,26 +87,38 @@ function CompanyManageOverlay({ company, setClosing }) {
       const changed_fields_keys = Object.keys(company_form).filter(
         (key) => company_form[key] !== company[key],
       );
+      if (changed_fields_keys.length === 0) {
+        setClicked(false);
+        setClosing(false);
+        return showInfo("No Changes were made");
+      }
       try {
-        if (changed_fields_keys.length > 0) {
-          updateWholeCompany(comp_id, company_form);
-          showSuccess("Changes saved successfully");
-          setClicked(false);
-          setClosing(false);
-        } else {
-          showInfo("No Changes were made");
-          setClicked(false);
-          setClosing(false);
-        }
+        await saveClients(
+          user_id,
+          company_form.company_name,
+          company_form.company_description,
+          company_form.registration_number,
+          company_form.email,
+          company_form.phone,
+          company_form.street,
+          company_form.city,
+          company_form.state,
+          company_form.pin_code,
+        );
+        showSuccess("Changes saved successfully");
+        setClosing(false);
       } catch (err) {
-        showError("Failed to save changes" + err);
+        return showError("Failed to save changes: " + err);
+      } finally {
+        setClicked(false);
       }
     }
   };
 
-  const handleConfirm = () => {
+  // confirming deletion
+  const handleConfirm = async (company) => {
     try {
-      deleteCompany(comp_id);
+      await deleteClient(company?.user_id);
       showSuccess("Company deleted successfully");
       setClosing(false);
     } catch (e) {
@@ -141,8 +164,8 @@ function CompanyManageOverlay({ company, setClosing }) {
           <div className="w-full p-4 overflow-y-auto no-scrollbar flex flex-col gap-4 relative">
             <LabelInput
               onchange={handleInputChange}
-              default_value={company.name}
-              id={"name"}
+              default_value={company_form?.company_name}
+              id={"company_name"}
               text={"Company Name"}
               label_class_name={label_class}
               input_class_name={input_class}
@@ -166,8 +189,8 @@ function CompanyManageOverlay({ company, setClosing }) {
             </div>
             <LabelTextArea
               onchange={handleInputChange}
-              default_value={company["description"]}
-              id={"description"}
+              default_value={company_form?.company_description}
+              id={"company_description"}
               text={"Description"}
               label_class_name={label_class}
               textarea_class_name={input_class}
@@ -175,14 +198,13 @@ function CompanyManageOverlay({ company, setClosing }) {
             />
             <div className="w-full items-center justify-center gap-4 flex flex-row">
               {["Delete Client", "Save Updates"].map((btn, i) => {
-                const isSave = btn === "Save Updates";
                 return (
                   <Button
                     onclick={handleClicking}
                     text={btn}
                     type="button"
                     key={`btn-${i}`}
-                    class_name={`w-full flex items-center justify-center text-center bg-g_btn text-text_white p-2 rounded-small tracking-wide ${clicked ? "cursor-none" : ""}`}
+                    class_name={`w-full flex items-center justify-center cursor-pointer text-center bg-g_btn text-text_white p-2 rounded-small tracking-wide ${clicked ? "cursor-none pointer-events-none opacity-60" : ""}`}
                   />
                 );
               })}
@@ -190,7 +212,8 @@ function CompanyManageOverlay({ company, setClosing }) {
             {deleteOverlay && (
               <DeleteComponent
                 Close={setDeleteOverlay}
-                item={company.name}
+                item={company_form?.company_name}
+                company_id={company_form?.user_id}
                 handleConfirm={handleConfirm}
               />
             )}

@@ -2,8 +2,15 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Label from "../../../common/Label";
 import Button from "../../../common/Button";
+import { showInfo } from "../../../../utils/toastUtils";
 
-function DeleteComponent({ Close, item, handleConfirm }) {
+function DeleteComponent({ Close, item, handleConfirm, company_id }) {
+  const handleBtnClick = (name) => {
+    if (name === "Confirm") {
+      handleConfirm(company_id);
+    } else showInfo("Deletion action canceled");
+    Close(false);
+  };
   return (
     <div
       onClick={() => Close(false)}
@@ -25,12 +32,6 @@ function DeleteComponent({ Close, item, handleConfirm }) {
           <Label text={`⚠ Are you sure you want to delete "${item}"`} />
           <div className="flex flex-row items-center justify-center gap-2">
             {["Confirm", "Cancel"].map((btn) => {
-              const handleBtnClick = (name) => {
-                if (name === "Confirm") {
-                  handleConfirm();
-                } else showInfo("Deletion action canceled");
-                Close(false);
-              };
               const isConfirm = btn === "Confirm";
               return (
                 <Button

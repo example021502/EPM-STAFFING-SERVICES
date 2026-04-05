@@ -24,13 +24,13 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
   const input_class =
     "py-2.2 bg-light/10 p-2 w-full focus:ring-1 ring-nevy_blue focus:outline-none border text-xs border-light/40 rounded-small";
   const label_class = "font-semibold text-sm";
-  const { jobs } = useContext(Jobs_context);
-  const { company_accounts } = useContext(Company_context);
   const { addCandidate } = useContext(Candidates_context);
-  const job_id = Object.keys(jobs).find((key) => jobs[key] === job);
-  const company_id = Object.keys(company_accounts).find(
-    (key) => company_accounts[key] === company,
-  );
+
+  // Find job_id from jobs array or object
+  const job_id = job?.job_id;
+
+  // Find company_id from company_accounts array or object
+  const company_id = company?.user_id;
 
   const [skills, setSkills] = useState([""]);
   const [resume, setResume] = useState("");
@@ -43,9 +43,7 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
 
   const handleInputChange = (value, id) => {
     if (id === "date") {
-      const age = computeAgeFromDOB(value);
-      setCandidate_form((prev) => ({ ...prev, [id]: value, age }));
-      return;
+      const value = computeAgeFromDOB(value);
     }
     setCandidate_form((prev) => ({ ...prev, [id]: value }));
   };
@@ -85,9 +83,8 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
 
       const candidateToAdd = {
         ...candidate_form,
-        skills,
-        "job id": [job_id],
-        resume: resume ? resume : "",
+        skills: [{ ...skills }],
+        resume: resume,
         "cover letter": cover_letter ? cover_letter : "",
         portfolio: portfolio ? portfolio : "",
       };
@@ -117,8 +114,8 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
       className="w-[40%] max-h-full bg-b_white flex flex-col text-sm rounded-small overflow-hidden items-center justify-start"
     >
       <Header
-        heading={company.name}
-        candidate_name={job["job title"]}
+        heading={company?.company_name}
+        candidate_name={job?.job_name}
         handleClosingModal={() => setClosing(false)}
       />
       <div className="w-full relative flex flex-col items-center justify-start gap-6 p-4 overflow-y-auto no-scrollbar">
@@ -132,7 +129,7 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
         />
         <div className="w-full grid grid-cols-2 items-center justify-center gap-4">
           {FORM_ELEMENTS.map((el, i) => {
-            const isContract = el.id === "contract type";
+            const isContract = el.id === "job_type";
             return isContract ? (
               <ContractType_input
                 key={`element-${i}`}
