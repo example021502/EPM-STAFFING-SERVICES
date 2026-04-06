@@ -1,29 +1,41 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
 import { getSalaryRange } from "../common/GetSalaryRange";
-import { showInfo } from "../../../../utils/toastUtils";
 
 function CompanyRequirements({ job }) {
-  useEffect(() => {
-    if (!job) return showInfo("Something went wrong!");
-  }, [job]);
+  // Handle job being undefined or null - return early with fallback display
+  if (!job) {
+    return (
+      <div className="w-full flex flex-row items-start justify-start gap-4">
+        <Label
+          text="Job information not available"
+          class_name="text-text_l_b"
+        />
+      </div>
+    );
+  }
+
   const icons = [
     {
       icon: "₹",
       label: "Expected CTC",
-      value: getSalaryRange(job["expected ctc"]),
+      value: getSalaryRange(job?.salary_max, job?.salary_min),
     },
-    { label: "Location", icon: "ri-map-pin-line", value: job.location },
+    {
+      label: "Location",
+      icon: "ri-map-pin-line",
+      value: job?.location || "N/A",
+    },
     {
       label: "Experience",
       icon: "ri-time-line",
-      value: job["experience required"],
+      value: job?.experience_years ? `${job.experience_years} years` : "N/A",
     },
     {
       label: "Job type",
       icon: "ri-suitcase-line",
-      value: job["contract type"],
+      value: job?.job_type || "N/A",
     },
   ];
 
@@ -41,7 +53,7 @@ function CompanyRequirements({ job }) {
         <div className="flex flex-col items-start justify-start">
           <Label text={"Job Requirements"} class_name={""} />
           <Label
-            text={`${job["job title"]} - ${job["experience required"]}`}
+            text={`${job?.job_name || "N/A"} - ${job?.experience_years ? `${job.experience_years} years` : "N/A"}`}
             class_name={""}
           />
         </div>

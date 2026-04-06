@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import Icon from "../../../common/Icon";
 import Label from "../../../common/Label";
 
@@ -8,7 +8,7 @@ function UrgentJob({ priority, heading, label, handle_update_form }) {
 
   // updater function to update the parent form state when checkbox is toggled
   const updater = () => {
-    handle_update_form(check, "priority");
+    handle_update_form(check, "job_urgent");
   };
 
   return (

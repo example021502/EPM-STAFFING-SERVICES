@@ -6,7 +6,6 @@ import Button from "../../../common/Button";
 import EditComponentAnchor from "./EditJobComponentAnchor";
 import RequirementsEditComponent from "./RequirementsEditComponent";
 import JobStatus from "./JobStatus";
-import { Jobs_context } from "../../../../context/JobsContext";
 import Header from "../Candidate/Common/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { showInfo, showSuccess } from "../../../../utils/toastUtils";
@@ -25,16 +24,12 @@ function EditCardDetails({ setEditJobPost, job }) {
 
   // Feed back if job date is missing or invalid (shouldn't happen but just in case)
   if (!job) {
-    return showInfo("Something went wrong!");
+    return showInfo("Loading failed!");
   }
 
   // Handler to update form state on input changes
   const handle_update_form = (value, id) => {
-    setNewForm_data((prev) => {
-      const isStatus = id === "status";
-      const val = isStatus ? (value === false ? "InActive" : "Active") : value;
-      return { ...prev, [id]: val };
-    });
+    setNewForm_data((prev) => ({ ...prev, [id]: value }));
   };
 
   // Handler to update a specific requirement, responsibility, or benefit
@@ -129,21 +124,15 @@ function EditCardDetails({ setEditJobPost, job }) {
       return date.toISOString();
     };
 
-    const toActive = (data) => {
-      if (data == "Active") {
-        return true;
-      } else return false;
-    };
-
     const readyJobs = {
-      active: toActive(newForm_data?.status),
+      active: newForm_data?.job_status,
       urgent: newForm_data?.priority,
       job_name: newForm_data?.job_name,
       job_type: newForm_data?.job_type,
       salary_min: newForm_data?.salary_min ?? null,
       salary_max: newForm_data?.salary_max ?? null,
       experience_years: newForm_data?.experience_years,
-      max_applications: Number(newForm_data?.mazx_applications), // ensure number not string
+      max_applications: Number(newForm_data?.max_applications), // ensure number not string
       deadline: toSupabaseTimestamp(newForm_data?.deadline),
       description: newForm_data?.job_description,
       location: newForm_data?.location,
@@ -154,7 +143,7 @@ function EditCardDetails({ setEditJobPost, job }) {
         "api/dr/update/id",
         readyJobs,
         "jobs",
-        newForm_data.id,
+        newForm_data.job_id,
       );
 
       await updateByColumnNameIdService(
@@ -162,7 +151,7 @@ function EditCardDetails({ setEditJobPost, job }) {
         { requirements: { ...newForm_data.requirements } },
         "job_requirements",
         "job_id",
-        newForm_data.id,
+        newForm_data.job_id,
       );
 
       await updateByColumnNameIdService(
@@ -170,7 +159,7 @@ function EditCardDetails({ setEditJobPost, job }) {
         { responsibilities: { ...newForm_data.responsibilities } },
         "job_responsibilities",
         "job_id",
-        newForm_data.id,
+        newForm_data.job_id,
       );
 
       await updateByColumnNameIdService(
@@ -178,7 +167,7 @@ function EditCardDetails({ setEditJobPost, job }) {
         { benefits: { ...newForm_data.benefits } },
         "job_benefits",
         "job_id",
-        newForm_data.id,
+        newForm_data.job_id,
       );
 
       showSuccess("Job updated successfully!");
@@ -206,10 +195,9 @@ function EditCardDetails({ setEditJobPost, job }) {
     { id: "benefits", label: "Benefits & Perks", button: "+ Add benefit" },
   ];
 
-  const display_text =
-    job?.status === "Active"
-      ? "This job is active and candidates can apply. Applications will be reviewed by the hiring team."
-      : `This job has been ${job?.status}`;
+  const display_text = job?.job_status
+    ? "This job is active and candidates can apply. Applications will be reviewed by the hiring team."
+    : `This job has been Deactivated`;
 
   return (
     <AnimatePresence>
@@ -231,15 +219,15 @@ function EditCardDetails({ setEditJobPost, job }) {
           />
           <div className="flex overflow-y-auto no-scrollbar overflow-x-hidden gap-6 p-4 flex-col items-start justify-between w-full flex-1">
             <JobStatus
-              card={job}
+              job_status={job?.job_status}
               handle_update_form={handle_update_form}
-              heading={job?.status || "N/A"}
+              heading={"Job Status"}
               label={display_text}
             />
 
             <LabelInput
               onchange={handle_update_form}
-              id="job title"
+              id={"job_name"}
               text="Job Title"
               default_value={job?.job_name || "N/A"}
               label_class_name={label_class_name}
@@ -250,7 +238,7 @@ function EditCardDetails({ setEditJobPost, job }) {
             <UrgentJob
               heading="Mark as Urgent"
               label="This will assign a priority badge to your listing"
-              priority={job?.priority || false}
+              priority={job?.job_urgent}
               handle_update_form={handle_update_form}
             />
 

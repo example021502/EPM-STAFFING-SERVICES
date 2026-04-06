@@ -12,6 +12,15 @@ function CompanyCardTopPart({
   company,
 }) {
   const isActive = company.active;
+  // Calculate total open positions from all jobs
+  const totalOpenings = company.jobs?.length || 0;
+  // Check if company has followers (follow status)
+  const hasFollowers = company?.followers && company?.followers?.length > 0;
+
+  // toggle follow status : passing the companyId and and the follow status
+  const toggle_follow = (status) => {
+    handleFollowChange(companyId, user_id, status);
+  };
 
   return !isGrid ? (
     <header
@@ -21,7 +30,7 @@ function CompanyCardTopPart({
         className="h-12 w-12 text-white bg-d_blue rounded-small text-xl font-semibold flex items-center justify-center shrink-0 shadow-sm"
         aria-hidden="true"
       >
-        <Image link={getInitials(company.company_name || "N/As")} />
+        <Image link={getInitials(company.company_name || "N/A")} />
       </div>
 
       <div className="flex flex-col items-start justify-center overflow-hidden flex-1">
@@ -49,9 +58,9 @@ function CompanyCardTopPart({
           </div>
           <div className="w-fit flex items-center justify-center cursor-pointer">
             <FollowLabel
-              status={company.follow_status || "N/A"}
+              status={hasFollowers}
               class_name={"text-[clamp(1em,1vw,1.2em)]"}
-              onToggle={() => handleFollowChange(companyId)}
+              onToggle={toggle_follow}
             />
           </div>
         </div>
@@ -59,11 +68,11 @@ function CompanyCardTopPart({
 
       <div
         className="flex flex-col items-center ml-auto justify-center px-2 py-1 bg-hover-light/50 rounded-small shrink-0 border border-lighter/50"
-        aria-label={`${company.open_positions || "N/A"} open positions`}
+        aria-label={`${totalOpenings} open positions`}
       >
         <Label
           as="span"
-          text={company.open_positions || "N/A"}
+          text={totalOpenings}
           class_name="text-lg font-extrabold text-text_b"
         />
         <Label
@@ -78,6 +87,8 @@ function CompanyCardTopPart({
       company={company}
       companyId={companyId}
       isActive={isActive}
+      hasFollowers={hasFollowers}
+      totalOpenings={totalOpenings}
       handleFollowChange={handleFollowChange}
     />
   );

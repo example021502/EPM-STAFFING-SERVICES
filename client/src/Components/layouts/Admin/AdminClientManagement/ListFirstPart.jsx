@@ -11,6 +11,10 @@ function ListFirstPart({
   status,
   follow_status,
 }) {
+  const statusText = status ? "Active" : "Inactive";
+  const statusColor = status ? "bg-Darkgold" : "bg-nevy_blue";
+  const statusTextColor = status ? "text-Darkgold" : "text-nevy_blue";
+
   return (
     <div className="flex gap-2 flex-1 flex-row items-center justify-between">
       <div className="flex flex-row items-center justify-start gap-2">
@@ -29,20 +33,10 @@ function ListFirstPart({
             />
             <div className="flex items-center gap-1.5 ml-1">
               <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  status ? "bg-Darkgold" : "bg-nevy_blue"
-                }`}
+                className={`w-1.5 h-1.5 rounded-full ${statusColor}`}
                 aria-hidden="true"
               />
-              <Label
-                as="span"
-                text={status}
-                class_name={
-                  status.toLocaleLowerCase() === "active"
-                    ? "text-Darkgold"
-                    : "text-nevy_blue"
-                }
-              />
+              <Label as="span" text={statusText} class_name={statusTextColor} />
             </div>
           </div>
         </div>

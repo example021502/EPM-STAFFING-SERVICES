@@ -10,9 +10,24 @@ import EditCardDetails from "../../Dashboard/EditCardDetails/EditCardDetails";
 import { useNavigate } from "react-router-dom";
 import { showInfo } from "../../../../utils/toastUtils";
 
+/**
+ * CompanyOverlay_AboutJob - Displays detailed job information in an overlay
+ * Shows job details including location, type, salary, experience, deadline, description,
+ * requirements, responsibilities, and benefits. Also provides options to edit the job
+ * or view applicants.
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.job - Job data object containing all job details
+ * @param {Object} props.company - Company data object
+ * @param {Function} props.setClosing - Function to close the overlay
+ * @param {Function} props.setViewJob - Function to toggle job view
+ * @param {string} props.heading_class - CSS classes for heading styling
+ * @param {Function} props.openCompanyOverlay - Function to open company overlay
+ */
 function CompanyOverlay_AboutJob({
   job,
   company,
+  setClosing,
   setViewJob,
   heading_class,
   openCompanyOverlay,
@@ -21,7 +36,7 @@ function CompanyOverlay_AboutJob({
   const job_name = job?.job_name || "N/A";
   const company_name = company?.company_name || "N/A";
 
-  const job_id = sessionStorage.getItem("selected_job_id");
+  const job_id = job?.job_id;
   const getDate = (rawDate) => {
     if (!rawDate) return "N/A";
     const [date, time] = rawDate.split("T");
@@ -47,7 +62,7 @@ function CompanyOverlay_AboutJob({
     {
       label: "Experience",
       icon: "ri-time-line",
-      value: `${job?.experience_years} years` || "N/A",
+      value: job?.experience_years ? `${job.experience_years} years` : "N/A",
     },
     {
       label: "Applicants",
@@ -67,7 +82,9 @@ function CompanyOverlay_AboutJob({
     if (name === "Edit Job") {
       setEditJobPost(true);
     } else {
+      showInfo("Redirecting to candidates");
       setViewJob(false);
+      setClosing(false);
       navigate("admin_company_overview");
     }
     sessionStorage.setItem("selected_job_id", job_id);

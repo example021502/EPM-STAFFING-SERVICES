@@ -24,11 +24,7 @@ export const getClientManagementData = async (page = 1) => {
 
 // follow and unfollow client => #Admin@2
 // followed check follower_id or following_id
-export const updatefollowClient = async (
-  clientId,
-  adminId,
-  followed = false,
-) => {
+export const updatefollowClient = async (clientId, adminId, followed) => {
   const readyData = { follower_id: adminId, following_id: clientId };
 
   // user not follow
@@ -67,14 +63,14 @@ export const updateListJob = async (jobId, clientId, listed = false) => {
     return res;
   } else {
     const res = await removeListService(jobId, clientId);
-
     return res;
   }
 };
 
 // delete client ==> #Admin@4
-export const deleteClient = async (jobId) => {
-  const res = await deleteByIdService("api/dr/delete/id", "users", jobId);
+export const deleteClient = async (clientId) => {
+  console.log(clientId);
+  const res = await deleteByIdService("api/dr/delete/id", "users", clientId);
 
   return res;
 };
@@ -92,6 +88,7 @@ export const saveClients = async (
   state,
   pin_code,
 ) => {
+  console.log(clientId);
   const company = await updateByUserIdService(
     "api/dr/update/userId",
     {
@@ -142,7 +139,7 @@ export const submitCandidates = async (
   resumeFile,
   coverFile,
   portfolioFile,
-  skills, // Object
+  skills, //object
 ) => {
   const readyCandidate = {
     active,
@@ -151,10 +148,10 @@ export const submitCandidates = async (
     email,
     phone,
     location,
-    job_type: job_type?.toLowerCase(),
+    job_type,
     expected_ctc,
     current_ctc,
-    gender: gender?.toLowerCase(),
+    gender,
     date_of_birth,
     linkedin,
     notice_period_days: parseInt(notice_period_days),

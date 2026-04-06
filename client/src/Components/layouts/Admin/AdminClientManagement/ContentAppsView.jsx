@@ -8,6 +8,14 @@ function ContentAppsView() {
   // local accounts state
   const [companyAccounts, setCompanyAccounts] = useState(null);
 
+  // trigger states
+  const [trigger, setTrigger] = useState(false);
+
+  // refresher function
+  const refresh = () => setTrigger((prev) => !prev);
+
+  console.log(companyAccounts);
+
   // loader Function for fetching data on component mount
   const get_user_accounts = async () => {
     const result = await getClientManagementData(1);
@@ -17,7 +25,7 @@ function ContentAppsView() {
   // loader useEffect  for fetching data on component mount
   useEffect(() => {
     get_user_accounts();
-  }, []);
+  }, [trigger]);
 
   // Reference for scroll container
   const containerRef = useRef(null);
@@ -67,51 +75,47 @@ function ContentAppsView() {
     // Check if current section is "follow_clients"
     const isFollowSection = section === "follow_clients";
 
-    // Loop through all clients and filter them
-    return Object.keys(clients).reduce((filtered, key) => {
-      const client = clients[key];
+    // If clients is not an array, return empty array
+    if (!Array.isArray(clients)) {
+      return [];
+    }
 
+    // Filter clients array
+    return clients.filter((client) => {
       // 1. Check if client belongs in this section
-      const belongsInSection = isFollowSection
-        ? client["follow status"] === true
-        : true;
+      const belongsInSection = isFollowSection ? client.active === true : true;
 
-      if (!belongsInSection) return filtered;
+      if (!belongsInSection) return false;
 
-      // 2. If "Add Client" mode is ON → show only unfollowed
-      if (showUnfollowedOnly && client["follow status"] === true) {
-        return filtered;
+      // 2. If "Add Client" mode is ON → show only unfollowed (no followers)
+      if (showUnfollowedOnly && client.followers?.length > 0) {
+        return false;
       }
 
       // 3. If no search term → include client directly
       if (!searchLower) {
-        filtered[key] = client;
-        return filtered;
+        return true;
       }
 
       // 4. Match search term with multiple fields
       const matches =
-        client.name?.toLowerCase().includes(searchLower) ||
-        client.field?.toLowerCase().includes(searchLower) ||
-        client.status?.toLowerCase().includes(searchLower) ||
+        client.company_name?.toLowerCase().includes(searchLower) ||
+        client.industry_type?.toLowerCase().includes(searchLower) ||
+        client.active?.toString().toLowerCase().includes(searchLower) ||
         client.email?.toLowerCase().includes(searchLower) ||
-        client["joined date"]?.toLowerCase().includes(searchLower) ||
-        client.positions?.toString().includes(searchLower) ||
-        client["active jobs"]?.toString().includes(searchLower) ||
-        client["pending jobs"]?.toString().includes(searchLower);
+        client.user_created_at?.toLowerCase().includes(searchLower) ||
+        client.jobs?.length?.toString().includes(searchLower) ||
+        client.registration_number?.toLowerCase().includes(searchLower) ||
+        client.city?.toLowerCase().includes(searchLower) ||
+        client.state?.toLowerCase().includes(searchLower);
 
-      // If match found → add to filtered list
-      if (matches) {
-        filtered[key] = client;
-      }
-
-      return filtered;
-    }, {});
+      return matches;
+    });
   };
 
   // ================= MEMOIZED FILTERED DATA =================
   const filteredClients = useMemo(() => {
-    return filterClients(companyAccounts || {}, searchTerm);
+    return filterClients(companyAccounts || [], searchTerm);
   }, [searchTerm, companyAccounts, section]);
 
   // Handle search input change
@@ -143,7 +147,7 @@ function ContentAppsView() {
           </div>
         ) : (
           // Show client cards
-          <ClientManagementCards clients={companyAccounts} />
+          <ClientManagementCards clients={companyAccounts} refresh={refresh} />
         )}
       </div>
     </main>

@@ -6,8 +6,6 @@ import {
   updatefollowClient,
   updateListJob,
   saveClients,
-  submitCandidates,
-  saveEditJob,
   deleteClient,
 } from "../Components/layouts/Admin/AdminClientManagement/end-point-function/client_management";
 

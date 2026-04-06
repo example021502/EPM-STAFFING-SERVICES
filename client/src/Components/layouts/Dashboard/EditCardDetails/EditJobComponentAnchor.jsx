@@ -24,11 +24,11 @@ function EditComponentAnchor({ card, handleInputChange }) {
       id1: "location",
       label1: "Location",
       type1: "text",
-      value1: card?.location,
+      value1: card?.location || "N/A",
       isSelect2: true,
       id2: "job_type",
       label2: "Contract Type",
-      value2: card?.job_type,
+      value2: card?.job_type || "N/A",
     },
     {
       id1: "salary_min",
@@ -44,11 +44,11 @@ function EditComponentAnchor({ card, handleInputChange }) {
       id1: "experience",
       label1: "Experience Required",
       type1: "text",
-      value1: card?.experience,
-      id2: "max applications",
+      value1: card?.experience_years || "N/A",
+      id2: "max_application",
       label2: "Max Applications",
       type2: "number",
-      value2: card?.["max applications"],
+      value2: card?.max_application || 0,
     },
     {
       id1: "deadline",
@@ -69,7 +69,7 @@ function EditComponentAnchor({ card, handleInputChange }) {
             text={el.label1}
             id={el.id1}
             type={el.type1}
-            default_value={el.value1 || ""}
+            default_value={el.value1 || "N/A"}
             onchange={handleInputChange}
             input_class_name={input_class}
             label_class_name={label_class}
