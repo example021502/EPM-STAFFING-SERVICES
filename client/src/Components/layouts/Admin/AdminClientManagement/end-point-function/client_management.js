@@ -140,9 +140,9 @@ export const submitCandidates = async (
   current_ctc,
   gender,
   date_of_birth,
+  experience,
   linkedin,
   notice_period_days,
-  experience,
   skills, //object
   description,
   resumeFile,
@@ -160,6 +160,7 @@ export const submitCandidates = async (
     current_ctc,
     gender: gender?.toLowerCase(),
     date_of_birth,
+    experience,
     linkedin,
     notice_period_days: parseInt(notice_period_days),
     description,
