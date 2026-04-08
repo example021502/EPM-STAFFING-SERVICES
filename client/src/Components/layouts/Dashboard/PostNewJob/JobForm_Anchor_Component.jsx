@@ -211,6 +211,7 @@ function JobForm_Anchor_Component({ handleInputChange, job_form }) {
 
       {/* Job Description (Always Last) */}
       <LabelTextArea
+        value={job_description}
         id={"job_description"}
         text={"Job Description"}
         placeholder={"Type the Job description here..."}
