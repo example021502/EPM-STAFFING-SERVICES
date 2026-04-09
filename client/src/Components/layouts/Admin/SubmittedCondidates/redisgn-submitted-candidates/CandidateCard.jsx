@@ -1,6 +1,6 @@
 import { MapPin, Briefcase, CalendarDays, Eye, UserCog } from "lucide-react";
 
-const CandidateCard = ({ data, viewProfileHandler }) => {
+const CandidateCard = ({ data, viewProfileHandler, editHandler }) => {
   /* ── Helpers ── */
   const timeConvertor = (date) =>
     new Date(date).toLocaleString("en-IN").split(",")[0];
@@ -42,6 +42,10 @@ const CandidateCard = ({ data, viewProfileHandler }) => {
   /* ── Handlers ── */
   const viewProfile = () => {
     if (typeof viewProfileHandler === "function") viewProfileHandler(data);
+  };
+
+  const openEdit = () => {
+    if (typeof editHandler === "function") editHandler(data);
   };
 
   if (!data) return <p className="text-sm text-gray-500">No candidate data.</p>;
@@ -153,7 +157,10 @@ const CandidateCard = ({ data, viewProfileHandler }) => {
           <Eye size={14} />
           View Profile
         </button>
-        <button className="flex items-center justify-center gap-1.5 text-sm font-medium text-white bg-orange-600 rounded-full py-2.5 hover:bg-orange-700 transition-colors">
+        <button
+          onClick={openEdit}
+          className="flex items-center justify-center gap-1.5 text-sm font-medium text-white bg-orange-600 rounded-full py-2.5 hover:bg-orange-700 transition-colors"
+        >
           <UserCog size={14} />
           Manage
         </button>

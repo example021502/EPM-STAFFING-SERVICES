@@ -286,7 +286,7 @@ export const saveEditJob = async (
     job_type,
     salary_min: Number(salary_min) ?? null,
     salary_max: Number(salary_max) ?? null,
-    experience_years: experience_years,
+    experience: experience_years,
     max_applications: Number(max_applications),
     deadline: toSupabaseTimestamp(deadline),
     description,

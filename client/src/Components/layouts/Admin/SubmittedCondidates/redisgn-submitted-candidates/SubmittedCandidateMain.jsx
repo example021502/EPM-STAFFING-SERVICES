@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import CandidateCard from "./CandidateCard";
 import CandidateViewProfile from "./ViewProfileOverlay";
+import EditCandidateOverlay from "./CandidateEditOverlay";
 import { getCandidateInfo } from "../end-point-function/submitted_candidates";
 
 const SubmittedCandidateMain = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [editCandidate, setEditCandidate] = useState(null);
+
+  const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["candidates"],
@@ -31,7 +35,6 @@ const SubmittedCandidateMain = () => {
 
   return (
     <>
-      {/* ── Grid ── */}
       {candidates.length === 0 ? (
         <div className="flex items-center justify-center min-h-64">
           <p className="text-gray-400 text-sm">No candidates submitted yet.</p>
@@ -43,16 +46,35 @@ const SubmittedCandidateMain = () => {
               key={value.id}
               data={value}
               viewProfileHandler={setSelectedCandidate}
+              editHandler={setEditCandidate}
             />
           ))}
         </div>
       )}
 
-      {/* ── Profile Overlay ── */}
       {selectedCandidate && (
         <CandidateViewProfile
           data={selectedCandidate}
           onClose={() => setSelectedCandidate(null)}
+        />
+      )}
+
+      {editCandidate && (
+        <EditCandidateOverlay
+          data={editCandidate}
+          onClose={() => setEditCandidate(null)}
+          onSave={(updated) => {
+            console.log("Save candidate:", updated);
+
+            // 🔥 IMPORTANT: refresh list
+            queryClient.invalidateQueries(["candidates"]);
+          }}
+          onDelete={(id) => {
+            console.log("Delete candidate id:", id);
+
+            // 🔥 IMPORTANT: refresh list
+            queryClient.invalidateQueries(["candidates"]);
+          }}
         />
       )}
     </>
