@@ -108,7 +108,7 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
     }
 
     // converting the array skills to object
-    const skills_obj = { ...skills };
+    const skills_obj = [{ ...skills }];
 
     // extracting values from the local candidate form
     const {
