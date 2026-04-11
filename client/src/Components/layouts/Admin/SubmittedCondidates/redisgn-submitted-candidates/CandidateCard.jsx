@@ -59,7 +59,7 @@ const CandidateCard = ({
   if (!data) return <p className="text-sm text-gray-500">No candidate data.</p>;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5 w-full shadow-sm flex flex-col gap-3">
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 w-full shadow-sm flex flex-col gap-3 h-fit">
       {/* Header */}
       <div className="flex items-start gap-3">
         <div className="w-11 h-11 rounded-xl bg-orange-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
