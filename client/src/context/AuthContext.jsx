@@ -15,9 +15,9 @@ function AuthProvider({ children }) {
 
         if (res.loggedIn) {
           setUser({
-            id: res.userId,
-            email: res.email,
-            role: res.role,
+            id: res?.userId,
+            email: res?.email,
+            role: res?.role,
           });
         }
       } catch (err) {

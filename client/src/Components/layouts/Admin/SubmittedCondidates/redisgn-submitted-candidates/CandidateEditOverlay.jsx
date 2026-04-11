@@ -128,7 +128,7 @@ export default function EditCandidateOverlay({
 
   const [skills, setSkills] = useState(() => parseSkills(data?.skills));
   const [newSkill, setNewSkill] = useState("");
-  const [deleteOverlay, setDeleteOverlay] = useState(true);
+  const [deleteOverlay, setDeleteOverlay] = useState(false);
 
   // Pre-populate from candidate_documents
   const [resume, setResume] = useState(() =>

@@ -43,7 +43,7 @@ const SubmittedCandidateMain = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full p-4 overflow-y-scroll h-full">
-          {candidates.map((value) => (
+          {candidates?.map((value) => (
             <CandidateCard
               key={value.id}
               data={value}
