@@ -8,7 +8,9 @@ import ViewJobDetailsOverlay from "./ViewJobDetailsOverlay";
 import {
   deleteCandidate,
   getCandidateInfo,
+  updateCandidate,
 } from "../end-point-function/submitted_candidates";
+import { showError, showSuccess } from "../../../../../utils/toastUtils";
 
 const SubmittedCandidateMain = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -39,11 +41,24 @@ const SubmittedCandidateMain = () => {
   const candidates = data?.data || [];
 
   // ------- function --------------
+  // delete candidate
   const deleteCandidateHandler = async (id) => {
     const res = await deleteCandidate(id);
 
-    console.log(res);
+    if (!res?.success) return showError("Failed to delete candidate");
 
+    showSuccess("Candidate delete successfully");
+
+    queryClient.invalidateQueries(["candidates"]);
+    setEditCandidate(null);
+  };
+
+  const updateCandidateHandler = async (data) => {
+    const res = await updateCandidate(data);
+
+    if (!res?.success) return showError("Failed to save changes");
+
+    showSuccess("Save changes successfully");
     queryClient.invalidateQueries(["candidates"]);
     setEditCandidate(null);
   };
@@ -107,8 +122,7 @@ const SubmittedCandidateMain = () => {
           data={editCandidate}
           onClose={() => setEditCandidate(null)}
           onSave={(updated) => {
-            console.log("Save candidate:", updated);
-            queryClient.invalidateQueries(["candidates"]);
+            updateCandidateHandler(updated);
           }}
           onDelete={(id) => {
             deleteCandidateHandler(id);
