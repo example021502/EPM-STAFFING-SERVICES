@@ -24,8 +24,6 @@ export const getByIdService = async (URL, table, id) => {
 };
 
 export const getByUserIdService = async (URL, table, id) => {
-  ("getByUserIdService", "URL: ", URL, "table: ", table, "id: ", id);
-
   try {
     const res = await fetch(`${API_ROUTES}/${URL}/${table}/${id}`, {
       method: "GET",
@@ -68,3 +66,23 @@ export const insertDataService = async (URL, table, dataObj) => {
 ========================================
 */
 const updateDataSevice = async (URL, table, id) => {};
+
+/*
+========================================
+            DELETE
+========================================
+*/
+
+export const deleteService = async (URL, table, id) => {
+  try {
+    const res = await fetch(`${API_ROUTES}/${URL}/${table}/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    console.log(res);
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
+};

@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Upload,
 } from "lucide-react";
+import { deleteCandidate } from "../end-point-function/submitted_candidates";
 
 /* ─── helpers ──────────────────────────────────────────────────────────── */
 const parseSkills = (raw) => {
@@ -51,7 +52,7 @@ const UploadZone = ({ label, file, setFile }) => {
     <div>
       <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
       <label
-        className="relative flex flex-col items-center justify-center gap-1.5 min-h-[76px] border-2 border-dashed rounded-xl cursor-pointer transition-all group
+        className="relative flex flex-col items-center justify-center gap-1.5 min-h-19 border-2 border-dashed rounded-xl cursor-pointer transition-all group
         border-gray-200 hover:border-red-400 hover:bg-red-50"
       >
         <input
@@ -127,6 +128,7 @@ export default function EditCandidateOverlay({
 
   const [skills, setSkills] = useState(() => parseSkills(data?.skills));
   const [newSkill, setNewSkill] = useState("");
+  const [deleteOverlay, setDeleteOverlay] = useState(true);
 
   // Pre-populate from candidate_documents
   const [resume, setResume] = useState(() =>
@@ -170,6 +172,7 @@ export default function EditCandidateOverlay({
     onSave?.({ ...data, ...form, skills, files: { resume, cover, portfolio } });
   };
 
+  // Delete handler
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this candidate?")) {
       onDelete?.(data?.id);
@@ -184,6 +187,40 @@ export default function EditCandidateOverlay({
         if (e.target === e.currentTarget) onClose();
       }}
     >
+      {/* ── delete Overlay ──────────────────────────────────────────── */}
+      {deleteOverlay && (
+        <div className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+            <p className="text-sm font-semibold text-gray-800 mb-2">
+              Confirm Delete
+            </p>
+
+            <p className="text-xs text-gray-500 mb-4">
+              Are you sure you want to delete this candidate?
+            </p>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setDeleteOverlay(false)}
+                className="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  onDelete?.(data?.id);
+                  onClose();
+                }}
+                className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
         {/* ── Header ─────────────────────────────────────────────── */}
         <div className="bg-red-600 px-5 py-4 flex items-center gap-3 shrink-0">
