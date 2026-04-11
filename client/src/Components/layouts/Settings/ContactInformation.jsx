@@ -4,6 +4,20 @@ import ContactField from "./ContactField";
 import AddOtherContactInfo from "./AddOtherContactInfo";
 import DynamicContactField from "./DynamicContactField";
 
+/**
+ * Contact Information section component
+ *
+ * Manages contact details for the company including:
+ * - Primary contact email and phone
+ * - Website and LinkedIn URLs
+ * - Dynamic contact fields (others property)
+ *
+ * Data Flow:
+ * 1. Receives contact_information object from parent
+ * 2. Converts others object to array for display: { whatsapp: "+91-8942530948" } → [["whatsapp", "+91-8942530948"]]
+ * 3. Handles adding, editing, and removing dynamic contacts
+ * 4. Updates parent state with modified others object
+ */
 function ContactInformation({ contact_information, onCompanyUpdate }) {
   const [otherContacts, setOtherContacts] = useState([]);
 

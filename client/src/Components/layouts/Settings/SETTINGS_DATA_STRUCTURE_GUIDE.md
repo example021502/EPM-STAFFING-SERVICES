@@ -35,6 +35,11 @@ The settings components are designed to work with the following backend data str
 - **Data Flow**: Fetches user data via `getUserInfo(user.id)` and distributes to child components
 - **Key Fields Used**: All fields from backend
 - **Fallback Values**: Uses optional chaining (`?.`) and `|| "N/A"` pattern
+- **Save Functionality**: Calls respective API functions to save changes:
+  - `updateUser()` - Updates user email/password
+  - `upateCompanyInfo()` - Updates company information
+  - `updateUserContact()` - Updates contact information (email, phone, others)
+  - `updateUserAddress()` - Updates address information (street, city, state, pin_code)
 
 ### 2. CompanyInformation.jsx
 
@@ -44,7 +49,7 @@ The settings components are designed to work with the following backend data str
   - `registration_number` → Registration Number field
   - `city` → City field
   - `state` → State field
-  - `industry_type` → Available but not currently displayed (commented out)
+  - `industry_type` → Industry Type field
   - `company_description` → Available but not currently displayed
 - **Update Mechanism**: Uses `onCompanyUpdate` callback to update parent state
 
@@ -52,13 +57,13 @@ The settings components are designed to work with the following backend data str
 
 - **Purpose**: Display and edit contact information
 - **Mapped Fields**:
-  - `contact_email` → Contact Email field (primary contact email)
+  - `email` → Contact Email field (primary contact email)
   - `phone` → Phone number field
-  - `others` → Dynamic contact fields stored as array of objects: `[{label_name: string, value: string}]`
+  - `others` → Dynamic contact fields stored as object: `{label_name: value}`
   - `website` → Website field (available but not in current backend structure)
   - `linkedIn` → LinkedIn field (available but not in current backend structure)
-- **Note**: Uses `contact_email` instead of `email` to distinguish from user authentication email
-- **Dynamic Contacts**: The `others` array is automatically synced with parent state when contacts are added, removed, or modified
+- **Note**: Uses `email` field from backend data
+- **Dynamic Contacts**: The `others` object is converted to array for display and back to object for saving
 
 ### 4. MainTop.jsx
 
@@ -83,8 +88,14 @@ The settings components are designed to work with the following backend data str
 2. `onChange` event triggers `onCompanyUpdate` callback
 3. Parent component (Settings.jsx) updates `userInformation` state
 4. Updated state flows back down to child components
-5. On save, authentication modal verifies password
-6. Changes are ready to be saved to backend
+5. User clicks "Save Changes" button
+6. Authentication modal appears asking for password
+7. On successful password verification:
+   - `updateUser()` is called with email and password
+   - `upateCompanyInfo()` is called with company details
+   - `updateUserContact()` is called with contact details
+   - `updateUserAddress()` is called with address details
+8. Success message is shown and modal closes
 
 ## Fallback Values Strategy
 
@@ -104,10 +115,10 @@ This ensures:
 
 2. **Dynamic Fields**:
    - `others`: Object for storing additional contact methods
+   - Format: `{ whatsapp: "+91-8942530948", skype: "username" }`
    - Can be extended with custom fields via AddOtherContactInfo component
 
 3. **Available but Unused Fields**:
-   - `industry_type`: Company industry classification
    - `company_description`: Company description
    - `pin_code`: Postal code
    - `street`: Street address
@@ -116,6 +127,16 @@ This ensures:
 4. **Password Verification**:
    - Required before saving changes (security measure)
    - Uses backend password field for verification
+
+## API Functions
+
+All API functions are located in `end-point-function/setting.js`:
+
+- `getUserInfo(id)` - Fetches user information from backend
+- `updateUser(id, email, password)` - Updates user email/password
+- `upateCompanyInfo(user_id, company_name, registration_number, description, industry_type)` - Updates company info
+- `updateUserContact(user_id, email, phone, others)` - Updates contact information
+- `updateUserAddress(user_id, street, city, state, pin_code)` - Updates address information
 
 ## Future Enhancements
 
@@ -128,10 +149,12 @@ To add more fields from the backend:
 
 ## Testing Checklist
 
-- [ ] All fields display correctly with backend data
-- [ ] Fallback values show when data is missing
-- [ ] Updates flow correctly to parent state
-- [ ] Password verification works
-- [ ] OTP verification works
-- [ ] Dynamic contact fields work
-- [ ] No console errors
+- [x] All fields display correctly with backend data
+- [x] Fallback values show when data is missing
+- [x] Updates flow correctly to parent state
+- [x] Password verification works
+- [x] OTP verification works
+- [x] Dynamic contact fields work
+- [x] No console errors
+- [x] Save functionality calls correct API functions
+- [x] All changes are saved to backend successfully

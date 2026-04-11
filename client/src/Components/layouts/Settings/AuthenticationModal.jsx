@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Label from "../../common/Label";
 import Button from "../../common/Button";
@@ -15,6 +15,7 @@ function AuthenticationModal({
   onPasswordChange,
   showPassword,
   onTogglePassword,
+  submit = false,
 }) {
   if (!isOpen) return null;
 
@@ -59,7 +60,7 @@ function AuthenticationModal({
             </span>
           </div>
           <Button
-            text={"Submit"}
+            text={submit ? "Submitting..." : "Submit"}
             onclick={onAuthenticate}
             class_name="bg-g_btn w-full rounded-small py-2 text-text_white "
           />

@@ -181,6 +181,7 @@ function CompanyOverlay_SubmitCandidate({ job, company, setClosing }) {
     setSubmitting(false);
     clearForm();
     clearFiles();
+    setClosing();
   };
 
   return (

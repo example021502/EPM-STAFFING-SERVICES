@@ -1,143 +1,86 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import Label from "../../common/Label";
 import Input from "../../common/Input";
 import Button from "../../common/Button";
-import { Company_context } from "../../../context/AccountsContext";
-import { admin_accounts_context } from "../../../context/AdminAccountsContext";
-import { showError, showSuccess, showWarning } from "../../../utils/toastUtils";
+import { showError, showWarning } from "../../../utils/toastUtils";
 
-/**
- * AccountActions component for settings page
- *
- * Handles email OTP verification and password verification.
- * Works with backend data structure containing user information.
- *
- * Note: This component uses context as fallback when logged_user_data is not passed.
- */
-function AccountActions({ onSendOTP }) {
-  // Context to access current logged company data as fallback
-  const { company_accounts } = useContext(Company_context);
-  const logged_user_id = sessionStorage.getItem("logged_user_id");
-  const { adminAccounts } = useContext(admin_accounts_context);
-  const user_type = sessionStorage.getItem("logged_user_type");
+function AccountActions({ onSendOTP, onVerifyPassword, credentials }) {
+  const [localEmail, setLocalEmail] = useState("");
+  const [localPass, setLocalPass] = useState("");
+  const [isChangeMode, setIsChangeMode] = useState(false);
 
-  // Get logged user from context (fallback method)
-  const logged_user =
-    user_type === "admin"
-      ? adminAccounts[logged_user_id]
-      : company_accounts[logged_user_id];
+  const handleAction = (type) => {
+    if (type === "email") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(localEmail))
+        return showError("Invalid email");
+      onSendOTP(localEmail);
+    } else {
+      if (!localPass) return showWarning("Field cannot be empty");
 
-  // State to manage input values
-  const [input, setInput] = useState({
-    email: "",
-    password: "",
-  });
-
-  const handleInputChange = (value, id) => {
-    setInput((prev) => ({ ...prev, [id]: value }));
-  };
-
-  /**
-   * Handle email verification process
-   * Validates email format and sends OTP if valid
-   */
-  const handleEmailVerification = () => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!input.email) return showWarning("Please enter your email address");
-
-    if (!regex.test(input.email)) return showError("Invalid email format");
-
-    // Email is valid, send OTP
-    onSendOTP(input.email);
-  };
-
-  /**
-   * Handle password verification process
-   * Validates password against current user password from backend
-   */
-  const handlePasswordVerification = () => {
-    if (!input.password) {
-      showError("Please enter your current password");
-      return;
-    }
-
-    // Verify password against logged user password from backend
-    if (input.password !== logged_user.password) {
-      showError("Incorrect password. Please try again.");
-      return;
-    }
-
-    // Password verified successfully
-    showSuccess(
-      "Password verified successfully! Changes are ready to be saved.",
-    );
-  };
-
-  /**
-   * Handle button clicks for OTP and password verification
-   * @param {string} name - The button name ('Send OTP' or 'Verify Password')
-   */
-  const handleClicking = (name) => {
-    if (name === "Send OTP") {
-      handleEmailVerification();
-    } else if (name === "Verify Password") {
-      handlePasswordVerification();
+      if (!isChangeMode) {
+        // Mode: Verifying current password
+        const success = onVerifyPassword(localPass, false);
+        if (success) {
+          setIsChangeMode(true);
+          setLocalPass(""); // Clear field for the new password
+        }
+      } else {
+        // Mode: Entering new password
+        onVerifyPassword(localPass, true);
+      }
     }
   };
-
-  // Configuration for the input fields
-  const infor = [
-    {
-      name: "Send OTP",
-      label: "Email",
-      placeholder: "Enter New Email Address",
-    },
-    {
-      name: "Verify Password",
-      label: "Password",
-      placeholder: "Enter current password",
-    },
-  ];
 
   return (
-    <div className="w-full rounded-small border-lighter shadow-sm flex flex-col items-start justify-start">
-      <div className="w-full flex flex-row items-center justify-center">
-        {infor.map((button, index) => {
-          const autocomplete =
-            button.label === "Email"
-              ? "off"
-              : button.label === "Password"
-                ? "password"
-                : "";
+    <div className="w-full rounded-small border border-lighter shadow-sm flex flex-col md:flex-row bg-white overflow-hidden">
+      {/* Email Section */}
+      <div className="flex-1 p-4 border-b md:border-b-0 md:border-r border-lighter">
+        <Label text="Update Email" class_name="font-medium mb-1 block" />
+        <div className="relative">
+          <Input
+            placeholder="New email address"
+            onchange={(val) => setLocalEmail(val)}
+            value={localEmail}
+            class_name="w-full pr-24"
+          />
+          <button
+            onClick={() => handleAction("email")}
+            className="absolute right-1 top-1 bottom-1 px-3 bg-highlightBackground text-xs rounded-small"
+          >
+            {credentials.emailVerified ? "Verified ✓" : "Send OTP"}
+          </button>
+        </div>
+      </div>
 
-          return (
-            <div
-              key={index}
-              className="flex items-start justify-center flex-col text-text_b_l gap-2 text-sm w-full p-4"
-            >
-              <Label text={button.label} class_name={"font-lighter"} />
-              <div className="w-full relative flex gap-2">
-                <span className="relative w-full flex flex-1 border border-lighter rounded-small items-center justify-center ">
-                  <Input
-                    input_target={`input_${button.label.toLocaleLowerCase()}`}
-                    id={button.label.toLocaleLowerCase()}
-                    placeholder={button.placeholder}
-                    type={button}
-                    autoComplete={autocomplete}
-                    onchange={handleInputChange}
-                    class_name={`w-full h-full p-2 rounded-small flex-1 focus:outline-none focus:ring-2 focus:ring-light`}
-                    value={input[button.label.toLowerCase()]}
-                  />
-                </span>
-                <Button
-                  onclick={handleClicking}
-                  text={button.name}
-                  class_name="bg-highlightBackground whitespace-nowrap px-3 py-1 absolute right-1 top-0 bottom-0 my-1 rounded-small text-text_b"
-                />
-              </div>
-            </div>
-          );
-        })}
+      {/* Password Section */}
+      <div className="flex-1 p-4">
+        <Label
+          text={
+            isChangeMode ? "Enter New Password" : "Confirm Current Password"
+          }
+          class_name="font-medium mb-1 block text-blue"
+        />
+        <div className="relative">
+          <Input
+            type="password"
+            placeholder={
+              isChangeMode ? "Type new password" : "Type current password"
+            }
+            onchange={(val) => setLocalPass(val)}
+            value={localPass}
+            class_name="w-full pr-32"
+          />
+          <button
+            onClick={() => handleAction("password")}
+            className={`absolute right-1 top-1 bottom-1 px-3 text-xs rounded-small ${isChangeMode ? "bg-green-500 text-white" : "bg-highlightBackground"}`}
+          >
+            {isChangeMode
+              ? credentials.passwordVerified
+                ? "Ready ✓"
+                : "Confirm New"
+              : "Verify Identity"}
+          </button>
+        </div>
       </div>
     </div>
   );

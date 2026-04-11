@@ -130,7 +130,7 @@ function JobForm({ setClosing }) {
         });
       } else {
         await insertDataService("api/dr/insert/job_requirements", {
-          job_id: res.data.id,
+          job_id: res?.data?.id,
           requirements: {},
         });
       }
