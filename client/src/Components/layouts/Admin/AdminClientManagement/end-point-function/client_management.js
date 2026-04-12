@@ -41,8 +41,6 @@ export const updateFollowClient = async (clientId, adminId, followed) => {
       readyData,
     );
 
-    console.log(res);
-
     if (res?.success) {
       return { success: true, message: "Followed Client" };
     }
