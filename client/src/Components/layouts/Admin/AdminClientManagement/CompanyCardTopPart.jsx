@@ -20,8 +20,8 @@ function CompanyCardTopPart({
 
   // check if admin follows a client
   const getFollowStatus = (companyId, admin_id) => {
-    const following_user = (company?.followers || []).find((item) => {
-      return item?.follower_id === companyId;
+    const following_user = (company?.following || []).find((item) => {
+      return item?.followeing_id === companyId;
     });
     if (!following_user) return false;
 

@@ -4,6 +4,7 @@ import Label from "../../common/Label";
 import Button from "../../common/Button";
 import Icon from "../../common/Icon";
 import Header from "../Dashboard/Candidate/Common/Header";
+import { createPortal } from "react-dom";
 
 /**
  * Authentication modal component for verifying user password before saving changes
@@ -19,7 +20,7 @@ function AuthenticationModal({
 }) {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       className="inset-0 z-200 absolute top-0 left-0 p-4 flex items-center justify-center"
@@ -29,11 +30,27 @@ function AuthenticationModal({
         initial={{ opacity: 0, x: "100%" }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.2, type: "tween" }}
-        className="bg-b_white overflow-hidden rounded-small shadow-xl h-auto w-[30%] flex flex-col gap-4 items-start justify-between"
+        className="bg-b_white min-w-[40%] min-h-[50%] overflow-hidden rounded-small shadow-xl h-auto flex flex-col items-start justify-start"
       >
-        <Header heading={"Verify Authenticity"} handleClosingModal={onClose} />
+        <header className="flex sticky top-0 z-200 w-full bg-g_btn text-text_white border-b flex-row items-center justify-between px-4 py-2 gap-2">
+          <Label
+            text={"Verify Password"}
+            class_name="text-[clamp(1em,2vw,1.2em)] font-bold"
+          />
 
-        <div className="w-full flex-1 flex flex-col items-center justify-center gap-4 p-4">
+          <span
+            className="font-semibold cursor-pointer hover:bg-b_white hover:text-red-dark transition-colors duration-200 flex items-center justify-center p-1 rounded-full"
+            onClick={onClose}
+            title="Close"
+          >
+            <Icon
+              icon="ri-close-line"
+              class_name="transition-all duration-200 ease-in-out w-6 h-6 flex items-center justify-center"
+            />
+          </span>
+        </header>
+
+        <div className="w-full h-full flex-1 flex flex-col items-center justify-center gap-10 p-10">
           <div className="w-full flex flex-col items-start justify-start">
             <Label
               text="Enter Current Password"
@@ -66,7 +83,8 @@ function AuthenticationModal({
           />
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
