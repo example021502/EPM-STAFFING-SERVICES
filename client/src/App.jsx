@@ -34,6 +34,7 @@ import SubmittedCandidateMain from "./Components/layouts/Admin/SubmittedCondidat
 // For testing
 import UploadDocument from "./test/updatePDF";
 import FetchButton from "./test/fetcingTest";
+import JobOverviewMain from "./Components/layouts/CommonLayouts/JobOverView/JobOverviewMain";
 
 // Lazy loaded components for performance optimization
 const SubmittedCandidates = lazy(
@@ -206,7 +207,8 @@ function App() {
                           />
                           <Route
                             path="admin_company_overview"
-                            element={<AdminCompanyOverview />}
+                            // element={<AdminCompanyOverview />}
+                            element={<JobOverviewMain />}
                           />
                           <Route
                             path="follow_clients"
