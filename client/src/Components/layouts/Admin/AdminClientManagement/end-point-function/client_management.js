@@ -24,25 +24,41 @@ export const getClientManagementData = async (page = 1) => {
 
 // follow and unfollow client => #Admin@2
 // followed check follower_id or following_id
-export const updatefollowClient = async (clientId, adminId, followed) => {
-  const readyData = { follower_id: adminId, following_id: clientId };
+export const updateFollowClient = async (clientId, adminId, followed) => {
+  if (!clientId || !adminId) {
+    throw new Error("clientId and adminId are required");
+  }
 
-  // user not follow
   if (!followed) {
+    const readyData = {
+      follower_id: adminId,
+      following_id: clientId,
+    };
+
     const res = await insertDataService(
       "api/dr/insert",
       "follow_clients",
       readyData,
     );
 
-    return res;
-  } else {
-    const res = await unfollowClientService(clientId, adminId);
+    console.log(res);
 
-    console.log("unfollow");
-    // unfollow user
-    // const res = await
+    if (res?.success) {
+      return { success: true, message: "Followed Client" };
+    }
+
+    return { success: false, message: "Failed to follow client" };
   }
+
+  const res = await unfollowClientService(clientId, adminId);
+
+  console.log(res);
+
+  if (res?.success) {
+    return { success: true, message: "Unfollowed client" };
+  }
+
+  return { success: false, message: "Failed to unfollow client" };
 };
 
 // add list or remove list ==> #Admin@3

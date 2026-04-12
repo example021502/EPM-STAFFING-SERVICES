@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import {
   getClientManagementData,
-  updatefollowClient,
+  updateFollowClient,
   updateListJob,
   saveClients,
   deleteClient,
@@ -28,12 +28,10 @@ const FetchButton = ({ label = "Fetch Data" }) => {
     try {
       setLoading(true);
 
-      const res = await updateUserAddress(
-        "148e3178-33e9-432f-bb64-909599a71adb",
-        "palle",
-        "imphal",
-        "manipur",
-        "329743",
+      const res = await updateFollowClient(
+        "692129d3-c473-4c3f-94bd-195d9ff43d63",
+        "98ca40ea-c3dd-43f2-b290-c500bf211bcd",
+        true,
       );
 
       console.log(res);
