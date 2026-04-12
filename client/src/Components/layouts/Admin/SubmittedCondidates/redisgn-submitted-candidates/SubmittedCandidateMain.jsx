@@ -54,11 +54,38 @@ const SubmittedCandidateMain = () => {
   };
 
   const updateCandidateHandler = async (data) => {
-    const res = await updateCandidate(data);
+    console.log("newFiles:", data.newFiles);
+    console.log("resume is File?", data.newFiles?.resume instanceof File);
+    console.log("cover is File?", data.newFiles?.cover instanceof File);
+    console.log("portfolio is File?", data.newFiles?.portfolio instanceof File);
+    console.log("applicationId:", data.applications?.[0]?.id);
+
+    const res = await updateCandidate(
+      data.id,
+      data.active,
+      data.candidate_name,
+      data.email,
+      data.phone,
+      data.location,
+      data.job_type,
+      data.expected_ctc,
+      data.current_ctc,
+      data.gender,
+      data.date_of_birth,
+      data.experience,
+      data.linkedin,
+      data.notice_period_days,
+      data.skills,
+      data.description,
+      data.newFiles?.resume, // File object or null
+      data.newFiles?.cover, // File object or null
+      data.newFiles?.portfolio, // File object or null
+      data.applications?.[0]?.id,
+    );
 
     if (!res?.success) return showError("Failed to save changes");
 
-    showSuccess("Save changes successfully");
+    showSuccess("Saved changes successfully");
     queryClient.invalidateQueries(["candidates"]);
     setEditCandidate(null);
   };

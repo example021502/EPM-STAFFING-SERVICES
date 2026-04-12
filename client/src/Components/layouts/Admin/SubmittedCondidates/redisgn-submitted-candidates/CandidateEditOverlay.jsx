@@ -172,9 +172,24 @@ export default function EditCandidateOverlay({
   };
 
   const handleSave = () => {
-    onSave?.({ ...data, ...form, skills, files: { resume, cover, portfolio } });
+    onSave?.({
+      ...data,
+      ...form,
+      skills,
+      // existing URL objects
+      existingFiles: {
+        resume: resume instanceof File ? null : resume,
+        cover: cover instanceof File ? null : cover,
+        portfolio: portfolio instanceof File ? null : portfolio,
+      },
+      // new File objects only
+      newFiles: {
+        resume: resume instanceof File ? resume : null,
+        cover: cover instanceof File ? cover : null,
+        portfolio: portfolio instanceof File ? portfolio : null,
+      },
+    });
   };
-
   // Delete handler
   const handleDelete = () => {
     setConfirmDeleteOverlay(true);
