@@ -43,8 +43,7 @@ import { AdminRoutes } from "./routes/AdminRoutes.jsx";
 
 // Lazy loaded components for performance optimization
 const SubmittedCandidates = lazy(
-  () =>
-    import("./features/candidates/components/SubmittedCandidates"),
+  () => import("./features/candidates/components/SubmittedCandidates"),
 );
 const OfferReleased = lazy(
   () => import("./features/dashboard/components/OfferReleased/OfferReleased"),
@@ -53,10 +52,11 @@ const Admin_Client_Management = lazy(
   () => import("./features/dashboard/pages/Admin_Client_Management"),
 );
 const ContentAppsView = lazy(
-  () =>
-    import("./features/candidates/components/ContentAppsView"),
+  () => import("./features/candidates/components/ContentAppsView"),
 );
-const ClientSettingPage = lazy(() => import("./features/dashboard/pages/ClientSetting.jsx"));
+const ClientSettingPage = lazy(
+  () => import("./features/dashboard/pages/ClientSetting.jsx"),
+);
 const Signup_form = lazy(
   () => import("./features/auth/components/Signup_form"),
 );
@@ -64,20 +64,16 @@ const Signin_form = lazy(
   () => import("./features/auth/components/Signin_form"),
 );
 const Signup_Company_information = lazy(
-  () =>
-    import("./features/auth/components/Signup_Company_information"),
+  () => import("./features/auth/components/Signup_Company_information"),
 );
 const Signup_Contact_information = lazy(
-  () =>
-    import("./features/auth/components/Signup_Contact_information"),
+  () => import("./features/auth/components/Signup_Contact_information"),
 );
 const Signup_Address_information = lazy(
-  () =>
-    import("./features/auth/components/Signup_Address_information"),
+  () => import("./features/auth/components/Signup_Address_information"),
 );
 const Signup_Account_credentials = lazy(
-  () =>
-    import("./features/auth/components/Signup_Account_credentials"),
+  () => import("./features/auth/components/Signup_Account_credentials"),
 );
 
 const Dashboard = lazy(() => import("./features/dashboard/pages/Dashboard"));
@@ -138,119 +134,151 @@ function App() {
       <SignupFormContext>
         <JobsContext>
           <AdminAccountsContext>
-            <GridListViewContext>
-              <CandidatesContext>
-                <CompanyProvider>
-                  <Router>
-                    <title>Job Portal | Manage Your Career</title>
-                    <meta
-                      name="description"
-                      content="Effortlessly manage job postings and applications."
-                    />
-                    <Suspense fallback={<Loading />}>
-                      <PathNormalizer />
-                      <Routes>
-                        {/* Public routes */}
-                        <Route index element={<Home />} />
+            <CandidatesContext>
+              <CompanyProvider>
+                <Router>
+                  <title>Job Portal | Manage Your Career</title>
+                  <meta
+                    name="description"
+                    content="Effortlessly manage job postings and applications."
+                  />
+                  <Suspense fallback={<Loading />}>
+                    <PathNormalizer />
+                    <Routes>
+                      {/* Public routes */}
+                      <Route index element={<Home />} />
 
-                        {/* Authentication routes */}
-                        <Route path="auth/signin" element={<Signin_form />} />
+                      {/* Authentication routes */}
+                      <Route path="auth/signin" element={<Signin_form />} />
 
-                        <Route
-                          path="auth/signup_form"
-                          element={<Signup_form />}
-                        >
+                      <Route
+                        path="company_information"
+                        element={<Signup_Company_information />}
+                      />
+                      <Route
+                        path="contact_information"
+                        element={<Signup_Contact_information />}
+                      />
+                      <Route
+                        path="address_information"
+                        element={<Signup_Address_information />}
+                      />
+
+                      {/* client routes */}
+
+                      <Route element={<ClientRoutes />}>
+                        <Route path="client/dashboard" element={<Dashboard />}>
+                          <Route index element={<Jobs />} />
+
                           <Route
-                            index
-                            element={<Signup_Account_credentials />}
+                            path="job-overview/:job_id"
+                            element={<ClientJobOverviewMain />}
+                          />
+
+                          <Route
+                            path="offer_released"
+                            element={<OfferReleasedMain />}
                           />
                           <Route
-                            path="company_information"
-                            element={<Signup_Company_information />}
+                            path="interview_pipeline"
+                            element={<InterviewPipelineMain />}
                           />
+
                           <Route
-                            path="contact_information"
-                            element={<Signup_Contact_information />}
-                          />
-                          <Route
-                            path="address_information"
-                            element={<Signup_Address_information />}
+                            path="settings"
+                            element={<ClientSettingPage />}
                           />
                         </Route>
+                      </Route>
+
+                      {/* admin routes */}
+                      <Route element={<AdminRoutes />}>
+                        <Route
+                          path="admin/management"
+                          element={<Admin_Client_Management />}
+                        />
+                        <Route index element={<ContentAppsView />} />
+
+                        <Route
+                          path="submitted_candidates"
+                          element={<SubmittedCandidateMain />}
+                        />
+
+                        <Route
+                          path="follow_clients"
+                          element={<Follow_Clients />}
+                        />
 
                         <Route
                           path="/register/terms-and-condition"
                           element={<TermsAgreement />}
                         />
+                      </Route>
 
-                        {/* client routes */}
+                      {/* client routes */}
 
-                        <Route element={<ClientRoutes />}>
+                      <Route element={<ClientRoutes />}>
+                        <Route path="client/dashboard" element={<Dashboard />}>
+                          <Route index element={<Jobs />} />
+
                           <Route
-                            path="client/dashboard"
-                            element={<Dashboard />}
-                          >
-                            <Route index element={<Jobs />} />
+                            path="job-overview/:job_id"
+                            element={<ClientJobOverviewMain />}
+                          />
 
-                            <Route
-                              path="job-overview/:job_id"
-                              element={<ClientJobOverviewMain />}
-                            />
+                          <Route
+                            path="offer_released"
+                            element={<OfferReleasedMain />}
+                          />
+                          <Route
+                            path="interview_pipeline"
+                            element={<InterviewPipelineMain />}
+                          />
 
-                            <Route
-                              path="offer_released"
-                              element={<OfferReleasedMain />}
-                            />
-                            <Route
-                              path="interview_pipeline"
-                              element={<InterviewPipelineMain />}
-                            />
-
-                            <Route
-                              path="settings"
-                              element={<ClientSettingPage />}
-                            />
-                          </Route>
+                          <Route
+                            path="settings"
+                            element={<ClientSettingPage />}
+                          />
                         </Route>
+                      </Route>
 
-                        {/* admin routes */}
-                        <Route element={<AdminRoutes />}>
+                      {/* admin routes */}
+                      <Route element={<AdminRoutes />}>
+                        <Route
+                          path="admin/management"
+                          element={<Admin_Client_Management />}
+                        >
+                          <Route index element={<ContentAppsView />} />
+
                           <Route
-                            path="admin/management"
-                            element={<Admin_Client_Management />}
-                          >
-                            <Route index element={<ContentAppsView />} />
+                            path="submitted_candidates"
+                            element={<SubmittedCandidateMain />}
+                          />
 
-                            <Route
-                              path="submitted_candidates"
-                              element={<SubmittedCandidateMain />}
-                            />
+                          <Route
+                            path="follow_clients"
+                            element={<Follow_Clients />}
+                          />
 
-                            <Route
-                              path="follow_clients"
-                              element={<Follow_Clients />}
-                            />
-
-                            {/* <Route
+                          {/* <Route
                             path="listed_jobs"
                             element={<SubmittedCandidates />}
                           /> */}
 
-                            <Route
-                              path="admin_settings"
-                              element={<AdminSettings />}
-                            />
-                          </Route>
+                          <Route
+                            path="admin_settings"
+                            element={<AdminSettings />}
+                          />
                         </Route>
+                      </Route>
 
-                        {/* Catch-all route for 404 pages */}
-                        <Route path="*" element={<CatchAll />} />
-                      </Routes>
-                    </Suspense>
-                  </Router>
-                </CompanyProvider>
-              </CandidatesContext>
-            </GridListViewContext>
+                      {/* Catch-all route for 404 pages */}
+                      <Route path="*" element={<CatchAll />} />
+                    </Routes>
+                  </Suspense>
+                </Router>
+              </CompanyProvider>
+            </CandidatesContext>
           </AdminAccountsContext>
         </JobsContext>
       </SignupFormContext>
